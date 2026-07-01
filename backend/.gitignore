@@ -1,0 +1,13 @@
+# Build output
+**/bin/
+**/obj/
+**/TestResults/
+
+# Generated at startup in Development
+src/SoftwareFactory.Api/openapi.json
+
+# User-specific / local
+*.user
+*.suo
+.vs/
+appsettings.*.local.json

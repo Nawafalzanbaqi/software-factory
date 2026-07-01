@@ -1,0 +1,397 @@
+{
+  "common": {
+    "brand": "Software Factory Store",
+    "loading": "Loading…",
+    "error": "Something went wrong",
+    "retry": "Try again",
+    "currency": "SAR",
+    "skipToContent": "Skip to main content",
+    "menu": "Menu",
+    "close": "Close",
+    "search": "Search",
+    "viewAll": "View all",
+    "readMore": "Read more",
+    "notFoundTitle": "Page not found",
+    "notFoundBody": "The page you are looking for doesn’t exist or has moved.",
+    "backHome": "Back to home",
+    "language": "Language",
+    "theme": "Theme"
+  },
+  "nav": {
+    "home": "Home",
+    "products": "Products",
+    "categories": "Categories",
+    "about": "About",
+    "faq": "FAQ",
+    "contact": "Contact",
+    "cart": "Cart",
+    "wishlist": "Wishlist",
+    "orders": "Orders",
+    "dashboard": "Dashboard",
+    "search": "Search",
+    "signIn": "Sign in",
+    "signOut": "Sign out",
+    "account": "Account"
+  },
+  "hero": {
+    "eyebrow": "Premium commerce, built to scale",
+    "title": "A storefront engineered for growth",
+    "subtitle": "Fast, accessible and bilingual by default — launch a premium shopping experience in Arabic and English from day one.",
+    "ctaPrimary": "Shop products",
+    "ctaSecondary": "Explore categories",
+    "imageAlt": "Curated premium products on display"
+  },
+  "products": {
+    "title": "Products",
+    "subtitle": "Browse our curated catalog.",
+    "addToCart": "Add to cart",
+    "adding": "Adding…",
+    "added": "Added to cart",
+    "outOfStock": "Out of stock",
+    "inStock": "In stock",
+    "from": "From",
+    "quantity": "Quantity",
+    "increase": "Increase quantity",
+    "decrease": "Decrease quantity",
+    "sortLabel": "Sort by",
+    "sort": {
+      "newest": "Newest",
+      "priceAsc": "Price: low to high",
+      "priceDesc": "Price: high to low",
+      "rating": "Top rated"
+    },
+    "filterLabel": "Filter",
+    "empty": "No products match your selection.",
+    "compareAt": "Was",
+    "rating": "Rating",
+    "description": "Description",
+    "relatedTitle": "You may also like",
+    "backToProducts": "Back to products"
+  },
+  "cart": {
+    "title": "Your cart",
+    "empty": "Your cart is empty.",
+    "continueShopping": "Continue shopping",
+    "item": "Item",
+    "price": "Price",
+    "quantity": "Quantity",
+    "lineTotal": "Total",
+    "remove": "Remove",
+    "subtotal": "Subtotal",
+    "shipping": "Shipping",
+    "shippingNote": "Calculated at checkout",
+    "total": "Total",
+    "checkout": "Proceed to checkout",
+    "itemsCount": "{count, plural, =0 {No items} one {# item} other {# items}}"
+  },
+  "checkout": {
+    "title": "Checkout",
+    "customer": "Customer details",
+    "shipping": "Shipping address",
+    "payment": {
+      "methods": {
+        "tamara": {
+          "label": "Tamara",
+          "description": "Pay later or split into interest-free instalments."
+        },
+        "tabi": {
+          "label": "Tabby",
+          "description": "Split your purchase into 4 interest-free payments."
+        },
+        "cod": {
+          "label": "Cash on delivery",
+          "description": "Pay in cash when your order arrives."
+        }
+      }
+    },
+    "placeOrder": "Place order",
+    "note": "Payment provider widgets are added in a later phase.",
+    "subtitle": "Enter your details to complete your order.",
+    "empty": "Your cart is empty. Add some products before checking out.",
+    "continueShopping": "Continue shopping",
+    "form": {
+      "customerHeading": "Contact details",
+      "shippingHeading": "Shipping address",
+      "paymentHeading": "Payment method",
+      "name": "Full name",
+      "namePlaceholder": "Your full name",
+      "email": "Email",
+      "emailPlaceholder": "you@example.com",
+      "phone": "Phone number",
+      "phonePlaceholder": "05xxxxxxxx",
+      "line1": "Address line 1",
+      "line1Placeholder": "Street address, building",
+      "line2": "Address line 2",
+      "line2Placeholder": "Apartment, floor, landmark",
+      "city": "City",
+      "cityPlaceholder": "City",
+      "country": "Country",
+      "postalCode": "Postal code",
+      "postalCodePlaceholder": "Postal code",
+      "optional": "optional",
+      "placeOrder": "Place order",
+      "placing": "Placing order…",
+      "countries": {
+        "SA": "Saudi Arabia",
+        "AE": "United Arab Emirates",
+        "KW": "Kuwait",
+        "QA": "Qatar",
+        "BH": "Bahrain",
+        "OM": "Oman"
+      }
+    },
+    "summary": {
+      "title": "Order summary",
+      "quantity": "Qty {count}",
+      "subtotal": "Subtotal",
+      "shipping": "Shipping",
+      "shippingNote": "Calculated at delivery",
+      "total": "Total"
+    },
+    "validation": {
+      "nameRequired": "Please enter your full name.",
+      "nameMax": "Name must be 80 characters or fewer.",
+      "emailRequired": "Please enter your email address.",
+      "emailInvalid": "Please enter a valid email address.",
+      "phoneRequired": "Please enter your phone number.",
+      "phoneInvalid": "Please enter a valid phone number.",
+      "line1Required": "Please enter your address.",
+      "line1Max": "Address must be 120 characters or fewer.",
+      "line2Max": "Address must be 120 characters or fewer.",
+      "cityRequired": "Please enter your city.",
+      "cityMax": "City must be 80 characters or fewer.",
+      "countryRequired": "Please select your country.",
+      "postalMax": "Postal code must be 20 characters or fewer.",
+      "paymentRequired": "Please select a payment method."
+    },
+    "toast": {
+      "success": "Your order has been placed.",
+      "error": "Sorry, we couldn’t place your order. Please try again."
+    }
+  },
+  "footer": {
+    "tagline": "Bilingual, accessible, premium commerce.",
+    "shop": "Shop",
+    "company": "Company",
+    "support": "Support",
+    "rights": "All rights reserved.",
+    "newsletterTitle": "Stay in the loop",
+    "newsletterBody": "Product drops and offers, no spam.",
+    "newsletterCta": "Subscribe"
+  },
+  "faq": {
+    "title": "Frequently asked questions",
+    "subtitle": "Answers to the questions we hear most.",
+    "viewAllCta": "View all questions",
+    "items": [
+      {
+        "question": "How long does delivery take?",
+        "answer": "Orders are processed within 1–2 business days and typically arrive within 3–5 business days, depending on your location."
+      },
+      {
+        "question": "What is your return policy?",
+        "answer": "You can return unused items in their original packaging within 14 days of delivery for a full refund."
+      },
+      {
+        "question": "Which payment methods do you accept?",
+        "answer": "We accept major cards and popular buy-now-pay-later options at checkout, all processed through secure, encrypted providers."
+      },
+      {
+        "question": "Can I track my order?",
+        "answer": "Yes. Once your order ships you receive a tracking number, and you can follow its status from the order tracking page at any time."
+      },
+      {
+        "question": "Do you support Arabic and English?",
+        "answer": "Absolutely. The entire store is bilingual — switch between Arabic and English at any time, with prices shown in SAR."
+      }
+    ]
+  },
+  "about": {
+    "title": "About Software Factory Store",
+    "subtitle": "Who we are and what we build.",
+    "body": "We are a premium commerce studio crafting reliable, beautiful shopping experiences for modern brands.\n\nFrom curated catalogs to fast, secure checkout, every detail is engineered to help you buy with confidence — and to help great products find the people who love them.",
+    "imageAlt": "The Software Factory Store team building the shopping experience.",
+    "readMore": "Learn more about us",
+    "metaTitle": "About us — Software Factory Store",
+    "metaDescription": "Learn about Software Factory Store: a premium commerce studio building reliable, beautiful shopping experiences."
+  },
+  "contact": {
+    "title": "Contact us",
+    "subtitle": "Have a question or feedback? Send us a message and we’ll get back to you.",
+    "name": "Name",
+    "email": "Email",
+    "message": "Message",
+    "send": "Send message",
+    "form": {
+      "name": "Name",
+      "namePlaceholder": "Your full name",
+      "email": "Email",
+      "emailPlaceholder": "you@example.com",
+      "message": "Message",
+      "messagePlaceholder": "How can we help?",
+      "send": "Send message",
+      "sending": "Sending…"
+    },
+    "validation": {
+      "nameRequired": "Please enter your name.",
+      "nameMax": "Name must be 80 characters or fewer.",
+      "emailRequired": "Please enter your email address.",
+      "emailInvalid": "Please enter a valid email address.",
+      "messageMin": "Message must be at least 10 characters.",
+      "messageMax": "Message must be 1000 characters or fewer."
+    },
+    "toast": {
+      "success": "Thanks! Your message has been sent.",
+      "error": "Sorry, your message couldn’t be sent. Please try again."
+    }
+  },
+  "sections": {
+    "promoBanners": "Offers",
+    "categories": "Shop by category",
+    "reviews": "What customers say"
+  },
+  "categories": {
+    "title": "Categories",
+    "subtitle": "Browse our collections by category.",
+    "sectionTitle": "Shop by category",
+    "viewAll": "View all categories",
+    "browseAria": "Browse {name}",
+    "productCount": "{count, plural, =0 {No products} one {# product} other {# products}}",
+    "empty": "No categories available yet."
+  },
+  "orders": {
+    "trackingTitle": "Track your order",
+    "trackingSubtitle": "Follow your order from checkout to your door.",
+    "orderNumber": "Order number",
+    "currentStatus": "Current status",
+    "updatedAt": "Last updated",
+    "timelineTitle": "Order timeline",
+    "timelineLabel": "Order status history",
+    "stepCompleted": "Completed",
+    "stepCurrent": "Current step",
+    "copy": "Copy order number",
+    "copied": "Order number copied",
+    "summaryTitle": "Order summary",
+    "placedAt": "Placed on",
+    "items": "Items",
+    "quantityShort": "Qty",
+    "total": "Total",
+    "empty": "No status updates yet.",
+    "status": {
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "processing": "Processing",
+      "shipped": "Shipped",
+      "outForDelivery": "Out for delivery",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled",
+      "returned": "Returned"
+    },
+    "lookupTitle": "Track your order",
+    "lookupSubtitle": "Enter your order number to see its current status and delivery timeline.",
+    "lookupLabel": "Order number",
+    "lookupPlaceholder": "e.g. SF-100234",
+    "lookupSubmit": "Track order",
+    "lookupInvalid": "Please enter a valid order number."
+  },
+  "promoBanners": {
+    "title": "Offers",
+    "subtitle": "Limited-time deals and featured collections.",
+    "cta": "Shop now",
+    "carousel": "carousel",
+    "regionLabel": "Promotional banners",
+    "slide": "slide",
+    "previous": "Previous banner",
+    "next": "Next banner",
+    "dotsLabel": "Choose a banner",
+    "goToSlide": "Go to banner {index}"
+  },
+  "reviews": {
+    "title": "Customer reviews",
+    "empty": "No reviews yet — be the first to share your thoughts.",
+    "starsAria": "Rated {rating} out of 5",
+    "summary": {
+      "average": "{rating} out of 5",
+      "count": "{count, plural, =0 {No reviews} one {# review} other {# reviews}}"
+    },
+    "section": {
+      "title": "What our customers say",
+      "subtitle": "Real reviews from verified buyers."
+    },
+    "form": {
+      "title": "Write a review",
+      "rating": "Your rating",
+      "ratingOption": "{count, plural, one {# star} other {# stars}}",
+      "reviewTitle": "Title",
+      "reviewTitlePlaceholder": "Sum up your experience",
+      "body": "Your review",
+      "bodyPlaceholder": "What did you like or dislike?",
+      "submit": "Submit review",
+      "submitting": "Submitting…"
+    },
+    "validation": {
+      "ratingRequired": "Please select a rating.",
+      "titleRequired": "Please enter a title.",
+      "titleMax": "Title must be 100 characters or fewer.",
+      "bodyMin": "Review must be at least 10 characters.",
+      "bodyMax": "Review must be 2000 characters or fewer."
+    },
+    "toast": {
+      "success": "Thanks! Your review has been submitted.",
+      "error": "Sorry, your review couldn’t be submitted. Please try again."
+    }
+  },
+  "search": {
+    "title": "Search",
+    "subtitle": "Find products across the store.",
+    "placeholder": "Search products…",
+    "inputLabel": "Search products",
+    "submit": "Search",
+    "prompt": "Enter a search term to find products.",
+    "noResults": "No results for “{query}”.",
+    "resultsCount": "{count, plural, =1 {# result} other {# results}} for “{query}”.",
+    "browseAll": "Browse all products",
+    "disabled": "Search is currently unavailable."
+  },
+  "wishlist": {
+    "nav": "Wishlist",
+    "title": "Your wishlist",
+    "subtitle": "Products you've saved for later.",
+    "empty": "Your wishlist is empty.",
+    "emptyCta": "Browse products",
+    "signInTitle": "Sign in to view your wishlist",
+    "signInBody": "Save your favourite products and find them here on any device.",
+    "signIn": "Sign in",
+    "addLabel": "Add to wishlist",
+    "removeLabel": "Remove from wishlist",
+    "added": "Added to your wishlist",
+    "removed": "Removed from your wishlist",
+    "signInRequired": "Please sign in to save items.",
+    "error": "Something went wrong. Please try again."
+  },
+  "dashboard": {
+    "title": "My account",
+    "welcome": "Welcome back, {name}",
+    "guestTitle": "Sign in to your account",
+    "guestBody": "Access your orders, wishlist and account details.",
+    "signInCta": "Sign in",
+    "ordersTitle": "Orders",
+    "ordersBody": "Track and review your recent orders.",
+    "wishlistTitle": "Wishlist",
+    "wishlistBody": "Products you saved for later.",
+    "accountTitle": "Account details",
+    "accountBody": "Manage your profile and addresses."
+  },
+  "signIn": {
+    "title": "Sign in",
+    "subtitle": "Access your account, orders and wishlist.",
+    "emailLabel": "Email",
+    "emailPlaceholder": "you@example.com",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "••••••••",
+    "submit": "Sign in",
+    "submitting": "Signing in…",
+    "error": "Invalid email or password.",
+    "noAccount": "Phase 1 uses a demo backend — sign-in is a wired stub."
+  }
+}

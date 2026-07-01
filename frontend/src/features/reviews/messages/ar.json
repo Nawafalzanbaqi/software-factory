@@ -1,0 +1,37 @@
+{
+  "reviews": {
+    "title": "آراء العملاء",
+    "empty": "لا توجد مراجعات بعد — كن أول من يشارك رأيه.",
+    "starsAria": "التقييم {rating} من 5",
+    "summary": {
+      "average": "{rating} من 5",
+      "count": "{count, plural, =0 {لا مراجعات} zero {لا مراجعات} one {مراجعة واحدة} two {مراجعتان} few {# مراجعات} many {# مراجعة} other {# مراجعة}}"
+    },
+    "section": {
+      "title": "ماذا يقول عملاؤنا",
+      "subtitle": "مراجعات حقيقية من مشترين موثوقين."
+    },
+    "form": {
+      "title": "اكتب مراجعة",
+      "rating": "تقييمك",
+      "ratingOption": "{count, plural, zero {لا نجوم} one {نجمة واحدة} two {نجمتان} few {# نجوم} many {# نجمة} other {# نجمة}}",
+      "reviewTitle": "العنوان",
+      "reviewTitlePlaceholder": "لخّص تجربتك",
+      "body": "مراجعتك",
+      "bodyPlaceholder": "ما الذي أعجبك أو لم يعجبك؟",
+      "submit": "إرسال المراجعة",
+      "submitting": "جارٍ الإرسال…"
+    },
+    "validation": {
+      "ratingRequired": "يرجى اختيار تقييم.",
+      "titleRequired": "يرجى إدخال عنوان.",
+      "titleMax": "يجب ألا يزيد العنوان عن 100 حرف.",
+      "bodyMin": "يجب أن تتكوّن المراجعة من 10 أحرف على الأقل.",
+      "bodyMax": "يجب ألا تزيد المراجعة عن 2000 حرف."
+    },
+    "toast": {
+      "success": "شكرًا لك! تم إرسال مراجعتك.",
+      "error": "عذرًا، تعذّر إرسال مراجعتك. يرجى المحاولة مرة أخرى."
+    }
+  }
+}

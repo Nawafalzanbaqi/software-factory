@@ -1,0 +1,53 @@
+# ---------- OS / editors ----------
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vs/
+.vscode/*
+!.vscode/extensions.json
+
+# ---------- Secrets ----------
+.env
+.env.local
+.env.*.local
+*.pem
+
+# ---------- .NET ----------
+bin/
+obj/
+[Bb]in/
+[Oo]bj/
+*.user
+artifacts/
+TestResults/
+*.trx
+coverage/
+*.coverage
+project.lock.json
+
+# ---------- Node / Next.js ----------
+node_modules/
+.next/
+out/
+.turbo/
+dist/
+build/
+*.tsbuildinfo
+.pnpm-store/
+coverage/
+playwright-report/
+test-results/
+.vercel
+
+# ---------- Payload ----------
+media/
+.payload/
+
+# ---------- Docker ----------
+postgres-data/
+redis-data/
+
+# ---------- Generated ----------
+frontend/src/lib/api/generated/
+backend/**/openapi.json

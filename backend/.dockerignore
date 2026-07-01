@@ -1,0 +1,13 @@
+**/bin/
+**/obj/
+**/.vs/
+**/.vscode/
+**/*.user
+**/appsettings.*.local.json
+**/.env
+**/.env.*
+**/openapi.json
+**/TestResults/
+Dockerfile
+.dockerignore
+README.md

@@ -1,0 +1,26 @@
+using FluentValidation.Results;
+
+namespace SoftwareFactory.Application.Common.Exceptions;
+
+/// <summary>
+/// Aggregates FluentValidation failures. Mapped to HTTP 400 (ProblemDetails
+/// with an <c>errors</c> dictionary) by the API global exception handler.
+/// </summary>
+public sealed class ValidationException : Exception
+{
+    public IReadOnlyDictionary<string, string[]> Errors { get; }
+
+    public ValidationException()
+        : base("One or more validation failures have occurred.")
+    {
+        Errors = new Dictionary<string, string[]>();
+    }
+
+    public ValidationException(IEnumerable<ValidationFailure> failures)
+        : this()
+    {
+        Errors = failures
+            .GroupBy(f => f.PropertyName, f => f.ErrorMessage)
+            .ToDictionary(g => g.Key, g => g.ToArray());
+    }
+}

@@ -1,0 +1,83 @@
+{
+  "checkout": {
+    "title": "Checkout",
+    "subtitle": "Enter your details to complete your order.",
+    "empty": "Your cart is empty. Add some products before checking out.",
+    "continueShopping": "Continue shopping",
+    "form": {
+      "customerHeading": "Contact details",
+      "shippingHeading": "Shipping address",
+      "paymentHeading": "Payment method",
+      "name": "Full name",
+      "namePlaceholder": "Your full name",
+      "email": "Email",
+      "emailPlaceholder": "you@example.com",
+      "phone": "Phone number",
+      "phonePlaceholder": "05xxxxxxxx",
+      "line1": "Address line 1",
+      "line1Placeholder": "Street address, building",
+      "line2": "Address line 2",
+      "line2Placeholder": "Apartment, floor, landmark",
+      "city": "City",
+      "cityPlaceholder": "City",
+      "country": "Country",
+      "postalCode": "Postal code",
+      "postalCodePlaceholder": "Postal code",
+      "optional": "optional",
+      "placeOrder": "Place order",
+      "placing": "Placing order…",
+      "countries": {
+        "SA": "Saudi Arabia",
+        "AE": "United Arab Emirates",
+        "KW": "Kuwait",
+        "QA": "Qatar",
+        "BH": "Bahrain",
+        "OM": "Oman"
+      }
+    },
+    "payment": {
+      "methods": {
+        "tamara": {
+          "label": "Tamara",
+          "description": "Pay later or split into interest-free instalments."
+        },
+        "tabi": {
+          "label": "Tabby",
+          "description": "Split your purchase into 4 interest-free payments."
+        },
+        "cod": {
+          "label": "Cash on delivery",
+          "description": "Pay in cash when your order arrives."
+        }
+      }
+    },
+    "summary": {
+      "title": "Order summary",
+      "quantity": "Qty {count}",
+      "subtotal": "Subtotal",
+      "shipping": "Shipping",
+      "shippingNote": "Calculated at delivery",
+      "total": "Total"
+    },
+    "validation": {
+      "nameRequired": "Please enter your full name.",
+      "nameMax": "Name must be 80 characters or fewer.",
+      "emailRequired": "Please enter your email address.",
+      "emailInvalid": "Please enter a valid email address.",
+      "phoneRequired": "Please enter your phone number.",
+      "phoneInvalid": "Please enter a valid phone number.",
+      "line1Required": "Please enter your address.",
+      "line1Max": "Address must be 120 characters or fewer.",
+      "line2Max": "Address must be 120 characters or fewer.",
+      "cityRequired": "Please enter your city.",
+      "cityMax": "City must be 80 characters or fewer.",
+      "countryRequired": "Please select your country.",
+      "postalMax": "Postal code must be 20 characters or fewer.",
+      "paymentRequired": "Please select a payment method."
+    },
+    "toast": {
+      "success": "Your order has been placed.",
+      "error": "Sorry, we couldn’t place your order. Please try again."
+    }
+  }
+}

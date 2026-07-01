@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Software Factory Options",
+  "description": "Configuration-driven build manifest. Read by both backend (startup) and frontend (build/runtime) to conditionally enable modules, routes and nav.",
+  "type": "object",
+  "required": ["siteType", "language", "defaultDirection", "features", "sections"],
+  "properties": {
+    "siteType": {
+      "type": "string",
+      "enum": ["ecommerce", "corporate", "portfolio", "booking", "lms", "realestate", "restaurant", "healthcare", "marketplace"],
+      "description": "The vertical template to build. Phase 1 only implements 'ecommerce'."
+    },
+    "siteName": { "type": "string" },
+    "language": { "type": "string", "enum": ["ar", "en", "ar-en"] },
+    "defaultLocale": { "type": "string", "enum": ["ar", "en"] },
+    "defaultDirection": { "type": "string", "enum": ["rtl", "ltr"] },
+    "currency": { "type": "string" },
+    "payments": {
+      "type": "array",
+      "items": { "type": "string", "enum": ["tamara", "tabi", "stripe", "cod", "mada"] }
+    },
+    "integrations": {
+      "type": "array",
+      "items": { "type": "string", "enum": ["zatca", "whatsapp", "googleAnalytics", "meta"] }
+    },
+    "features": {
+      "type": "object",
+      "additionalProperties": { "type": "boolean" }
+    },
+    "sections": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "enabled": { "type": "boolean" },
+          "order": { "type": "integer" }
+        },
+        "required": ["enabled", "order"]
+      }
+    },
+    "designDirection": { "type": "string", "enum": ["premium", "minimal", "playful", "corporate"] }
+  }
+}

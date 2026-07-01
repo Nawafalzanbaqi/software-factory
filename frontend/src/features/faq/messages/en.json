@@ -1,0 +1,29 @@
+{
+  "faq": {
+    "title": "Frequently asked questions",
+    "subtitle": "Answers to the questions we hear most.",
+    "viewAllCta": "View all questions",
+    "items": [
+      {
+        "question": "How long does delivery take?",
+        "answer": "Orders are processed within 1–2 business days and typically arrive within 3–5 business days, depending on your location."
+      },
+      {
+        "question": "What is your return policy?",
+        "answer": "You can return unused items in their original packaging within 14 days of delivery for a full refund."
+      },
+      {
+        "question": "Which payment methods do you accept?",
+        "answer": "We accept major cards and popular buy-now-pay-later options at checkout, all processed through secure, encrypted providers."
+      },
+      {
+        "question": "Can I track my order?",
+        "answer": "Yes. Once your order ships you receive a tracking number, and you can follow its status from the order tracking page at any time."
+      },
+      {
+        "question": "Do you support Arabic and English?",
+        "answer": "Absolutely. The entire store is bilingual — switch between Arabic and English at any time, with prices shown in SAR."
+      }
+    ]
+  }
+}

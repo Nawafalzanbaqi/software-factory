@@ -1,0 +1,245 @@
+using System.Text;
+using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using SoftwareFactory.Api.Identity;
+using SoftwareFactory.Api.Middleware;
+using SoftwareFactory.Api.Modules.Cart;
+using SoftwareFactory.Api.Modules.Catalog;
+using SoftwareFactory.Api.Modules.Contact;
+using SoftwareFactory.Api.Modules.Orders;
+using SoftwareFactory.Api.Modules.Reviews;
+using SoftwareFactory.Api.Modules.Search;
+using SoftwareFactory.Api.Modules.Wishlist;
+using SoftwareFactory.Application;
+using SoftwareFactory.Application.Common.Interfaces;
+using SoftwareFactory.Infrastructure;
+using SoftwareFactory.Infrastructure.Seed;
+using Swashbuckle.AspNetCore.Swagger;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// ---------------------------------------------------------------------------
+// Application + Infrastructure (CQRS, EF Core, Redis, options.json manifest)
+// ---------------------------------------------------------------------------
+builder.Services.AddApplication();
+builder.Services.AddInfrastructure(builder.Configuration);
+
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUser, CurrentUser>();
+
+// ---------------------------------------------------------------------------
+// Global exception handling -> ProblemDetails
+// ---------------------------------------------------------------------------
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+
+// ---------------------------------------------------------------------------
+// AuthN/AuthZ — Phase 1 bearer JWT (symmetric key from config).
+// TODO (backlog): wire real Auth.js / NextAuth JWKS validation
+// (Authority + /.well-known/jwks.json) and drop the shared symmetric key.
+// ---------------------------------------------------------------------------
+var jwt = builder.Configuration.GetSection("Jwt");
+var signingKey = jwt["Key"] ?? "dev-only-insecure-signing-key-change-me-32bytes!";
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = !string.IsNullOrWhiteSpace(jwt["Issuer"]),
+            ValidIssuer = jwt["Issuer"],
+            ValidateAudience = !string.IsNullOrWhiteSpace(jwt["Audience"]),
+            ValidAudience = jwt["Audience"],
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signingKey)),
+            ValidateLifetime = true,
+            NameClaimType = "sub"
+        };
+    });
+builder.Services.AddAuthorization();
+
+// ---------------------------------------------------------------------------
+// CORS — origins from Cors:AllowedOrigins (comma or array).
+// ---------------------------------------------------------------------------
+var corsOrigins = ReadOrigins(builder.Configuration);
+const string CorsPolicy = "frontend";
+builder.Services.AddCors(options =>
+    options.AddPolicy(CorsPolicy, policy =>
+        policy.WithOrigins(corsOrigins)
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials()));
+
+// ---------------------------------------------------------------------------
+// Rate limiting — fixed window on public endpoints (values from config).
+// ---------------------------------------------------------------------------
+var permit = builder.Configuration.GetValue("RateLimiting:PermitPerWindow", 100);
+var windowSeconds = builder.Configuration.GetValue("RateLimiting:WindowSeconds", 60);
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.AddPolicy("public", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "anonymous",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = permit,
+                Window = TimeSpan.FromSeconds(windowSeconds),
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                QueueLimit = 0
+            }));
+});
+
+// ---------------------------------------------------------------------------
+// OpenAPI / Swagger (Swashbuckle)
+// ---------------------------------------------------------------------------
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Software Factory API", Version = "v1" });
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Enter a JWT bearer token."
+    });
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Bearer" }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
+
+builder.Services.AddHealthChecks();
+
+var app = builder.Build();
+
+// ---------------------------------------------------------------------------
+// Middleware pipeline
+// ---------------------------------------------------------------------------
+app.UseExceptionHandler();
+app.UseSecurityHeaders();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.UseCors(CorsPolicy);
+app.UseRateLimiter();
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapHealthChecks("/health").AllowAnonymous();
+
+// ---------------------------------------------------------------------------
+// Endpoint modules — mapped ONLY when their feature/section is enabled.
+// (Code for disabled modules still ships; it is just not registered.)
+// ---------------------------------------------------------------------------
+var features = app.Services.GetRequiredService<IFeatureManager>();
+
+// Core commerce flows (always on).
+app.MapCatalog();
+app.MapCart();
+app.MapCheckout();
+
+// Contact — mapped when its content section is enabled.
+if (features.IsSectionEnabled("contact"))
+{
+    app.MapContact();
+}
+
+// Feature-flagged modules.
+if (features.IsFeatureEnabled("search"))
+{
+    app.MapSearch();
+}
+
+if (features.IsFeatureEnabled("wishlist"))
+{
+    app.MapWishlist();
+}
+
+if (features.IsFeatureEnabled("orderTracking"))
+{
+    app.MapOrderTracking();
+}
+
+// Reviews is OFF by default per options.json.
+if (features.IsFeatureEnabled("reviews"))
+{
+    app.MapReviews();
+}
+
+// ---------------------------------------------------------------------------
+// Startup work: apply schema + seed enabled modules; emit openapi.json (dev).
+// ---------------------------------------------------------------------------
+if (app.Environment.IsDevelopment())
+{
+    try
+    {
+        await DbSeeder.MigrateAndSeedAsync(app.Services);
+    }
+    catch (Exception ex)
+    {
+        app.Logger.LogWarning(ex, "Database migrate/seed skipped (is Postgres running?).");
+    }
+
+    // Emit openapi.json AFTER the pipeline is built so the endpoint data source
+    // (and therefore ApiExplorer) is fully populated.
+    app.Lifetime.ApplicationStarted.Register(() => EmitOpenApiDocument(app));
+}
+
+app.Run();
+
+// ---------------------------------------------------------------------------
+// Helpers
+// ---------------------------------------------------------------------------
+static string[] ReadOrigins(IConfiguration config)
+{
+    var array = config.GetSection("Cors:AllowedOrigins").Get<string[]>();
+    if (array is { Length: > 0 })
+    {
+        return array;
+    }
+
+    var csv = config["Cors:AllowedOrigins"];
+    return string.IsNullOrWhiteSpace(csv)
+        ? new[] { "http://localhost:3000" }
+        : csv.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+}
+
+static void EmitOpenApiDocument(WebApplication app)
+{
+    try
+    {
+        var provider = app.Services.GetRequiredService<ISwaggerProvider>();
+        var doc = provider.GetSwagger("v1");
+        using var stringWriter = new StringWriter();
+        var writer = new Microsoft.OpenApi.Writers.OpenApiJsonWriter(stringWriter);
+        doc.SerializeAsV3(writer);
+        var path = Path.Combine(app.Environment.ContentRootPath, "openapi.json");
+        File.WriteAllText(path, stringWriter.ToString());
+        app.Logger.LogInformation("openapi.json written to {Path}", path);
+    }
+    catch (Exception ex)
+    {
+        app.Logger.LogWarning(ex, "Failed to emit openapi.json.");
+    }
+}
+
+/// <summary>Exposed for WebApplicationFactory-based integration tests.</summary>
+public partial class Program;
