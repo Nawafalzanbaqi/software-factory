@@ -1,0 +1,18 @@
+{
+  "wishlist": {
+    "nav": "Wishlist",
+    "title": "Your wishlist",
+    "subtitle": "Products you've saved for later.",
+    "empty": "Your wishlist is empty.",
+    "emptyCta": "Browse products",
+    "signInTitle": "Sign in to view your wishlist",
+    "signInBody": "Save your favourite products and find them here on any device.",
+    "signIn": "Sign in",
+    "addLabel": "Add to wishlist",
+    "removeLabel": "Remove from wishlist",
+    "added": "Added to your wishlist",
+    "removed": "Removed from your wishlist",
+    "signInRequired": "Please sign in to save items.",
+    "error": "Something went wrong. Please try again."
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "search": {
+    "title": "البحث",
+    "subtitle": "ابحث عن المنتجات في المتجر.",
+    "placeholder": "ابحث عن المنتجات…",
+    "inputLabel": "ابحث عن المنتجات",
+    "submit": "بحث",
+    "prompt": "أدخل كلمة للبحث عن المنتجات.",
+    "noResults": "لا توجد نتائج لـ «{query}».",
+    "resultsCount": "{count, plural, zero {لا نتائج} one {نتيجة واحدة} two {نتيجتان} few {# نتائج} many {# نتيجة} other {# نتيجة}} لـ «{query}».",
+    "browseAll": "تصفّح كل المنتجات",
+    "disabled": "البحث غير متاح حالياً."
+  }
+}

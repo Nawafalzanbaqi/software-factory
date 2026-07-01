@@ -1,0 +1,31 @@
+{
+  "orders": {
+    "trackingTitle": "تتبّع طلبك",
+    "trackingSubtitle": "تابع طلبك من إتمام الشراء حتى وصوله إلى بابك.",
+    "orderNumber": "رقم الطلب",
+    "currentStatus": "الحالة الحالية",
+    "updatedAt": "آخر تحديث",
+    "timelineTitle": "مسار الطلب",
+    "timelineLabel": "سجل حالات الطلب",
+    "stepCompleted": "مكتملة",
+    "stepCurrent": "الخطوة الحالية",
+    "copy": "نسخ رقم الطلب",
+    "copied": "تم نسخ رقم الطلب",
+    "summaryTitle": "ملخّص الطلب",
+    "placedAt": "تاريخ الطلب",
+    "items": "المنتجات",
+    "quantityShort": "الكمية",
+    "total": "الإجمالي",
+    "empty": "لا توجد تحديثات للحالة بعد.",
+    "status": {
+      "pending": "قيد الانتظار",
+      "confirmed": "تم التأكيد",
+      "processing": "قيد التجهيز",
+      "shipped": "تم الشحن",
+      "outForDelivery": "قيد التوصيل",
+      "delivered": "تم التسليم",
+      "cancelled": "ملغى",
+      "returned": "مُرتجع"
+    }
+  }
+}

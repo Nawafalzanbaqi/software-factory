@@ -1,0 +1,31 @@
+{
+  "orders": {
+    "trackingTitle": "Track your order",
+    "trackingSubtitle": "Follow your order from checkout to your door.",
+    "orderNumber": "Order number",
+    "currentStatus": "Current status",
+    "updatedAt": "Last updated",
+    "timelineTitle": "Order timeline",
+    "timelineLabel": "Order status history",
+    "stepCompleted": "Completed",
+    "stepCurrent": "Current step",
+    "copy": "Copy order number",
+    "copied": "Order number copied",
+    "summaryTitle": "Order summary",
+    "placedAt": "Placed on",
+    "items": "Items",
+    "quantityShort": "Qty",
+    "total": "Total",
+    "empty": "No status updates yet.",
+    "status": {
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "processing": "Processing",
+      "shipped": "Shipped",
+      "outForDelivery": "Out for delivery",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled",
+      "returned": "Returned"
+    }
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "promoBanners": {
+    "title": "Offers",
+    "subtitle": "Limited-time deals and featured collections.",
+    "cta": "Shop now",
+    "carousel": "carousel",
+    "regionLabel": "Promotional banners",
+    "slide": "slide",
+    "previous": "Previous banner",
+    "next": "Next banner",
+    "dotsLabel": "Choose a banner",
+    "goToSlide": "Go to banner {index}"
+  }
+}

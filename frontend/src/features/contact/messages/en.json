@@ -1,0 +1,28 @@
+{
+  "contact": {
+    "title": "Contact us",
+    "subtitle": "Have a question or feedback? Send us a message and we’ll get back to you.",
+    "form": {
+      "name": "Name",
+      "namePlaceholder": "Your full name",
+      "email": "Email",
+      "emailPlaceholder": "you@example.com",
+      "message": "Message",
+      "messagePlaceholder": "How can we help?",
+      "send": "Send message",
+      "sending": "Sending…"
+    },
+    "validation": {
+      "nameRequired": "Please enter your name.",
+      "nameMax": "Name must be 80 characters or fewer.",
+      "emailRequired": "Please enter your email address.",
+      "emailInvalid": "Please enter a valid email address.",
+      "messageMin": "Message must be at least 10 characters.",
+      "messageMax": "Message must be 1000 characters or fewer."
+    },
+    "toast": {
+      "success": "Thanks! Your message has been sent.",
+      "error": "Sorry, your message couldn’t be sent. Please try again."
+    }
+  }
+}

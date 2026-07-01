@@ -1,0 +1,32 @@
+{
+  "siteType": "ecommerce",
+  "siteName": "Software Factory Store",
+  "language": "ar-en",
+  "defaultLocale": "ar",
+  "defaultDirection": "rtl",
+  "currency": "SAR",
+  "payments": ["tamara", "tabi"],
+  "integrations": ["zatca", "whatsapp"],
+  "features": {
+    "clientDashboard": true,
+    "cms": true,
+    "reviews": false,
+    "loyalty": false,
+    "analytics": true,
+    "wishlist": true,
+    "search": true,
+    "orderTracking": true
+  },
+  "sections": {
+    "hero": { "enabled": true, "order": 1 },
+    "promoBanners": { "enabled": true, "order": 2 },
+    "categories": { "enabled": true, "order": 3 },
+    "productListing": { "enabled": true, "order": 4 },
+    "reviews": { "enabled": false, "order": 5 },
+    "about": { "enabled": true, "order": 6 },
+    "faq": { "enabled": true, "order": 7 },
+    "contact": { "enabled": true, "order": 8 },
+    "footer": { "enabled": true, "order": 99 }
+  },
+  "designDirection": "premium"
+}

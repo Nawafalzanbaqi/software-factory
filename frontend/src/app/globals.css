@@ -1,0 +1,132 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Premium design tokens as CSS variables (HSL channels for Tailwind opacity).
+ * Refined warm neutrals + a deep accent. Tuned for WCAG AA contrast:
+ * foreground on background and primary-foreground on primary both exceed 4.5:1.
+ */
+@layer base {
+  :root {
+    --background: 40 33% 99%;
+    --foreground: 24 10% 12%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 24 10% 12%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 24 10% 12%;
+
+    /* Deep espresso primary — premium, high contrast on light bg. */
+    --primary: 24 30% 16%;
+    --primary-foreground: 40 33% 98%;
+
+    --secondary: 33 24% 94%;
+    --secondary-foreground: 24 20% 20%;
+
+    --muted: 33 20% 95%;
+    --muted-foreground: 25 8% 42%;
+
+    /* Warm gold accent. */
+    --accent: 38 62% 52%;
+    --accent-foreground: 24 30% 14%;
+
+    --destructive: 0 72% 45%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 30 16% 88%;
+    --input: 30 16% 86%;
+    --ring: 38 62% 45%;
+
+    --radius: 0.65rem;
+
+    --font-sans: system-ui;
+    --font-display: Georgia;
+  }
+
+  .dark {
+    --background: 24 12% 8%;
+    --foreground: 40 20% 94%;
+
+    --card: 24 12% 11%;
+    --card-foreground: 40 20% 94%;
+
+    --popover: 24 12% 11%;
+    --popover-foreground: 40 20% 94%;
+
+    --primary: 40 33% 96%;
+    --primary-foreground: 24 30% 14%;
+
+    --secondary: 24 10% 18%;
+    --secondary-foreground: 40 20% 94%;
+
+    --muted: 24 10% 16%;
+    --muted-foreground: 30 10% 65%;
+
+    --accent: 38 62% 55%;
+    --accent-foreground: 24 30% 12%;
+
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 24 10% 22%;
+    --input: 24 10% 24%;
+    --ring: 38 62% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Logical text alignment respects RTL/LTR automatically. */
+  [dir="rtl"] {
+    text-align: right;
+  }
+
+  /* Always-visible, high-contrast focus ring for keyboard users. */
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+
+  /* Skip link (a11y) — hidden until focused. */
+  .skip-link {
+    @apply sr-only;
+  }
+  .skip-link:focus {
+    @apply not-sr-only fixed start-4 top-4 z-[100] rounded-md bg-primary px-4 py-2 text-primary-foreground shadow-premium;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  .container-px {
+    @apply px-4 sm:px-6 lg:px-8;
+  }
+  .section-y {
+    @apply py-12 sm:py-16 lg:py-20;
+  }
+}
