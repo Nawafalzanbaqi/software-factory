@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+ * Factory Dashboard design tokens (HSL channels for Tailwind opacity support).
+ * Dark-first admin surface. Foreground/background and primary-foreground/primary
+ * pairings exceed WCAG AA 4.5:1 contrast.
+ */
+@layer base {
+  :root {
+    --background: 222 30% 8%;
+    --foreground: 210 20% 96%;
+
+    --card: 222 26% 11%;
+    --card-foreground: 210 20% 96%;
+
+    --primary: 210 90% 60%;
+    --primary-foreground: 222 40% 10%;
+
+    --secondary: 217 20% 20%;
+    --secondary-foreground: 210 20% 96%;
+
+    --muted: 217 20% 16%;
+    --muted-foreground: 215 15% 65%;
+
+    --accent: 265 70% 65%;
+    --accent-foreground: 222 40% 10%;
+
+    --destructive: 0 72% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 142 60% 45%;
+    --success-foreground: 0 0% 100%;
+
+    --border: 217 20% 22%;
+    --input: 217 20% 24%;
+    --ring: 210 90% 60%;
+
+    --radius: 0.6rem;
+
+    --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: var(--font-sans);
+  }
+}
