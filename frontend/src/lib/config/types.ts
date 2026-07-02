@@ -20,7 +20,7 @@ export type PaymentProvider = "tamara" | "tabi" | "stripe" | "cod" | "mada";
 export type Integration = "zatca" | "whatsapp" | "googleAnalytics" | "meta";
 export type DesignDirection = "premium" | "minimal" | "playful" | "corporate";
 
-/** Feature flags — keys mirror ARCHITECTURE.md §0 feature → flag mapping. */
+/** Feature flags — keys mirror ARCHITECTURE.md §0 + PHASE2.md feature → flag mapping. */
 export interface FeatureFlags {
   clientDashboard?: boolean;
   cms?: boolean;
@@ -30,6 +30,11 @@ export interface FeatureFlags {
   wishlist?: boolean;
   search?: boolean;
   orderTracking?: boolean;
+  // Restaurant vertical (Phase 2) feature flags.
+  reservations?: boolean;
+  branchLocator?: boolean;
+  gallery?: boolean;
+  promotions?: boolean;
   [key: string]: boolean | undefined;
 }
 
@@ -38,8 +43,13 @@ export interface SectionConfig {
   order: number;
 }
 
-/** Homepage/section keys as used in options.json `sections`. */
+/**
+ * Homepage/section keys as used in `options.*.json` `sections`.
+ * Includes both the ecommerce (Phase 1) and restaurant (Phase 2) verticals;
+ * only one vertical's keys are ever active per boot (selected by siteType).
+ */
 export type SectionName =
+  // Shared / ecommerce (Phase 1)
   | "hero"
   | "promoBanners"
   | "categories"
@@ -48,7 +58,13 @@ export type SectionName =
   | "about"
   | "faq"
   | "contact"
-  | "footer";
+  | "footer"
+  // Restaurant (Phase 2)
+  | "promotions"
+  | "menu"
+  | "gallery"
+  | "branches"
+  | "reservation";
 
 export type SectionsConfig = Partial<Record<SectionName, SectionConfig>> &
   Record<string, SectionConfig>;

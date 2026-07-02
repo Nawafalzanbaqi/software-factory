@@ -2,6 +2,7 @@ using System.Reflection;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 using SoftwareFactory.Application.Common.Behaviors;
+using SoftwareFactory.Application.Shared.Ordering;
 
 namespace SoftwareFactory.Application;
 
@@ -25,6 +26,10 @@ public static class DependencyInjection
         });
 
         services.AddValidatorsFromAssembly(assembly, includeInternalTypes: true);
+
+        // Shared ordering pipeline — turns a cart + fulfillment into an order.
+        // Used by both the e-commerce and restaurant checkouts.
+        services.AddScoped<PlaceOrderService>();
 
         return services;
     }

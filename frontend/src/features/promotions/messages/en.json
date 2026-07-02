@@ -1,0 +1,13 @@
+{
+  "promotions": {
+    "title": "Offers & Promotions",
+    "subtitle": "Limited-time deals from our kitchen.",
+    "cta": "View offer",
+    "viewAll": "See all offers",
+    "validUntil": "Valid until {date}",
+    "empty": "No active offers right now. Check back soon.",
+    "regionLabel": "Promotions",
+    "pageTitle": "Offers & Promotions",
+    "pageSubtitle": "Every limited-time deal, in one place."
+  }
+}
