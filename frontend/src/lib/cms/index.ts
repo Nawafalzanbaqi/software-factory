@@ -4,12 +4,20 @@ import config from "@payload-config";
 import { isFeatureEnabled } from "@/lib/config";
 import type {
   AboutContent,
+  BranchContent,
+  CmsLocale,
   CmsMedia,
   FaqItem,
   FooterContent,
+  GalleryContent,
   HeroContent,
   LocalizedText,
+  MenuCategoryContent,
+  MenuContent,
+  MenuItemContent,
+  OpeningHour,
   PromoBanner,
+  PromotionContent,
 } from "./types";
 
 export * from "./types";
@@ -212,5 +220,190 @@ export async function getFooterContent(): Promise<FooterContent | null> {
   } catch (err) {
     console.error("[cms] getFooterContent failed", err);
     return null;
+  }
+}
+
+/* ----------------------------- Restaurant vertical ----------------------------- */
+/*
+ * New typed fetchers for the restaurant vertical (PHASE2 §3/§4). They follow the
+ * exact same rules as the fetchers above: gated by `cmsAvailable()` (cms flag +
+ * build-phase/DB guard), and they return null/[] on any failure so headless builds
+ * still render i18n fallbacks. `locale` defaults to "all" (bilingual LocalizedText);
+ * pass "en"/"ar" to narrow the Payload query to a single locale.
+ *
+ * TODO(phase-3): multi-tenant — scope these reads by tenant/brand.
+ */
+
+/** Map a hasMany media relationship (array of populated docs) to CmsMedia[]. */
+function toMediaList(value: unknown): CmsMedia[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map((v) => toMedia(v))
+    .filter((m): m is CmsMedia => m !== undefined);
+}
+
+/** Resolve a relationship field to its id string (populated doc or raw id). */
+function relId(value: unknown): string | undefined {
+  if (value == null) return undefined;
+  if (typeof value === "object") {
+    const id = (value as Record<string, unknown>).id;
+    return id != null ? String(id) : undefined;
+  }
+  return String(value);
+}
+
+function mapMenuCategory(d: Record<string, unknown>): MenuCategoryContent {
+  return {
+    id: String(d.id),
+    slug: (d.slug as string) ?? "",
+    name: loc(d.name as MaybeLocalized),
+    description: locOpt(d.description as MaybeLocalized),
+    image: toMedia(d.image),
+    order: typeof d.order === "number" ? d.order : 0,
+  };
+}
+
+function mapMenuItem(d: Record<string, unknown>): MenuItemContent {
+  return {
+    id: String(d.id),
+    slug: (d.slug as string) ?? "",
+    name: loc(d.name as MaybeLocalized),
+    description: locOpt(d.description as MaybeLocalized),
+    price: typeof d.price === "number" ? d.price : undefined,
+    currency: (d.currency as string) || "SAR",
+    categoryId: relId(d.category),
+    images: toMediaList(d.images),
+    isAvailable: d.isAvailable !== false,
+    tags: Array.isArray(d.tags) ? (d.tags as string[]) : [],
+    spicyLevel: typeof d.spicyLevel === "number" ? d.spicyLevel : undefined,
+    calories: typeof d.calories === "number" ? d.calories : undefined,
+  };
+}
+
+/** Full menu: categories (ordered) + all available items grouped by categoryId. */
+export async function getMenu(locale: CmsLocale = "all"): Promise<MenuContent | null> {
+  if (!(await cmsAvailable())) return null;
+  try {
+    const payload = await client();
+    const [cats, items] = await Promise.all([
+      payload.find({
+        collection: "menuCategories",
+        sort: "order",
+        locale,
+        depth: 1,
+        limit: 200,
+      }),
+      payload.find({
+        collection: "menuItems",
+        where: { isAvailable: { equals: true } },
+        locale,
+        depth: 1,
+        limit: 500,
+      }),
+    ]);
+    return {
+      categories: (cats.docs as unknown as Record<string, unknown>[]).map(
+        mapMenuCategory
+      ),
+      items: (items.docs as unknown as Record<string, unknown>[]).map(mapMenuItem),
+    };
+  } catch (err) {
+    console.error("[cms] getMenu failed", err);
+    return null;
+  }
+}
+
+/** Restaurant branches (with lat/lng + opening hours) for the locator map. */
+export async function getBranchesContent(
+  locale: CmsLocale = "all"
+): Promise<BranchContent[]> {
+  if (!(await cmsAvailable())) return [];
+  try {
+    const payload = await client();
+    const res = await payload.find({
+      collection: "branches",
+      locale,
+      depth: 0,
+      limit: 200,
+    });
+    return (res.docs as unknown as Record<string, unknown>[]).map((d) => {
+      const hours = Array.isArray(d.openingHours) ? d.openingHours : [];
+      return {
+        id: String(d.id),
+        slug: (d.slug as string) ?? "",
+        name: loc(d.name as MaybeLocalized),
+        address: locOpt(d.address as MaybeLocalized),
+        city: (d.city as string) || undefined,
+        latitude: typeof d.latitude === "number" ? d.latitude : undefined,
+        longitude: typeof d.longitude === "number" ? d.longitude : undefined,
+        phone: (d.phone as string) || undefined,
+        openingHours: (hours as Record<string, unknown>[]).map(
+          (h): OpeningHour => ({
+            day: (h.day as string) ?? "",
+            opens: (h.opens as string) || undefined,
+            closes: (h.closes as string) || undefined,
+            closed: h.closed === true,
+          })
+        ),
+      };
+    });
+  } catch (err) {
+    console.error("[cms] getBranchesContent failed", err);
+    return [];
+  }
+}
+
+/** Gallery blocks (enabled, ordered), each with its ordered images. */
+export async function getGallery(
+  locale: CmsLocale = "all"
+): Promise<GalleryContent[]> {
+  if (!(await cmsAvailable())) return [];
+  try {
+    const payload = await client();
+    const res = await payload.find({
+      collection: "gallery",
+      where: { enabled: { equals: true } },
+      sort: "order",
+      locale,
+      depth: 1,
+      limit: 100,
+    });
+    return (res.docs as unknown as Record<string, unknown>[]).map((d) => ({
+      id: String(d.id),
+      title: loc(d.title as MaybeLocalized),
+      images: toMediaList(d.images),
+    }));
+  } catch (err) {
+    console.error("[cms] getGallery failed", err);
+    return [];
+  }
+}
+
+/** Restaurant promotions (enabled, ordered). Mirrors the PromoBanner mapping. */
+export async function getPromotions(
+  locale: CmsLocale = "all"
+): Promise<PromotionContent[]> {
+  if (!(await cmsAvailable())) return [];
+  try {
+    const payload = await client();
+    const res = await payload.find({
+      collection: "promotions",
+      where: { enabled: { equals: true } },
+      sort: "order",
+      locale,
+      depth: 1,
+      limit: 50,
+    });
+    return (res.docs as unknown as Record<string, unknown>[]).map((d) => ({
+      id: String(d.id),
+      title: loc(d.headline as MaybeLocalized),
+      subtitle: locOpt(d.subcopy as MaybeLocalized),
+      ctaLabel: locOpt(d.ctaLabel as MaybeLocalized),
+      href: (d.ctaHref as string) || undefined,
+      image: toMedia(d.image),
+    }));
+  } catch (err) {
+    console.error("[cms] getPromotions failed", err);
+    return [];
   }
 }

@@ -13,6 +13,15 @@ import { Products } from "./payload/collections/Products";
 import { Reviews } from "./payload/collections/Reviews";
 import { PromoBanners } from "./payload/collections/PromoBanners";
 import { Faq } from "./payload/collections/Faq";
+// Restaurant vertical collections (registered for all boots; only exercised when
+// siteType==="restaurant"). See docs/PHASE2.md.
+import { MenuCategory } from "./payload/collections/MenuCategory";
+import { MenuItem } from "./payload/collections/MenuItem";
+import { Branch } from "./payload/collections/Branch";
+import { RestaurantTable } from "./payload/collections/RestaurantTable";
+import { Reservation } from "./payload/collections/Reservation";
+import { Gallery } from "./payload/collections/Gallery";
+import { Promotions } from "./payload/collections/Promotions";
 import { Hero } from "./payload/globals/Hero";
 import { About } from "./payload/globals/About";
 import { Contact } from "./payload/globals/Contact";
@@ -47,7 +56,23 @@ export default buildConfig({
       connectionString: process.env.DATABASE_URI || "",
     },
   }),
-  collections: [Users, Media, Categories, Products, Reviews, PromoBanners, Faq],
+  collections: [
+    Users,
+    Media,
+    Categories,
+    Products,
+    Reviews,
+    PromoBanners,
+    Faq,
+    // Restaurant vertical
+    MenuCategory,
+    MenuItem,
+    Branch,
+    RestaurantTable,
+    Reservation,
+    Gallery,
+    Promotions,
+  ],
   globals: [Hero, About, Contact, Footer],
   localization: {
     locales: ["en", "ar"],

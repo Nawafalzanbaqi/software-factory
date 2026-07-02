@@ -1,0 +1,80 @@
+{
+  "reservations": {
+    "cta": {
+      "title": "احجز طاولتك",
+      "subtitle": "احجز طاولة خلال ثوانٍ وتجنّب الانتظار. اختر الفرع وعدد الضيوف والوقت.",
+      "action": "احجز طاولة"
+    },
+    "page": {
+      "title": "احجز طاولة",
+      "subtitle": "أخبرنا أين ومتى، وسنجهّز طاولتك.",
+      "noBranches": "الحجز عبر الإنترنت غير متاح حالياً. يرجى المحاولة لاحقاً."
+    },
+    "form": {
+      "branch": "الفرع",
+      "branchPlaceholder": "اختر فرعاً",
+      "partySize": "عدد الضيوف",
+      "partySizeOption": "{count, plural, zero {# ضيف} one {ضيف واحد} two {ضيفان} few {# ضيوف} many {# ضيفاً} other {# ضيف}}",
+      "dateTime": "التاريخ والوقت",
+      "name": "الاسم",
+      "namePlaceholder": "اسمك الكامل",
+      "email": "البريد الإلكتروني",
+      "emailPlaceholder": "you@example.com",
+      "phone": "رقم الجوال",
+      "phonePlaceholder": "+966 5X XXX XXXX",
+      "notes": "ملاحظات (اختياري)",
+      "notesPlaceholder": "حساسية، كرسي أطفال، مناسبة…",
+      "submit": "تأكيد الحجز",
+      "submitting": "جارٍ الحجز…"
+    },
+    "confirmation": {
+      "title": "تم حجز طاولتك!",
+      "subtitle": "لقد استلمنا حجزك. احتفظ بالرقم المرجعي لتتبّع حالته.",
+      "referenceLabel": "الرقم المرجعي للحجز",
+      "trackCta": "تتبّع الحجز"
+    },
+    "track": {
+      "title": "حجزك",
+      "referenceLabel": "الرقم المرجعي:",
+      "status": "الحالة",
+      "branch": "الفرع",
+      "partySize": "عدد الضيوف",
+      "dateTime": "التاريخ والوقت",
+      "name": "الاسم"
+    },
+    "status": {
+      "pending": "قيد الانتظار",
+      "confirmed": "مؤكّد",
+      "seated": "تم الجلوس",
+      "completed": "مكتمل",
+      "cancelled": "ملغى"
+    },
+    "validation": {
+      "branchRequired": "يرجى اختيار فرع.",
+      "partySizeRequired": "يرجى اختيار عدد الضيوف.",
+      "partySizeInvalid": "يجب أن يكون عدد الضيوف رقماً صحيحاً.",
+      "partySizeMin": "يجب أن يكون هناك ضيف واحد على الأقل.",
+      "partySizeMax": "للمجموعات التي تزيد عن 20 ضيفاً، يرجى الاتصال بنا.",
+      "dateTimeRequired": "يرجى اختيار التاريخ والوقت.",
+      "dateTimeInvalid": "يرجى إدخال تاريخ ووقت صحيحين.",
+      "dateTimeFuture": "يرجى اختيار وقت في المستقبل.",
+      "nameRequired": "يرجى إدخال اسمك.",
+      "nameMax": "يجب ألا يزيد الاسم عن 80 حرفاً.",
+      "emailRequired": "يرجى إدخال بريدك الإلكتروني.",
+      "emailInvalid": "يرجى إدخال بريد إلكتروني صحيح.",
+      "phoneMin": "يرجى إدخال رقم جوال صحيح.",
+      "phoneMax": "يجب ألا يزيد رقم الجوال عن 20 حرفاً.",
+      "notesMax": "يجب ألا تزيد الملاحظات عن 500 حرف."
+    },
+    "toast": {
+      "success": "تم حجز طاولتك بنجاح.",
+      "error": "عذراً، تعذّر إتمام الحجز. يرجى المحاولة مرة أخرى."
+    },
+    "meta": {
+      "title": "احجز طاولة",
+      "description": "احجز طاولة في أقرب فرع إليك — اختر عدد الضيوف والتاريخ والوقت.",
+      "trackTitle": "حجزك",
+      "trackDescription": "تتبّع حالة حجز طاولتك."
+    }
+  }
+}

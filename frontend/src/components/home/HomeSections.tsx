@@ -16,6 +16,12 @@ import { Skeleton } from "@/components/ui/skeleton";
  * key without a mapping falls back to PlaceholderSection so the page never breaks.
  * Note: `reviews` is disabled in options.json today (sections.reviews.enabled =
  * false) so it is filtered out by getEnabledSections and does NOT render.
+ *
+ * Phase 2: the active vertical is chosen by siteType in the loaded options file
+ * (getEnabledSections already returns whichever vertical's sections are enabled).
+ * Restaurant feature Sections (menu, promotions, gallery, branches, reservation)
+ * are wired below to their real feature barrels; each Section self-gates on its
+ * own section/feature flag and renders null when disabled or empty.
  */
 
 function SectionFallback() {
@@ -59,6 +65,30 @@ async function LazySection({ name }: { name: SectionName }) {
     case "contact": {
       const { ContactSection } = await import("@/features/contact");
       return <ContactSection />;
+    }
+    // --- Restaurant vertical (Phase 2) ---------------------------------------
+    // Each restaurant feature Section is barrel-exported from its feature and
+    // self-gates on its own section/feature flag (returns null when disabled or
+    // when its data source is empty).
+    case "menu": {
+      const { MenuSection } = await import("@/features/menu");
+      return <MenuSection />;
+    }
+    case "promotions": {
+      const { PromotionsSection } = await import("@/features/promotions");
+      return <PromotionsSection />;
+    }
+    case "gallery": {
+      const { GallerySection } = await import("@/features/gallery");
+      return <GallerySection />;
+    }
+    case "branches": {
+      const { BranchesSection } = await import("@/features/branches");
+      return <BranchesSection />;
+    }
+    case "reservation": {
+      const { ReservationSection } = await import("@/features/reservations");
+      return <ReservationSection />;
     }
     default: {
       // Fallback for any enabled section key without a feature mapping.

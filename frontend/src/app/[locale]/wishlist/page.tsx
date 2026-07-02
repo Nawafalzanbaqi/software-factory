@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import type { Locale } from "@/lib/i18n/routing";
 import { buildMetadata } from "@/lib/seo/metadata";
-import { isFeatureEnabled } from "@/lib/config/options";
+import { getSiteType, isFeatureEnabled } from "@/lib/config/options";
 import { WishlistView, WishlistSkeleton } from "@/features/wishlist";
 
 // User-specific + auth-gated: always dynamic, never indexed.
@@ -34,6 +34,8 @@ export default async function WishlistPage({
   const { locale } = await params;
   setRequestLocale(locale);
 
+  // Ecommerce-only route.
+  if ((await getSiteType()) !== "ecommerce") notFound();
   // Feature-flag gate (options.json features.wishlist).
   if (!(await isFeatureEnabled("wishlist"))) notFound();
 

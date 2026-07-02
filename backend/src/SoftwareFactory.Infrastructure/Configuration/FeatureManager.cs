@@ -12,6 +12,11 @@ public sealed class FeatureManager : IFeatureManager
 
     public FeatureManager(OptionsManifest manifest) => _manifest = manifest;
 
+    public string SiteType => _manifest.SiteType;
+
+    public bool IsVertical(string name) =>
+        string.Equals(_manifest.SiteType, name, StringComparison.OrdinalIgnoreCase);
+
     public bool IsFeatureEnabled(string name) =>
         _manifest.Features.TryGetValue(name, out var enabled) && enabled;
 

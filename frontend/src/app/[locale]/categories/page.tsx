@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import type { Locale } from "@/lib/i18n/routing";
 import { buildMetadata } from "@/lib/seo/metadata";
+import { getSiteType } from "@/lib/config/options";
 import { categoriesApi, CategoryGrid } from "@/features/categories";
 import type { CategoryDto } from "@/features/categories";
 
@@ -31,6 +33,8 @@ export default async function CategoriesPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  // Ecommerce-only route.
+  if ((await getSiteType()) !== "ecommerce") notFound();
   const t = await getTranslations("categories");
 
   let categories: CategoryDto[] = [];

@@ -1,9 +1,16 @@
-# Software Factory — Reusable Boilerplate (Phase 1: E-commerce)
+# Software Factory — Reusable Boilerplate (E-commerce + Restaurant verticals)
 
 A configuration-driven, full-stack boilerplate designed to be **cloned and extended**
 into many client site verticals (e-commerce, corporate, portfolio, booking, LMS, real
-estate, restaurant, healthcare, marketplace…). **Phase 1** implements the reusable
-foundation with the **e-commerce** vertical as the reference implementation.
+estate, restaurant, healthcare, marketplace…).
+
+- **Phase 1** built the reusable foundation with the **e-commerce** vertical as the
+  reference implementation.
+- **Phase 2** added a second, structurally different vertical — **Restaurant / Food
+  Ordering** — on the SAME foundation, extracting the generic ordering pipeline into a
+  shared/core module. This proves the config-driven architecture generalizes (see
+  [§ Shared vs Vertical-Specific Modules](#3a-shared-vs-vertical-specific-modules) and
+  [§ Verticals](#3b-verticals--one-codebase-two-sites)).
 
 - **Backend** — .NET 9 / ASP.NET Core, **Clean Architecture** (4 layers), CQRS (MediatR),
   EF Core + PostgreSQL, Redis, OpenAPI-first.
@@ -140,6 +147,88 @@ fetcher in `frontend/src/lib/cms/`. Localize editorial fields (`localized: true`
 
 > Flip `features.reviews` / `sections.reviews.enabled` to `true` in `options.json` to turn
 > the finished module on.
+
+---
+
+## 3a. Shared vs Vertical-Specific Modules
+
+Phase 2 added the **Restaurant** vertical. The key architectural question was: of the Phase 1
+Cart / Orders / Checkout code, what is genuinely generic vs. e-commerce-specific? The
+determination below is the reusable rule for every future vertical.
+
+### Shared / Core — `…/Shared/Ordering/` (used by BOTH verticals)
+The **ordering pipeline is generic**: a cart of priced line items becomes an order with a
+status timeline and an `OrderPlaced` domain event. Nothing about that is e-commerce-specific.
+
+- **Domain:** `Cart`, `CartItem`, `Order`, `OrderItem`, `OrderStatus`,
+  `OrderStatusHistoryEntry`, `OrderPlacedDomainEvent`, `Money`.
+- Line items reference a **generic catalog item by `ItemId` (Guid)** plus denormalized
+  `NameEn/NameAr/Slug/ImageUrl/UnitPrice` — **no foreign key to Product or MenuItem**. That
+  denormalization is what makes the aggregate vertical-agnostic.
+- `Order` carries **optional** nullable owned value objects: `ShippingAddress?` (e-commerce)
+  and `Fulfillment?` `{ Type: DineIn|Pickup|Delivery, BranchId?, TableId?, ScheduledFor?,
+  DeliveryAddress? }` (restaurant). Only one is set per order.
+- **Application:** `ICartRepository`, `IOrderRepository`, cart use-cases, order tracking/history,
+  and a single **`PlaceOrderService`** that builds the order + raises the event. The cart's
+  add-item handler depends on a vertical-agnostic **`ICatalogItemLookup`** — Infrastructure
+  registers `ProductCatalogItemLookup` (e-commerce) or `MenuItemCatalogItemLookup` (restaurant)
+  by `siteType`. **This indirection is the linchpin that lets one Cart serve both verticals.**
+- **Api:** shared `/api/v1/cart/*` and `/api/v1/orders/*`, registered for both verticals.
+- **Wire-compat:** the shared Cart/Order DTO field stays named **`productId`** (it *is* the
+  generic catalog-item id) so the Phase 1 REST contract + frontend are byte-identical.
+
+### E-commerce-specific — `…/Modules/Catalog/`, `…/Modules/Ecommerce/`
+Product/Category catalog, Wishlist, product Search, and the **`CheckoutCommand`** that captures
+a `shippingAddress` + payment method → calls `PlaceOrderService` with a shipping fulfillment.
+
+### Restaurant-specific — `…/Modules/Restaurant/`
+`MenuCategory`, `MenuItem`, `Branch`, `Table`, `Reservation` (+ `GeoLocation` VO), menu Search,
+and **`PlaceFoodOrderCommand`** that captures `fulfillmentType`/`branchId`/`tableId?`/
+`scheduledFor?` → calls the same `PlaceOrderService` with a food fulfillment.
+
+### Why this split (rule of thumb for new verticals)
+> **Generic = the *process* (cart → order → status).** **Vertical-specific = the *catalog* it
+> sells and the *fulfillment* it promises.** If a concept differs only in *what item* or *how
+> it's delivered*, it belongs in a vertical; if it's the same transactional lifecycle, it goes
+> to `Shared/Ordering`.
+
+**Guarantee:** the extraction changed zero Phase 1 test files — `Application.Tests` (Catalog +
+Contact) and `IntegrationTests` (ProductRepository) pass **unchanged**, and the e-commerce REST
+contract is byte-identical. Frontend `frontend/src/features/*` mirrors the same split (shared
+`cart` feature; vertical `products`/`menu`, `checkout`/`restaurant-checkout`).
+
+---
+
+## 3b. Verticals — one codebase, two sites
+
+The app boots as **one vertical per run**, chosen by `options.json` `siteType`
+(`ecommerce` | `restaurant`). Switch verticals without editing files via an env override:
+
+| | Backend | Frontend |
+|---|---|---|
+| Env var | `SF_OPTIONS_FILE` | `OPTIONS_FILE` |
+| Accessor | `OptionsManifest.SiteType` / `IFeatureManager.IsVertical()` | `getSiteType()` |
+
+```bash
+# Boot the restaurant vertical (both tiers read the restaurant manifest)
+SF_OPTIONS_FILE=options.restaurant.json  dotnet run --project backend/src/SoftwareFactory.Api
+OPTIONS_FILE=options.restaurant.json      npm --prefix frontend run build   # or dev/start
+```
+
+- Manifests: `options.ecommerce.json`, `options.restaurant.json`; `options.json` is the active
+  default (currently ecommerce).
+- **Gating:** the backend maps a module's endpoints only when its **siteType + feature/section**
+  is enabled; frontend vertical-only pages call `notFound()` on a `getSiteType()` mismatch, and
+  nav + homepage sections come from the active manifest. The wrong vertical's routes are absent.
+- **Proof of generalization** (run in CI):
+  - Backend `VerticalRoutingTests` — boots twice (`WebApplicationFactory` + `SF_SKIP_DB_INIT=1`)
+    and asserts ecommerce exposes `/api/v1/products*` & not `/menu*`; restaurant exposes
+    `/menu*`,`/branches*`,`/reservations*` & not `/products*`.
+  - `scripts/verify-verticals.mjs` (`npm --prefix frontend run verify:verticals`) — asserts each
+    vertical's sections/nav/route-guards/seed and that the wrong vertical's are absent.
+- **Adding a vertical:** add `options.<vertical>.json`, its `Modules/<Vertical>` slices (catalog
+  + fulfillment) reusing `Shared/Ordering`, its `src/features/*` + Payload collections, wire
+  `nav-items.ts` / `HomeSections.tsx` by `siteType`, and extend `verify-verticals.mjs`.
 
 ---
 
