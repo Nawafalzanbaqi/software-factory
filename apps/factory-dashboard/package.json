@@ -36,7 +36,7 @@
     "eslint": "9.18.0",
     "eslint-config-next": "15.2.3",
     "@eslint/eslintrc": "3.2.0",
-    "@playwright/test": "1.49.1"
+    "@playwright/test": "1.61.1"
   },
   "engines": {
     "node": ">=20"
