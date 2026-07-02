@@ -104,3 +104,70 @@ jobs:
       - name: Run Lighthouse CI
         run: npx --yes @lhci/cli@0.13.x autorun || echo "LHCI assertions reported above"
         # Thresholds enforced in frontend/lighthouserc.json (min performance/seo/a11y)
+
+  # ---------------------------------------------------------------------
+  # Phase 3 — Factory Control Plane (internal tooling; additive)
+  # ---------------------------------------------------------------------
+  platform:
+    name: Platform • build + unit tests (EF InMemory)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+      - name: Restore
+        run: dotnet restore platform/SoftwareFactory.Platform.sln
+      - name: Build
+        run: dotnet build platform/SoftwareFactory.Platform.sln --no-restore -c Release
+      - name: Test
+        run: dotnet test platform/SoftwareFactory.Platform.sln --no-build -c Release --logger "trx;LogFileName=platform.trx"
+
+  # ---------------------------------------------------------------------
+  factory-bot:
+    name: Factory Bot • build + unit tests (mocked Telegram + API)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+      - name: Restore
+        run: dotnet restore apps/factory-bot/FactoryBot.sln
+      - name: Build
+        run: dotnet build apps/factory-bot/FactoryBot.sln --no-restore -c Release
+      - name: Test
+        run: dotnet test apps/factory-bot/FactoryBot.sln --no-build -c Release --logger "trx;LogFileName=factory-bot.trx"
+
+  # ---------------------------------------------------------------------
+  factory-dashboard:
+    name: Factory Dashboard • lint + typecheck + build + Playwright E2E
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/factory-dashboard
+    env:
+      ADMIN_EMAIL: admin@softwarefactory.local
+      ADMIN_PASSWORD: ci-dummy-password
+      AUTH_SECRET: ci_dummy_secret_ci_dummy_secret_32c
+      AUTH_TRUST_HOST: "true"
+      PLATFORM_API_BASE_URL: http://localhost:5090
+      CI_WEBHOOK_SECRET: ci-dummy-webhook-secret
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: apps/factory-dashboard/package-lock.json
+      - run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Typecheck
+        run: npm run typecheck
+      - name: Build
+        run: npm run build
+      - name: Install Playwright browser
+        run: npx playwright install --with-deps chromium
+      - name: Playwright E2E (mocked Platform API)
+        run: npm run test:e2e
