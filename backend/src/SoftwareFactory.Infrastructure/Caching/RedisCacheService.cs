@@ -35,7 +35,11 @@ public sealed class RedisCacheService : ICacheService
                 return default;
             }
 
-            return JsonSerializer.Deserialize<T>(value!, JsonOptions);
+            // Materialize the RedisValue to a string before deserializing: RedisValue has
+            // implicit conversions to BOTH string and byte[], which makes an overloaded
+            // JsonSerializer.Deserialize<T>(...) call ambiguous on newer System.Text.Json
+            // (fails the CI 9.0.x compile). ToString() pins the string overload.
+            return JsonSerializer.Deserialize<T>(value.ToString(), JsonOptions);
         }
         catch (Exception ex)
         {

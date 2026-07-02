@@ -84,9 +84,16 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
       - run: npm ci
       - run: npx playwright install --with-deps chromium
-      - name: Run E2E
+      - name: Run E2E (ecommerce)
         run: npm run test:e2e
         env:
+          NEXT_PUBLIC_API_BASE_URL: http://localhost:5080
+          AUTH_SECRET: ci_dummy_secret_ci_dummy_secret_32
+          PAYLOAD_SECRET: ci_dummy_payload_secret_value_here
+      - name: Run E2E (restaurant vertical)
+        run: npm run test:e2e
+        env:
+          E2E_VERTICAL: restaurant
           NEXT_PUBLIC_API_BASE_URL: http://localhost:5080
           AUTH_SECRET: ci_dummy_secret_ci_dummy_secret_32
           PAYLOAD_SECRET: ci_dummy_payload_secret_value_here
