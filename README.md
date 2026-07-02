@@ -294,6 +294,12 @@ npm run test:e2e                  # Playwright (happy-path checkout flow)
 (lint + typecheck + unit + build) · **Playwright E2E** · **Lighthouse CI** with minimum
 score thresholds enforced in `frontend/lighthouserc.json`.
 
+Phase 3 adds three additive jobs (client tiers untouched): **platform**
+(`dotnet` restore/build/test `platform/SoftwareFactory.Platform.sln -c Release`, EF InMemory) ·
+**factory-bot** (`dotnet` restore/build/test `apps/factory-bot/FactoryBot.sln -c Release`) ·
+**factory-dashboard** (`npm ci` → lint → typecheck → build → Playwright E2E with dummy admin/auth
+envs). All use `actions/setup-dotnet@v4` (9.0.x) / `actions/setup-node@v4` (node 20).
+
 ---
 
 ## 7. Quality standards (built in from the start)
@@ -326,3 +332,60 @@ score thresholds enforced in `frontend/lighthouserc.json`.
 
 See [`.env.example`](.env.example). Never commit real secrets — everything is injected via
 environment variables. Generate secrets with `openssl rand -base64 32`.
+
+---
+
+## 10. Phase 3 — Factory Control Plane
+
+Phase 3 is the **internal tooling used to run the factory itself** — not another client vertical
+and not gated by `options.json`. It is strictly **additive**: it lives in new top-level dirs
+(`platform/`, `apps/factory-dashboard`, `apps/factory-bot`) and does **not** touch anything under
+`backend/src`. The full contract lives in [`docs/PHASE3.md`](docs/PHASE3.md).
+
+### Intentionally lighter than the client backend (and why)
+
+The client backend is a full DDD/CQRS product because it ships to real customers. The platform is
+**internal admin tooling**, so it deliberately **avoids the heavier machinery** to stay small and
+obvious — over-engineering internal tools is a cost, not a virtue:
+
+- Same 4-layer Clean Architecture **names** (Domain / Application / Infrastructure / Api) for
+  familiarity, but **no MediatR / CQRS pipeline behaviors / domain events / Redis**. Application
+  logic is plain **service classes** (e.g. `ProjectService`) behind interfaces.
+- EF Core + Npgsql for the API; **EF Core InMemory provider** for unit tests — no Docker /
+  Testcontainers, because this is admin tooling, not the shipped product.
+- Light inline validation (guard clauses / DataAnnotations) instead of FluentValidation; record
+  DTOs and minimal endpoints.
+
+### `platform/` — SoftwareFactory.Platform.\* (.NET 9)
+
+Minimal REST API (`/api`) over the factory CRM domain: `Client`, `Project`, `ApprovalGate`,
+`ApiUsageRecord`, `DeploymentEvent`. Exposes the outbox feed `GET /api/deployments?since=<iso>`
+that the bot polls, and honors `PLATFORM_SKIP_DB_INIT=1` to skip migrate/seed for testability.
+
+### `apps/factory-dashboard` — Next.js 15 (admin-only, English only)
+
+Auth.js (NextAuth v5) Credentials, **single admin** from `ADMIN_EMAIL` / `ADMIN_PASSWORD` (JWT
+session). Talks to the Platform API over HTTP via a server-side typed client
+(`PLATFORM_API_BASE_URL`). Project detail page renders the **visual 7-phase pipeline**
+(Intake → Foundation → Generation → Build → Harden → Ship → Operate), **approval actions for the
+3 human gates** (Architecture / Security / Deploy), a **NoOp analytics panel**, and the
+**API cost table** from `/usage`. `POST /api/webhooks/ci` is a route handler GitHub Actions calls
+on job completion — authenticated by a **shared-secret header** `X-Webhook-Secret`
+(env `CI_WEBHOOK_SECRET`), not OAuth; it forwards a `DeploymentEvent` to the Platform API and
+returns 401 on a bad/absent secret.
+
+### `apps/factory-bot` — .NET 9 Worker Service (Telegram.Bot)
+
+A `BackgroundService` with a testable `CommandParser` → command handlers: `/projects`, `/status
+<id>`, `/approve <gate> <id>`, `/help`. A polling **`DeploymentNotifier`** hits `GET
+/api/deployments?since=<last>` on an interval and pushes new deployment events to
+`TELEGRAM_CHAT_ID`. No business logic is duplicated — a typed `IPlatformApiClient` (HttpClient)
+calls the Platform REST API.
+
+### NoOp stubs (and why)
+
+Analytics mirrors the client backend's **NoOp provider pattern**
+(`NoOpPaymentGateway` / `NoOpEInvoiceService`): the platform defines `IAnalyticsProvider` with a
+`NoOpAnalyticsProvider` that returns zeros/empty and `provider: "noop"`, and the dashboard renders
+a placeholder analytics panel. This keeps the seam real and the pipeline green today; wiring the
+**real Umami / LiteLLM** integration is deferred — `// TODO(phase-4)`.
