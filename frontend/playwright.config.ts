@@ -5,10 +5,12 @@ import { defineConfig, devices } from "@playwright/test";
  * ONE vertical per invocation, selected by `E2E_VERTICAL` (default "ecommerce").
  * CI runs the job twice: ecommerce, then `E2E_VERTICAL=restaurant`.
  *
- * The DEV server is used so no prior production build is required (the `frontend`
- * CI job already covers `next build`) — this avoids the "Could not find a
- * production build in '.next'" failure. The restaurant spec mocks /api/v1/* via
- * page.route, so the flow is deterministic without a backend.
+ * The DEV server is used so no prior production build is required (avoids the
+ * "Could not find a production build in '.next'" CI failure; the `frontend` job
+ * already covers `next build`). Wrong-vertical route guards are asserted by
+ * CONTENT (the not-found UI), since a child `notFound()` under the root layout
+ * keeps a 200 status in both dev and prod. The restaurant spec mocks /api/v1/*
+ * via page.route so the flow is deterministic without a backend.
  */
 const VERTICAL = (process.env.E2E_VERTICAL || "ecommerce") as "ecommerce" | "restaurant";
 const baseURL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
@@ -20,7 +22,7 @@ const serverEnv: Record<string, string> = {
   PAYLOAD_SECRET:
     process.env.PAYLOAD_SECRET || "ci_dummy_payload_secret_value_here",
   // Restaurant vertical: point the loader at the restaurant manifest (resolved
-  // relative to the repo root from the frontend/ cwd).
+  // relative to the repo root from the frontend/ cwd) for BOTH build and start.
   ...(VERTICAL === "restaurant" ? { OPTIONS_FILE: "options.restaurant.json" } : {}),
 };
 
@@ -57,6 +59,7 @@ export default defineConfig({
   },
   projects: VERTICAL === "restaurant" ? restaurantProjects : ecommerceProjects,
   webServer: {
+    // Dev server: no prior production build needed (the frontend job covers build).
     command: "npm run dev",
     url: baseURL,
     reuseExistingServer: !process.env.CI,

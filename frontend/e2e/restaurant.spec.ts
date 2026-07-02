@@ -146,9 +146,13 @@ test.describe("restaurant happy path", () => {
 });
 
 test.describe("restaurant vertical guards ecommerce routes off", () => {
-  test("/products 404s in restaurant mode", async ({ page }) => {
-    const res = await page.goto("/en/products");
-    // getSiteType guard -> notFound() for the wrong vertical.
-    expect(res?.status()).toBe(404);
+  test("products route is guarded off in restaurant mode", async ({ page }) => {
+    await page.goto("/en/products");
+    // The getSiteType guard calls notFound() for the wrong vertical. In the App
+    // Router a child notFound() under the root layout renders the not-found UI
+    // but keeps a 200 status, so assert the guard by CONTENT (the not-found
+    // page), not HTTP status — the ecommerce product listing must NOT appear.
+    await expect(page.getByText(/page not found/i)).toBeVisible();
+    await expect(page.getByRole("heading", { name: /^products$/i })).toHaveCount(0);
   });
 });
