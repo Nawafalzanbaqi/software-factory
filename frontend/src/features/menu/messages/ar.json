@@ -1,0 +1,23 @@
+{
+  "menu": {
+    "title": "قائمتنا",
+    "subtitle": "أطباق طازجة تُحضّر عند الطلب.",
+    "sectionTitle": "من مطبخنا",
+    "sectionSubtitle": "لمحة مما نقدّمه — تصفّح القائمة كاملة.",
+    "viewFullMenu": "عرض القائمة كاملة",
+    "backToMenu": "العودة إلى القائمة",
+    "allCategories": "الكل",
+    "categoriesAria": "تصفية القائمة حسب الفئة",
+    "empty": "لا توجد أطباق متاحة حالياً.",
+    "description": "الوصف",
+    "tags": "الوسوم الغذائية",
+    "available": "متوفر",
+    "unavailable": "غير متوفر",
+    "spicy": "حار",
+    "spicyLevel": "مستوى الحرارة {level}",
+    "calories": "{count, number} سعرة",
+    "quantity": "الكمية",
+    "addToCart": "أضِف إلى السلة",
+    "added": "تمت الإضافة إلى السلة"
+  }
+}

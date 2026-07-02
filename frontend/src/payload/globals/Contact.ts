@@ -40,5 +40,11 @@ export const Contact: GlobalConfig = {
       name: "mapUrl",
       type: "text",
     },
+    {
+      // Optional, non-breaking. Handy for the restaurant vertical (orders/
+      // reservations via WhatsApp). Existing fetchers ignore it.
+      name: "whatsapp",
+      type: "text",
+    },
   ],
 };

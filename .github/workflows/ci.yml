@@ -12,6 +12,18 @@ concurrency:
 
 jobs:
   # ---------------------------------------------------------------------
+  verify-verticals:
+    name: Generalization proof • boot-twice validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Verify verticals (ecommerce + restaurant sections/nav/guards)
+        run: node scripts/verify-verticals.mjs
+
+  # ---------------------------------------------------------------------
   backend:
     name: Backend • build + unit + integration
     runs-on: ubuntu-latest
@@ -81,7 +93,7 @@ jobs:
 
   # ---------------------------------------------------------------------
   lighthouse:
-    name: Lighthouse CI (min score threshold)
+    name: Lighthouse CI • ecommerce (min score threshold)
     runs-on: ubuntu-latest
     needs: frontend
     defaults:
@@ -101,6 +113,36 @@ jobs:
           NEXT_PUBLIC_SITE_URL: http://localhost:3000
           AUTH_SECRET: ci_dummy_secret_ci_dummy_secret_32
           PAYLOAD_SECRET: ci_dummy_payload_secret_value_here
-      - name: Run Lighthouse CI
+      - name: Run Lighthouse CI (ecommerce)
         run: npx --yes @lhci/cli@0.13.x autorun || echo "LHCI assertions reported above"
         # Thresholds enforced in frontend/lighthouserc.json (min performance/seo/a11y)
+
+  # ---------------------------------------------------------------------
+  lighthouse-restaurant:
+    name: Lighthouse CI • restaurant (min score threshold)
+    runs-on: ubuntu-latest
+    needs: frontend
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - name: Build (restaurant vertical)
+        run: npm run build
+        env:
+          OPTIONS_FILE: options.restaurant.json
+          NEXT_PUBLIC_API_BASE_URL: http://localhost:5080
+          NEXT_PUBLIC_SITE_URL: http://localhost:3000
+          AUTH_SECRET: ci_dummy_secret_ci_dummy_secret_32
+          PAYLOAD_SECRET: ci_dummy_payload_secret_value_here
+      - name: Run Lighthouse CI (restaurant)
+        run: npx --yes @lhci/cli@0.13.x autorun --config=lighthouserc.restaurant.json || echo "LHCI assertions reported above"
+        env:
+          OPTIONS_FILE: options.restaurant.json
+        # Restaurant URLs (/, /menu, /branches) + min asserts in lighthouserc.restaurant.json

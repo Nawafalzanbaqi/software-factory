@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import type { Locale } from "@/lib/i18n/routing";
 import { buildMetadata } from "@/lib/seo/metadata";
+import { getSiteType } from "@/lib/config/options";
 import { ProductListing } from "@/features/products";
 import type { SortOption } from "@/features/products";
 
@@ -33,6 +35,8 @@ export default async function ProductsPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
+  // Ecommerce-only route.
+  if ((await getSiteType()) !== "ecommerce") notFound();
   const sp = await searchParams;
 
   return (

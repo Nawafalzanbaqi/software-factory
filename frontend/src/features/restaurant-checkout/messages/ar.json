@@ -1,0 +1,78 @@
+{
+  "restaurantCheckout": {
+    "title": "إتمام الطلب",
+    "subtitle": "اختر طريقة استلام طلبك وأدخل بياناتك.",
+    "empty": "سلة طلبك فارغة. أضف بعض الأطباق قبل إتمام الطلب.",
+    "browseMenu": "تصفّح القائمة",
+    "form": {
+      "fulfillmentHeading": "كيف تريد استلام طلبك؟",
+      "fulfillment": {
+        "dinein": {
+          "label": "تناول في المطعم",
+          "description": "اطلب إلى طاولتك في المطعم."
+        },
+        "pickup": {
+          "label": "استلام",
+          "description": "استلم طلبك من أحد الفروع."
+        },
+        "delivery": {
+          "label": "توصيل",
+          "description": "سنوصله إلى باب منزلك."
+        }
+      },
+      "branchHeading": "الفرع والتوقيت",
+      "branch": "الفرع",
+      "branchPlaceholder": "اختر فرعًا",
+      "branchLoading": "جارٍ تحميل الفروع…",
+      "branchError": "تعذّر تحميل الفروع. يرجى تحديث الصفحة والمحاولة مرة أخرى.",
+      "table": "رقم الطاولة",
+      "tablePlaceholder": "مثال: ١٢",
+      "scheduledFor": "جدولة لوقت لاحق",
+      "deliveryHeading": "عنوان التوصيل",
+      "customerHeading": "بيانات التواصل",
+      "name": "الاسم الكامل",
+      "namePlaceholder": "اسمك الكامل",
+      "email": "البريد الإلكتروني",
+      "emailPlaceholder": "you@example.com",
+      "phone": "رقم الهاتف",
+      "phonePlaceholder": "05xxxxxxxx",
+      "line1": "العنوان - السطر الأول",
+      "line1Placeholder": "اسم الشارع، المبنى",
+      "line2": "العنوان - السطر الثاني",
+      "line2Placeholder": "الشقة، الطابق، علامة مميزة",
+      "city": "المدينة",
+      "cityPlaceholder": "المدينة",
+      "optional": "اختياري",
+      "placeOrder": "تأكيد الطلب",
+      "placing": "جارٍ تأكيد الطلب…"
+    },
+    "summary": {
+      "title": "ملخص الطلب",
+      "quantity": "الكمية {count}",
+      "subtotal": "المجموع الفرعي",
+      "fees": "الخدمة والتوصيل",
+      "feesNote": "تُحتسب عند الاستلام",
+      "total": "الإجمالي"
+    },
+    "validation": {
+      "branchRequired": "يرجى اختيار فرع.",
+      "tableRequired": "يرجى إدخال رقم الطاولة.",
+      "tableMax": "يجب ألا يتجاوز رقم الطاولة ٢٠ حرفًا.",
+      "nameRequired": "يرجى إدخال اسمك الكامل.",
+      "nameMax": "يجب ألا يتجاوز الاسم ٨٠ حرفًا.",
+      "emailRequired": "يرجى إدخال بريدك الإلكتروني.",
+      "emailInvalid": "يرجى إدخال بريد إلكتروني صحيح.",
+      "phoneRequired": "يرجى إدخال رقم هاتفك.",
+      "phoneInvalid": "يرجى إدخال رقم هاتف صحيح.",
+      "line1Required": "يرجى إدخال عنوان التوصيل.",
+      "line1Max": "يجب ألا يتجاوز العنوان ١٢٠ حرفًا.",
+      "line2Max": "يجب ألا يتجاوز العنوان ١٢٠ حرفًا.",
+      "cityRequired": "يرجى إدخال المدينة.",
+      "cityMax": "يجب ألا تتجاوز المدينة ٨٠ حرفًا."
+    },
+    "toast": {
+      "success": "تم تأكيد طلبك.",
+      "error": "عذرًا، تعذّر تأكيد طلبك. يرجى المحاولة مرة أخرى."
+    }
+  }
+}

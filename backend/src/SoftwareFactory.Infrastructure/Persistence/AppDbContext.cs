@@ -4,12 +4,12 @@ using Microsoft.EntityFrameworkCore;
 using SoftwareFactory.Application.Common.Events;
 using SoftwareFactory.Application.Common.Interfaces;
 using SoftwareFactory.Domain.Common;
-using SoftwareFactory.Domain.Modules.Cart;
 using SoftwareFactory.Domain.Modules.Catalog;
 using SoftwareFactory.Domain.Modules.Contact;
-using SoftwareFactory.Domain.Modules.Orders;
+using SoftwareFactory.Domain.Modules.Restaurant;
 using SoftwareFactory.Domain.Modules.Reviews;
 using SoftwareFactory.Domain.Modules.Wishlist;
+using SoftwareFactory.Domain.Shared.Ordering;
 
 namespace SoftwareFactory.Infrastructure.Persistence;
 
@@ -27,12 +27,23 @@ public sealed class AppDbContext : DbContext, IUnitOfWork
         _publisher = publisher;
     }
 
+    // E-commerce catalog
     public DbSet<Product> Products => Set<Product>();
     public DbSet<Category> Categories => Set<Category>();
-    public DbSet<Cart> Carts => Set<Cart>();
-    public DbSet<Order> Orders => Set<Order>();
     public DbSet<Review> Reviews => Set<Review>();
     public DbSet<WishlistItem> WishlistItems => Set<WishlistItem>();
+
+    // Shared ordering pipeline (both verticals)
+    public DbSet<Cart> Carts => Set<Cart>();
+    public DbSet<Order> Orders => Set<Order>();
+
+    // Restaurant catalog + reservations
+    public DbSet<MenuCategory> MenuCategories => Set<MenuCategory>();
+    public DbSet<MenuItem> MenuItems => Set<MenuItem>();
+    public DbSet<Branch> Branches => Set<Branch>();
+    public DbSet<Table> Tables => Set<Table>();
+    public DbSet<Reservation> Reservations => Set<Reservation>();
+
     public DbSet<ContactMessage> ContactMessages => Set<ContactMessage>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

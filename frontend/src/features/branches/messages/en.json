@@ -1,0 +1,29 @@
+{
+  "branches": {
+    "section": {
+      "title": "Our Branches",
+      "subtitle": "Find the Software Factory Bistro nearest to you.",
+      "viewAll": "View all branches"
+    },
+    "page": {
+      "title": "Branches & Locations",
+      "subtitle": "Explore our locations on the map, then check opening hours, call ahead, or get directions."
+    },
+    "map": {
+      "ariaLabel": "Map showing the locations of our branches",
+      "fallbackHeading": "Branch locations",
+      "loading": "Loading map…"
+    },
+    "card": {
+      "addressLabel": "Address",
+      "phoneLabel": "Phone",
+      "hoursLabel": "Opening hours",
+      "closed": "Closed",
+      "directions": "Directions",
+      "getDirections": "Get directions"
+    },
+    "emptyState": "No branches are available right now. Please check back soon.",
+    "metaTitle": "Branches & Locations — Software Factory Bistro",
+    "metaDescription": "Find Software Factory Bistro branches near you: addresses, phone numbers, opening hours and an interactive map with directions."
+  }
+}

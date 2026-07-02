@@ -1,0 +1,23 @@
+{
+  "menu": {
+    "title": "Our Menu",
+    "subtitle": "Freshly prepared dishes, crafted to order.",
+    "sectionTitle": "From our kitchen",
+    "sectionSubtitle": "A taste of what we serve — explore the full menu.",
+    "viewFullMenu": "View full menu",
+    "backToMenu": "Back to menu",
+    "allCategories": "All",
+    "categoriesAria": "Filter menu by category",
+    "empty": "No dishes available right now.",
+    "description": "Description",
+    "tags": "Dietary tags",
+    "available": "Available",
+    "unavailable": "Unavailable",
+    "spicy": "Spicy",
+    "spicyLevel": "Spice level {level}",
+    "calories": "{count, number} kcal",
+    "quantity": "Quantity",
+    "addToCart": "Add to cart",
+    "added": "Added to cart"
+  }
+}

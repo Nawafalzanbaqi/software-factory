@@ -6,13 +6,14 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using SoftwareFactory.Api.Identity;
 using SoftwareFactory.Api.Middleware;
-using SoftwareFactory.Api.Modules.Cart;
 using SoftwareFactory.Api.Modules.Catalog;
 using SoftwareFactory.Api.Modules.Contact;
-using SoftwareFactory.Api.Modules.Orders;
+using SoftwareFactory.Api.Modules.Ecommerce;
+using SoftwareFactory.Api.Modules.Restaurant;
 using SoftwareFactory.Api.Modules.Reviews;
 using SoftwareFactory.Api.Modules.Search;
 using SoftwareFactory.Api.Modules.Wishlist;
+using SoftwareFactory.Api.Shared.Ordering;
 using SoftwareFactory.Application;
 using SoftwareFactory.Application.Common.Interfaces;
 using SoftwareFactory.Infrastructure;
@@ -150,27 +151,15 @@ app.MapHealthChecks("/health").AllowAnonymous();
 // (Code for disabled modules still ships; it is just not registered.)
 // ---------------------------------------------------------------------------
 var features = app.Services.GetRequiredService<IFeatureManager>();
+var isEcommerce = features.IsVertical("ecommerce");
+var isRestaurant = features.IsVertical("restaurant");
 
-// Core commerce flows (always on).
-app.MapCatalog();
+// --- Shared modules (registered for BOTH verticals, as enabled) ---
 app.MapCart();
-app.MapCheckout();
 
-// Contact — mapped when its content section is enabled.
 if (features.IsSectionEnabled("contact"))
 {
     app.MapContact();
-}
-
-// Feature-flagged modules.
-if (features.IsFeatureEnabled("search"))
-{
-    app.MapSearch();
-}
-
-if (features.IsFeatureEnabled("wishlist"))
-{
-    app.MapWishlist();
 }
 
 if (features.IsFeatureEnabled("orderTracking"))
@@ -178,29 +167,67 @@ if (features.IsFeatureEnabled("orderTracking"))
     app.MapOrderTracking();
 }
 
-// Reviews is OFF by default per options.json.
+// Reviews is OFF by default; shared across verticals when enabled.
 if (features.IsFeatureEnabled("reviews"))
 {
     app.MapReviews();
 }
 
+// --- E-commerce vertical modules (siteType=ecommerce) ---
+if (isEcommerce)
+{
+    app.MapCatalog();
+    app.MapEcommerceCheckout();
+
+    if (features.IsFeatureEnabled("wishlist"))
+    {
+        app.MapWishlist();
+    }
+
+    if (features.IsFeatureEnabled("search"))
+    {
+        app.MapSearch(); // product search
+    }
+}
+
+// --- Restaurant vertical modules (siteType=restaurant) ---
+if (isRestaurant)
+{
+    app.MapMenu();
+    app.MapBranches();
+    app.MapReservations();
+    app.MapRestaurantCheckout();
+
+    if (features.IsFeatureEnabled("search"))
+    {
+        app.MapRestaurantSearch(); // menu-item search
+    }
+}
+
 // ---------------------------------------------------------------------------
 // Startup work: apply schema + seed enabled modules; emit openapi.json (dev).
 // ---------------------------------------------------------------------------
+// Honor SF_SKIP_DB_INIT=1 so a WebApplicationFactory test can boot and assert
+// the registered endpoint set without a running Postgres.
+var skipDbInit = Environment.GetEnvironmentVariable("SF_SKIP_DB_INIT") == "1";
+
 if (app.Environment.IsDevelopment())
 {
-    try
+    if (!skipDbInit)
     {
-        await DbSeeder.MigrateAndSeedAsync(app.Services);
-    }
-    catch (Exception ex)
-    {
-        app.Logger.LogWarning(ex, "Database migrate/seed skipped (is Postgres running?).");
-    }
+        try
+        {
+            await DbSeeder.MigrateAndSeedAsync(app.Services);
+        }
+        catch (Exception ex)
+        {
+            app.Logger.LogWarning(ex, "Database migrate/seed skipped (is Postgres running?).");
+        }
 
-    // Emit openapi.json AFTER the pipeline is built so the endpoint data source
-    // (and therefore ApiExplorer) is fully populated.
-    app.Lifetime.ApplicationStarted.Register(() => EmitOpenApiDocument(app));
+        // Emit openapi.json AFTER the pipeline is built so the endpoint data source
+        // (and therefore ApiExplorer) is fully populated.
+        app.Lifetime.ApplicationStarted.Register(() => EmitOpenApiDocument(app));
+    }
 }
 
 app.Run();

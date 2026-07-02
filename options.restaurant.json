@@ -1,0 +1,38 @@
+{
+  "$schema": "./options.schema.json",
+  "siteType": "restaurant",
+  "siteName": "Software Factory Bistro",
+  "language": "ar-en",
+  "defaultLocale": "ar",
+  "defaultDirection": "rtl",
+  "currency": "SAR",
+  "payments": ["cod"],
+  "integrations": ["whatsapp"],
+  "features": {
+    "reservations": true,
+    "branchLocator": true,
+    "gallery": true,
+    "promotions": true,
+    "search": true,
+    "orderTracking": true,
+    "clientDashboard": true,
+    "cms": true,
+    "analytics": true,
+    "reviews": false,
+    "wishlist": false
+  },
+  "sections": {
+    "hero": { "enabled": true, "order": 1 },
+    "promotions": { "enabled": true, "order": 2 },
+    "menu": { "enabled": true, "order": 3 },
+    "gallery": { "enabled": true, "order": 4 },
+    "branches": { "enabled": true, "order": 5 },
+    "reservation": { "enabled": true, "order": 6 },
+    "reviews": { "enabled": false, "order": 7 },
+    "about": { "enabled": true, "order": 8 },
+    "faq": { "enabled": true, "order": 9 },
+    "contact": { "enabled": true, "order": 10 },
+    "footer": { "enabled": true, "order": 99 }
+  },
+  "designDirection": "premium"
+}

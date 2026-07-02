@@ -1,0 +1,78 @@
+{
+  "restaurantCheckout": {
+    "title": "Checkout",
+    "subtitle": "Choose how you'd like your order and enter your details.",
+    "empty": "Your order is empty. Add some dishes before checking out.",
+    "browseMenu": "Browse the menu",
+    "form": {
+      "fulfillmentHeading": "How would you like your order?",
+      "fulfillment": {
+        "dinein": {
+          "label": "Dine in",
+          "description": "Order to your table at the restaurant."
+        },
+        "pickup": {
+          "label": "Pickup",
+          "description": "Collect your order from a branch."
+        },
+        "delivery": {
+          "label": "Delivery",
+          "description": "We'll bring it to your door."
+        }
+      },
+      "branchHeading": "Branch & timing",
+      "branch": "Branch",
+      "branchPlaceholder": "Select a branch",
+      "branchLoading": "Loading branches…",
+      "branchError": "We couldn't load branches. Please refresh and try again.",
+      "table": "Table number",
+      "tablePlaceholder": "e.g. 12",
+      "scheduledFor": "Schedule for later",
+      "deliveryHeading": "Delivery address",
+      "customerHeading": "Contact details",
+      "name": "Full name",
+      "namePlaceholder": "Your full name",
+      "email": "Email",
+      "emailPlaceholder": "you@example.com",
+      "phone": "Phone number",
+      "phonePlaceholder": "05xxxxxxxx",
+      "line1": "Address line 1",
+      "line1Placeholder": "Street address, building",
+      "line2": "Address line 2",
+      "line2Placeholder": "Apartment, floor, landmark",
+      "city": "City",
+      "cityPlaceholder": "City",
+      "optional": "optional",
+      "placeOrder": "Place order",
+      "placing": "Placing order…"
+    },
+    "summary": {
+      "title": "Order summary",
+      "quantity": "Qty {count}",
+      "subtotal": "Subtotal",
+      "fees": "Service & delivery",
+      "feesNote": "Calculated at fulfillment",
+      "total": "Total"
+    },
+    "validation": {
+      "branchRequired": "Please select a branch.",
+      "tableRequired": "Please enter your table number.",
+      "tableMax": "Table number must be 20 characters or fewer.",
+      "nameRequired": "Please enter your full name.",
+      "nameMax": "Name must be 80 characters or fewer.",
+      "emailRequired": "Please enter your email address.",
+      "emailInvalid": "Please enter a valid email address.",
+      "phoneRequired": "Please enter your phone number.",
+      "phoneInvalid": "Please enter a valid phone number.",
+      "line1Required": "Please enter your delivery address.",
+      "line1Max": "Address must be 120 characters or fewer.",
+      "line2Max": "Address must be 120 characters or fewer.",
+      "cityRequired": "Please enter your city.",
+      "cityMax": "City must be 80 characters or fewer."
+    },
+    "toast": {
+      "success": "Your order has been placed.",
+      "error": "Sorry, we couldn't place your order. Please try again."
+    }
+  }
+}
