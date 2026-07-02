@@ -17,9 +17,12 @@ export default defineConfig({
     { name: "mobile", use: { ...devices["Pixel 5"] } },
   ],
   webServer: {
-    command: "npm run start",
+    // Use the dev server so E2E needs no prior production build (the `frontend`
+    // CI job already covers `next build`). Avoids the "Could not find a production
+    // build in '.next'" failure when `next start` runs without a build in CI.
+    command: "npm run dev",
     url: baseURL,
     reuseExistingServer: !process.env.CI,
-    timeout: 120_000,
+    timeout: 180_000,
   },
 });
