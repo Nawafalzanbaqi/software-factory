@@ -1,0 +1,16 @@
+{
+  "gallery": {
+    "title": "Gallery",
+    "subtitle": "A taste of our dishes, dining rooms and moments worth savouring.",
+    "viewAll": "View full gallery",
+    "openImage": "Open image: {alt}",
+    "lightboxLabel": "Photo gallery viewer",
+    "previous": "Previous photo",
+    "next": "Next photo",
+    "close": "Close gallery viewer",
+    "counter": "{current} of {total}",
+    "empty": "No photos have been added yet. Please check back soon.",
+    "metaTitle": "Gallery — Software Factory Bistro",
+    "metaDescription": "Browse our photo gallery: signature dishes, our dining spaces and memorable moments at Software Factory Bistro."
+  }
+}

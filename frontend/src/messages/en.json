@@ -31,7 +31,11 @@
     "search": "Search",
     "signIn": "Sign in",
     "signOut": "Sign out",
-    "account": "Account"
+    "account": "Account",
+    "menu": "Menu",
+    "reservations": "Reservations",
+    "branches": "Branches",
+    "gallery": "Gallery"
   },
   "hero": {
     "eyebrow": "Premium commerce, built to scale",
@@ -393,5 +397,232 @@
     "submitting": "Signing in…",
     "error": "Invalid email or password.",
     "noAccount": "Phase 1 uses a demo backend — sign-in is a wired stub."
+  },
+  "menu": {
+    "title": "Our Menu",
+    "subtitle": "Freshly prepared dishes, crafted to order.",
+    "sectionTitle": "From our kitchen",
+    "sectionSubtitle": "A taste of what we serve — explore the full menu.",
+    "viewFullMenu": "View full menu",
+    "backToMenu": "Back to menu",
+    "allCategories": "All",
+    "categoriesAria": "Filter menu by category",
+    "empty": "No dishes available right now.",
+    "description": "Description",
+    "tags": "Dietary tags",
+    "available": "Available",
+    "unavailable": "Unavailable",
+    "spicy": "Spicy",
+    "spicyLevel": "Spice level {level}",
+    "calories": "{count, number} kcal",
+    "quantity": "Quantity",
+    "addToCart": "Add to cart",
+    "added": "Added to cart"
+  },
+  "branches": {
+    "section": {
+      "title": "Our Branches",
+      "subtitle": "Find the Software Factory Bistro nearest to you.",
+      "viewAll": "View all branches"
+    },
+    "page": {
+      "title": "Branches & Locations",
+      "subtitle": "Explore our locations on the map, then check opening hours, call ahead, or get directions."
+    },
+    "map": {
+      "ariaLabel": "Map showing the locations of our branches",
+      "fallbackHeading": "Branch locations",
+      "loading": "Loading map…"
+    },
+    "card": {
+      "addressLabel": "Address",
+      "phoneLabel": "Phone",
+      "hoursLabel": "Opening hours",
+      "closed": "Closed",
+      "directions": "Directions",
+      "getDirections": "Get directions"
+    },
+    "emptyState": "No branches are available right now. Please check back soon.",
+    "metaTitle": "Branches & Locations — Software Factory Bistro",
+    "metaDescription": "Find Software Factory Bistro branches near you: addresses, phone numbers, opening hours and an interactive map with directions."
+  },
+  "reservations": {
+    "cta": {
+      "title": "Reserve your table",
+      "subtitle": "Book a table in seconds and skip the wait. Choose your branch, party size and time.",
+      "action": "Book a table"
+    },
+    "page": {
+      "title": "Book a table",
+      "subtitle": "Tell us where and when — we'll have your table ready.",
+      "noBranches": "Online reservations are not available right now. Please try again later."
+    },
+    "form": {
+      "branch": "Branch",
+      "branchPlaceholder": "Select a branch",
+      "partySize": "Party size",
+      "partySizeOption": "{count, plural, one {# guest} other {# guests}}",
+      "dateTime": "Date & time",
+      "name": "Name",
+      "namePlaceholder": "Your full name",
+      "email": "Email",
+      "emailPlaceholder": "you@example.com",
+      "phone": "Phone",
+      "phonePlaceholder": "+966 5X XXX XXXX",
+      "notes": "Notes (optional)",
+      "notesPlaceholder": "Allergies, high chair, celebration…",
+      "submit": "Confirm reservation",
+      "submitting": "Booking…"
+    },
+    "confirmation": {
+      "title": "Your table is booked!",
+      "subtitle": "We've received your reservation. Keep your reference to track its status.",
+      "referenceLabel": "Reservation reference",
+      "trackCta": "Track reservation"
+    },
+    "track": {
+      "title": "Your reservation",
+      "referenceLabel": "Reference:",
+      "status": "Status",
+      "branch": "Branch",
+      "partySize": "Party size",
+      "dateTime": "Date & time",
+      "name": "Name"
+    },
+    "status": {
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "seated": "Seated",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "validation": {
+      "branchRequired": "Please choose a branch.",
+      "partySizeRequired": "Please select a party size.",
+      "partySizeInvalid": "Party size must be a whole number.",
+      "partySizeMin": "At least 1 guest is required.",
+      "partySizeMax": "For parties larger than 20, please call us.",
+      "dateTimeRequired": "Please choose a date and time.",
+      "dateTimeInvalid": "Please enter a valid date and time.",
+      "dateTimeFuture": "Please choose a time in the future.",
+      "nameRequired": "Please enter your name.",
+      "nameMax": "Name must be 80 characters or fewer.",
+      "emailRequired": "Please enter your email address.",
+      "emailInvalid": "Please enter a valid email address.",
+      "phoneMin": "Please enter a valid phone number.",
+      "phoneMax": "Phone number must be 20 characters or fewer.",
+      "notesMax": "Notes must be 500 characters or fewer."
+    },
+    "toast": {
+      "success": "Your reservation has been booked.",
+      "error": "Sorry, we couldn't book your reservation. Please try again."
+    },
+    "meta": {
+      "title": "Book a table",
+      "description": "Reserve a table at your nearest branch — choose your party size, date and time.",
+      "trackTitle": "Your reservation",
+      "trackDescription": "Track the status of your table reservation."
+    }
+  },
+  "promotions": {
+    "title": "Offers & Promotions",
+    "subtitle": "Limited-time deals from our kitchen.",
+    "cta": "View offer",
+    "viewAll": "See all offers",
+    "validUntil": "Valid until {date}",
+    "empty": "No active offers right now. Check back soon.",
+    "regionLabel": "Promotions",
+    "pageTitle": "Offers & Promotions",
+    "pageSubtitle": "Every limited-time deal, in one place."
+  },
+  "gallery": {
+    "title": "Gallery",
+    "subtitle": "A taste of our dishes, dining rooms and moments worth savouring.",
+    "viewAll": "View full gallery",
+    "openImage": "Open image: {alt}",
+    "lightboxLabel": "Photo gallery viewer",
+    "previous": "Previous photo",
+    "next": "Next photo",
+    "close": "Close gallery viewer",
+    "counter": "{current} of {total}",
+    "empty": "No photos have been added yet. Please check back soon.",
+    "metaTitle": "Gallery — Software Factory Bistro",
+    "metaDescription": "Browse our photo gallery: signature dishes, our dining spaces and memorable moments at Software Factory Bistro."
+  },
+  "restaurantCheckout": {
+    "title": "Checkout",
+    "subtitle": "Choose how you'd like your order and enter your details.",
+    "empty": "Your order is empty. Add some dishes before checking out.",
+    "browseMenu": "Browse the menu",
+    "form": {
+      "fulfillmentHeading": "How would you like your order?",
+      "fulfillment": {
+        "dinein": {
+          "label": "Dine in",
+          "description": "Order to your table at the restaurant."
+        },
+        "pickup": {
+          "label": "Pickup",
+          "description": "Collect your order from a branch."
+        },
+        "delivery": {
+          "label": "Delivery",
+          "description": "We'll bring it to your door."
+        }
+      },
+      "branchHeading": "Branch & timing",
+      "branch": "Branch",
+      "branchPlaceholder": "Select a branch",
+      "branchLoading": "Loading branches…",
+      "branchError": "We couldn't load branches. Please refresh and try again.",
+      "table": "Table number",
+      "tablePlaceholder": "e.g. 12",
+      "scheduledFor": "Schedule for later",
+      "deliveryHeading": "Delivery address",
+      "customerHeading": "Contact details",
+      "name": "Full name",
+      "namePlaceholder": "Your full name",
+      "email": "Email",
+      "emailPlaceholder": "you@example.com",
+      "phone": "Phone number",
+      "phonePlaceholder": "05xxxxxxxx",
+      "line1": "Address line 1",
+      "line1Placeholder": "Street address, building",
+      "line2": "Address line 2",
+      "line2Placeholder": "Apartment, floor, landmark",
+      "city": "City",
+      "cityPlaceholder": "City",
+      "optional": "optional",
+      "placeOrder": "Place order",
+      "placing": "Placing order…"
+    },
+    "summary": {
+      "title": "Order summary",
+      "quantity": "Qty {count}",
+      "subtotal": "Subtotal",
+      "fees": "Service & delivery",
+      "feesNote": "Calculated at fulfillment",
+      "total": "Total"
+    },
+    "validation": {
+      "branchRequired": "Please select a branch.",
+      "tableRequired": "Please enter your table number.",
+      "tableMax": "Table number must be 20 characters or fewer.",
+      "nameRequired": "Please enter your full name.",
+      "nameMax": "Name must be 80 characters or fewer.",
+      "emailRequired": "Please enter your email address.",
+      "emailInvalid": "Please enter a valid email address.",
+      "phoneRequired": "Please enter your phone number.",
+      "phoneInvalid": "Please enter a valid phone number.",
+      "line1Required": "Please enter your delivery address.",
+      "line1Max": "Address must be 120 characters or fewer.",
+      "line2Max": "Address must be 120 characters or fewer.",
+      "cityRequired": "Please enter your city.",
+      "cityMax": "City must be 80 characters or fewer."
+    },
+    "toast": {
+      "success": "Your order has been placed.",
+      "error": "Sorry, we couldn't place your order. Please try again."
+    }
   }
 }

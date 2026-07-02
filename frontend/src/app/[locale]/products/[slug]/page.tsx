@@ -8,7 +8,7 @@ import { buildProductJsonLd } from "@/lib/seo/jsonld";
 import { JsonLd } from "@/lib/seo/json-ld";
 import { productsApi, ProductDetail, localizeProduct } from "@/features/products";
 import { ProductReviews } from "@/features/reviews";
-import { isFeatureEnabled } from "@/lib/config/options";
+import { getSiteType, isFeatureEnabled } from "@/lib/config/options";
 import type { ProductDto } from "@/lib/api/types";
 
 // SSG + ISR: pre-render known product pages, revalidate periodically.
@@ -66,6 +66,8 @@ export default async function ProductDetailPage({
 }) {
   const { locale, slug } = await params;
   setRequestLocale(locale);
+  // Ecommerce-only route.
+  if ((await getSiteType()) !== "ecommerce") notFound();
 
   const product = await fetchProduct(slug);
   if (!product) notFound();

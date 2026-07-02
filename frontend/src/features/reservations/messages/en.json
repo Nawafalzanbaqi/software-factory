@@ -1,0 +1,80 @@
+{
+  "reservations": {
+    "cta": {
+      "title": "Reserve your table",
+      "subtitle": "Book a table in seconds and skip the wait. Choose your branch, party size and time.",
+      "action": "Book a table"
+    },
+    "page": {
+      "title": "Book a table",
+      "subtitle": "Tell us where and when — we'll have your table ready.",
+      "noBranches": "Online reservations are not available right now. Please try again later."
+    },
+    "form": {
+      "branch": "Branch",
+      "branchPlaceholder": "Select a branch",
+      "partySize": "Party size",
+      "partySizeOption": "{count, plural, one {# guest} other {# guests}}",
+      "dateTime": "Date & time",
+      "name": "Name",
+      "namePlaceholder": "Your full name",
+      "email": "Email",
+      "emailPlaceholder": "you@example.com",
+      "phone": "Phone",
+      "phonePlaceholder": "+966 5X XXX XXXX",
+      "notes": "Notes (optional)",
+      "notesPlaceholder": "Allergies, high chair, celebration…",
+      "submit": "Confirm reservation",
+      "submitting": "Booking…"
+    },
+    "confirmation": {
+      "title": "Your table is booked!",
+      "subtitle": "We've received your reservation. Keep your reference to track its status.",
+      "referenceLabel": "Reservation reference",
+      "trackCta": "Track reservation"
+    },
+    "track": {
+      "title": "Your reservation",
+      "referenceLabel": "Reference:",
+      "status": "Status",
+      "branch": "Branch",
+      "partySize": "Party size",
+      "dateTime": "Date & time",
+      "name": "Name"
+    },
+    "status": {
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "seated": "Seated",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "validation": {
+      "branchRequired": "Please choose a branch.",
+      "partySizeRequired": "Please select a party size.",
+      "partySizeInvalid": "Party size must be a whole number.",
+      "partySizeMin": "At least 1 guest is required.",
+      "partySizeMax": "For parties larger than 20, please call us.",
+      "dateTimeRequired": "Please choose a date and time.",
+      "dateTimeInvalid": "Please enter a valid date and time.",
+      "dateTimeFuture": "Please choose a time in the future.",
+      "nameRequired": "Please enter your name.",
+      "nameMax": "Name must be 80 characters or fewer.",
+      "emailRequired": "Please enter your email address.",
+      "emailInvalid": "Please enter a valid email address.",
+      "phoneMin": "Please enter a valid phone number.",
+      "phoneMax": "Phone number must be 20 characters or fewer.",
+      "notesMax": "Notes must be 500 characters or fewer."
+    },
+    "toast": {
+      "success": "Your reservation has been booked.",
+      "error": "Sorry, we couldn't book your reservation. Please try again."
+    },
+    "meta": {
+      "title": "Book a table",
+      "description": "Reserve a table at your nearest branch — choose your party size, date and time.",
+      "trackTitle": "Your reservation",
+      "trackDescription": "Track the status of your table reservation."
+    }
+  }
+}

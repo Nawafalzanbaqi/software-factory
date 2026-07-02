@@ -15,6 +15,7 @@ import type { Payload } from "payload";
  */
 
 interface SeedOptions {
+  siteType?: string;
   features?: Record<string, boolean>;
   sections?: Record<string, { enabled?: boolean; order?: number }>;
 }
@@ -55,6 +56,16 @@ export async function seed(payload: Payload): Promise<void> {
       data: { email, password, name: "Store Admin" },
     });
     payload.logger.info(`[seed] created admin user ${email}`);
+  }
+
+  // --- Restaurant vertical ---------------------------------------------------
+  // When the active options select the restaurant vertical, seed restaurant
+  // sample content (reusing the shared Hero/About/Contact/Footer globals with
+  // restaurant copy) and skip the ecommerce catalog seed entirely.
+  if (options.siteType === "restaurant") {
+    await seedRestaurant(payload, sectionOn);
+    payload.logger.info("[seed] restaurant seed done");
+    return;
   }
 
   // --- Hero global -----------------------------------------------------------
@@ -299,4 +310,365 @@ export async function seed(payload: Payload): Promise<void> {
   // Reviews are intentionally NOT seeded: features.reviews is OFF by default.
 
   payload.logger.info("[seed] done");
+}
+
+/**
+ * Restaurant-vertical sample content. Called only when options.siteType ===
+ * "restaurant". Idempotent (no-ops when data already exists). Section keys follow
+ * options.restaurant.json: hero, promotions, menu, gallery, branches, reservation,
+ * about, faq, contact, footer.
+ *
+ * TODO(phase-3): multi-tenant — seed per tenant/brand instead of a single dataset.
+ */
+async function seedRestaurant(
+  payload: Payload,
+  sectionOn: (key: string) => boolean
+): Promise<void> {
+  // --- Hero global (reused) --------------------------------------------------
+  if (sectionOn("hero")) {
+    await payload.updateGlobal({
+      slug: "hero",
+      locale: "en",
+      data: {
+        eyebrow: "Authentic flavors",
+        title: "Fresh food, made to order",
+        subtitle: "Dine in, pick up, or get it delivered — reserve a table in seconds.",
+        ctaPrimaryLabel: "View menu",
+        ctaPrimaryHref: "/menu",
+        ctaSecondaryLabel: "Reserve a table",
+        ctaSecondaryHref: "/reservations",
+      },
+    });
+    await payload.updateGlobal({
+      slug: "hero",
+      locale: "ar",
+      data: {
+        eyebrow: "نكهات أصيلة",
+        title: "طعام طازج يُحضّر عند الطلب",
+        subtitle: "تناول في المطعم، أو استلم، أو اطلب التوصيل — واحجز طاولتك خلال ثوانٍ.",
+        ctaPrimaryLabel: "تصفح القائمة",
+        ctaSecondaryLabel: "احجز طاولة",
+      },
+    });
+    payload.logger.info("[seed] (restaurant) hero global seeded");
+  }
+
+  // --- About global (reused) -------------------------------------------------
+  if (sectionOn("about")) {
+    await payload.updateGlobal({
+      slug: "about",
+      locale: "en",
+      data: {
+        title: "Our story",
+        body: "A neighborhood kitchen serving seasonal dishes from locally sourced ingredients.",
+      },
+    });
+    await payload.updateGlobal({
+      slug: "about",
+      locale: "ar",
+      data: {
+        title: "قصتنا",
+        body: "مطبخ الحي يقدّم أطباقاً موسمية من مكونات محلية طازجة.",
+      },
+    });
+    payload.logger.info("[seed] (restaurant) about global seeded");
+  }
+
+  // --- Contact global (reused) -----------------------------------------------
+  if (sectionOn("contact")) {
+    await payload.updateGlobal({
+      slug: "contact",
+      locale: "en",
+      data: {
+        heading: "Visit or reach us",
+        subheading: "Reservations, catering and feedback — we'd love to hear from you.",
+        email: "hello@restaurant.local",
+        phone: "+966 11 000 1111",
+        address: "King Fahd Road, Riyadh, Saudi Arabia",
+        whatsapp: "+966 55 000 1111",
+      },
+    });
+    await payload.updateGlobal({
+      slug: "contact",
+      locale: "ar",
+      data: {
+        heading: "زُرنا أو تواصل معنا",
+        subheading: "الحجوزات والتموين وملاحظاتكم — يسعدنا تواصلكم.",
+        address: "طريق الملك فهد، الرياض، المملكة العربية السعودية",
+      },
+    });
+    payload.logger.info("[seed] (restaurant) contact global seeded");
+  }
+
+  // --- Footer global (reused) ------------------------------------------------
+  if (sectionOn("footer")) {
+    await payload.updateGlobal({
+      slug: "footer",
+      locale: "en",
+      data: {
+        tagline: "Good food, warm hospitality.",
+        columns: [
+          {
+            title: "Explore",
+            links: [
+              { label: "Menu", href: "/menu" },
+              { label: "Branches", href: "/branches" },
+              { label: "Gallery", href: "/gallery" },
+            ],
+          },
+          {
+            title: "Visit",
+            links: [
+              { label: "Reservations", href: "/reservations" },
+              { label: "Contact", href: "/contact" },
+            ],
+          },
+        ],
+      },
+    });
+    await payload.updateGlobal({
+      slug: "footer",
+      locale: "ar",
+      data: {
+        tagline: "طعام لذيذ وحفاوة صادقة.",
+        columns: [
+          {
+            title: "استكشف",
+            links: [
+              { label: "القائمة", href: "/menu" },
+              { label: "الفروع", href: "/branches" },
+              { label: "المعرض", href: "/gallery" },
+            ],
+          },
+          {
+            title: "زُرنا",
+            links: [
+              { label: "الحجوزات", href: "/reservations" },
+              { label: "تواصل معنا", href: "/contact" },
+            ],
+          },
+        ],
+      },
+    });
+    payload.logger.info("[seed] (restaurant) footer global seeded");
+  }
+
+  // --- FAQ collection (reused) -----------------------------------------------
+  if (sectionOn("faq")) {
+    const faqCount = await payload.count({ collection: "faq" });
+    if (faqCount.totalDocs === 0) {
+      const faqs: { en: [string, string]; ar: [string, string]; order: number }[] = [
+        {
+          order: 1,
+          en: ["Do you take reservations?", "Yes — reserve a table online or by phone."],
+          ar: ["هل تقبلون الحجوزات؟", "نعم — احجز طاولتك عبر الإنترنت أو هاتفياً."],
+        },
+        {
+          order: 2,
+          en: ["Do you offer delivery?", "Yes, delivery and pickup are available from all branches."],
+          ar: ["هل يتوفر توصيل؟", "نعم، التوصيل والاستلام متاحان من جميع الفروع."],
+        },
+      ];
+      for (const f of faqs) {
+        const doc = await payload.create({
+          collection: "faq",
+          locale: "en",
+          data: { question: f.en[0], answer: f.en[1], order: f.order },
+        });
+        await payload.update({
+          collection: "faq",
+          id: doc.id,
+          locale: "ar",
+          data: { question: f.ar[0], answer: f.ar[1] },
+        });
+      }
+      payload.logger.info("[seed] (restaurant) faq collection seeded");
+    }
+  }
+
+  // --- Promotions collection -------------------------------------------------
+  if (sectionOn("promotions")) {
+    const promoCount = await payload.count({ collection: "promotions" });
+    if (promoCount.totalDocs === 0) {
+      const doc = await payload.create({
+        collection: "promotions",
+        locale: "en",
+        data: {
+          headline: "Weekday lunch set — 20% off",
+          subcopy: "Two courses plus a drink, every weekday 12–3pm.",
+          ctaLabel: "See the menu",
+          ctaHref: "/menu",
+          order: 1,
+          enabled: true,
+        },
+      });
+      await payload.update({
+        collection: "promotions",
+        id: doc.id,
+        locale: "ar",
+        data: {
+          headline: "غداء أيام الأسبوع — خصم 20%",
+          subcopy: "طبقان ومشروب، كل أيام الأسبوع من 12 حتى 3 عصراً.",
+          ctaLabel: "شاهد القائمة",
+        },
+      });
+      payload.logger.info("[seed] (restaurant) promotions collection seeded");
+    }
+  }
+
+  // --- Menu (categories + items) ---------------------------------------------
+  if (sectionOn("menu")) {
+    const catCount = await payload.count({ collection: "menuCategories" });
+    if (catCount.totalDocs === 0) {
+      const starters = await payload.create({
+        collection: "menuCategories",
+        locale: "en",
+        data: { slug: "starters", name: "Starters", description: "Light bites to begin.", order: 1 },
+      });
+      await payload.update({
+        collection: "menuCategories",
+        id: starters.id,
+        locale: "ar",
+        data: { name: "المقبلات", description: "أطباق خفيفة للبداية." },
+      });
+
+      const mains = await payload.create({
+        collection: "menuCategories",
+        locale: "en",
+        data: { slug: "mains", name: "Main Courses", description: "Hearty signature plates.", order: 2 },
+      });
+      await payload.update({
+        collection: "menuCategories",
+        id: mains.id,
+        locale: "ar",
+        data: { name: "الأطباق الرئيسية", description: "أطباق مميزة ومشبعة." },
+      });
+
+      const items: {
+        slug: string;
+        category: string | number;
+        en: [string, string];
+        ar: [string, string];
+        price: number;
+        spicyLevel?: number;
+        calories?: number;
+        tags: string[];
+      }[] = [
+        {
+          slug: "hummus-beiruti",
+          category: starters.id,
+          en: ["Hummus Beiruti", "Creamy chickpea dip with garlic, lemon and olive oil."],
+          ar: ["حمص بيروتي", "غموس الحمص الكريمي بالثوم والليمون وزيت الزيتون."],
+          price: 22,
+          spicyLevel: 0,
+          calories: 320,
+          tags: ["vegetarian", "cold"],
+        },
+        {
+          slug: "grilled-lamb-chops",
+          category: mains.id,
+          en: ["Grilled Lamb Chops", "Char-grilled lamb chops with garlic rice and grilled vegetables."],
+          ar: ["ريش الغنم المشوية", "ريش غنم مشوية على الفحم مع أرز بالثوم وخضار مشوية."],
+          price: 89,
+          spicyLevel: 1,
+          calories: 740,
+          tags: ["grill", "signature"],
+        },
+      ];
+      for (const it of items) {
+        const doc = await payload.create({
+          collection: "menuItems",
+          locale: "en",
+          data: {
+            slug: it.slug,
+            name: it.en[0],
+            description: it.en[1],
+            category: it.category,
+            price: it.price,
+            currency: "SAR",
+            isAvailable: true,
+            spicyLevel: it.spicyLevel,
+            calories: it.calories,
+            tags: it.tags,
+          },
+        });
+        await payload.update({
+          collection: "menuItems",
+          id: doc.id,
+          locale: "ar",
+          data: { name: it.ar[0], description: it.ar[1] },
+        });
+      }
+      payload.logger.info("[seed] (restaurant) menu categories + items seeded");
+    }
+  }
+
+  // --- Branches (+ tables) ---------------------------------------------------
+  if (sectionOn("branches")) {
+    const branchCount = await payload.count({ collection: "branches" });
+    if (branchCount.totalDocs === 0) {
+      const branch = await payload.create({
+        collection: "branches",
+        locale: "en",
+        data: {
+          slug: "riyadh-olaya",
+          name: "Riyadh — Olaya",
+          address: "Olaya Street, Riyadh",
+          city: "Riyadh",
+          latitude: 24.6908,
+          longitude: 46.6853,
+          phone: "+966 11 000 2222",
+          openingHours: [
+            { day: "sun", opens: "12:00", closes: "23:00", closed: false },
+            { day: "mon", opens: "12:00", closes: "23:00", closed: false },
+            { day: "fri", opens: "13:00", closes: "00:00", closed: false },
+          ],
+        },
+      });
+      await payload.update({
+        collection: "branches",
+        id: branch.id,
+        locale: "ar",
+        data: { name: "الرياض — العليا", address: "شارع العليا، الرياض" },
+      });
+
+      const tableCount = await payload.count({ collection: "restaurantTables" });
+      if (tableCount.totalDocs === 0) {
+        for (const t of [
+          { label: "T1", capacity: 2 },
+          { label: "T2", capacity: 4 },
+          { label: "T3", capacity: 6 },
+        ]) {
+          await payload.create({
+            collection: "restaurantTables",
+            data: { label: t.label, branch: branch.id, capacity: t.capacity, isActive: true },
+          });
+        }
+        payload.logger.info("[seed] (restaurant) tables seeded");
+      }
+      payload.logger.info("[seed] (restaurant) branches seeded");
+    }
+  }
+
+  // --- Gallery ---------------------------------------------------------------
+  if (sectionOn("gallery")) {
+    const galleryCount = await payload.count({ collection: "gallery" });
+    if (galleryCount.totalDocs === 0) {
+      // Images are attached later via the admin UI; seed the block + title only.
+      const doc = await payload.create({
+        collection: "gallery",
+        locale: "en",
+        data: { title: "Inside the restaurant", order: 1, enabled: true },
+      });
+      await payload.update({
+        collection: "gallery",
+        id: doc.id,
+        locale: "ar",
+        data: { title: "داخل المطعم" },
+      });
+      payload.logger.info("[seed] (restaurant) gallery seeded");
+    }
+  }
+
+  // Reservations are created by customers via the backend flow — not seeded.
 }

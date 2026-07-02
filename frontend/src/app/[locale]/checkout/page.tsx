@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import type { Locale } from "@/lib/i18n/routing";
 import { buildMetadata } from "@/lib/seo/metadata";
-import { getSiteConfig } from "@/lib/config/options";
+import { getSiteConfig, getSiteType } from "@/lib/config/options";
 import { CheckoutView, resolvePaymentMethods } from "@/features/checkout";
+import { RestaurantCheckout } from "@/features/restaurant-checkout";
 
 export async function generateMetadata({
   params,
@@ -11,7 +12,9 @@ export async function generateMetadata({
   params: Promise<{ locale: Locale }>;
 }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "checkout" });
+  const siteType = await getSiteType();
+  const namespace = siteType === "restaurant" ? "restaurantCheckout" : "checkout";
+  const t = await getTranslations({ locale, namespace });
   // Checkout is user-specific — keep it out of the index.
   return buildMetadata({
     locale,
@@ -29,11 +32,25 @@ export default async function CheckoutPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
-  const t = await getTranslations("checkout");
 
-  // Payment methods are config-driven (options.json `payments` + cod fallback),
-  // resolved on the server and passed to the client form leaf.
-  const { payments } = await getSiteConfig();
+  const { siteType, payments } = await getSiteConfig();
+
+  // Restaurant vertical: food-order flow (dine-in / pickup / delivery). Reads the
+  // shared client cart; fetches its own branch list. Payment method is config-driven.
+  if (siteType === "restaurant") {
+    const t = await getTranslations("restaurantCheckout");
+    const paymentMethod = payments[0] ?? "cod";
+    return (
+      <div className="container section-y">
+        <h1 className="mb-8 font-display text-2xl font-semibold">{t("title")}</h1>
+        <RestaurantCheckout paymentMethod={paymentMethod} />
+      </div>
+    );
+  }
+
+  // Ecommerce vertical: standard checkout. Payment methods are resolved on the
+  // server (options.json `payments` + cod fallback) and passed to the client form.
+  const t = await getTranslations("checkout");
   const paymentMethods = resolvePaymentMethods(payments);
 
   return (
