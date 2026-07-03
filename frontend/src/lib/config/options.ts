@@ -1,7 +1,7 @@
 import "server-only";
 import { readFile } from "node:fs/promises";
-import path from "node:path";
 import bundledDefault from "./options.default.json";
+import { getManifestCandidatePaths } from "./manifest-paths";
 import type {
   EnabledSection,
   FeatureName,
@@ -28,39 +28,11 @@ export type { OptionsManifest } from "./types";
  */
 let cached: OptionsManifest | null = null;
 
-/**
- * Ordered list of candidate manifest paths. An explicit `OPTIONS_FILE` (Phase 2
- * vertical switch) is tried first, then the root `options.json`, then a legacy
- * container override. Recomputed per read so tests can flip env + reset the cache.
- */
-function getCandidatePaths(): string[] {
-  const candidates: string[] = [];
-
-  // Phase 2 vertical switch: OPTIONS_FILE (absolute, or relative to repo root).
-  const optionsFile = process.env.OPTIONS_FILE;
-  if (optionsFile) {
-    if (path.isAbsolute(optionsFile)) {
-      candidates.push(optionsFile);
-    } else {
-      // Relative to repo root. Support cwd = frontend/ (normal) and cwd = repo root.
-      candidates.push(path.resolve(process.cwd(), "..", optionsFile));
-      candidates.push(path.resolve(process.cwd(), optionsFile));
-    }
-  }
-
-  return [
-    ...candidates,
-    // Monorepo layout: frontend/ sits next to options.json.
-    path.resolve(process.cwd(), "..", "options.json"),
-    // In case cwd is the repo root.
-    path.resolve(process.cwd(), "options.json"),
-    // Explicit override for containerized deploys.
-    process.env.OPTIONS_MANIFEST_PATH ?? "",
-  ].filter(Boolean);
-}
-
 async function readManifest(): Promise<OptionsManifest> {
-  for (const candidate of getCandidatePaths()) {
+  // Candidate order lives in manifest-paths.ts, SHARED with the Payload REST
+  // gate (src/payload/manifest-flags.ts) so both readers resolve the same
+  // manifest. Recomputed per read so tests can flip env + reset the cache.
+  for (const candidate of getManifestCandidatePaths()) {
     try {
       const raw = await readFile(candidate, "utf-8");
       return JSON.parse(raw) as OptionsManifest;

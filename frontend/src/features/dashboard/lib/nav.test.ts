@@ -62,10 +62,12 @@ describe("getDashboardNav", () => {
     },
   );
 
-  it("staff never see the owner-only users module", async () => {
+  it("staff never see the owner-only users and settings modules", async () => {
     bootAs("options.ecommerce.json");
     const hrefs = (await getDashboardNav("staff")).map((i) => i.href);
     expect(hrefs).not.toContain("/dashboard/users");
+    // Settings is owner-scoped per the role model (audit fix #4).
+    expect(hrefs).not.toContain("/dashboard/settings");
     expect(hrefs).toContain("/dashboard/orders");
   });
 

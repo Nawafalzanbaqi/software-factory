@@ -15,7 +15,19 @@ import { test, expect } from "@playwright/test";
 
 const API = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5080";
 const OWNER_EMAIL = process.env.DASHBOARD_OWNER_EMAIL || "owner@softwarefactory.local";
-const OWNER_PASSWORD = process.env.DASHBOARD_OWNER_PASSWORD || "ChangeMe!123";
+// No fallback (audit fix #2: no repo-known credential anywhere): the same env
+// var must have been set for `npm run payload:seed`, or the owner account
+// doesn't exist and this suite cannot run.
+const OWNER_PASSWORD = process.env.DASHBOARD_OWNER_PASSWORD || "";
+
+test.beforeAll(() => {
+  if (!OWNER_PASSWORD) {
+    throw new Error(
+      "DASHBOARD_OWNER_PASSWORD is not set — export the value used when seeding " +
+        "(npm run payload:seed) before running the dashboard-real suite.",
+    );
+  }
+});
 
 /**
  * Warm up Payload inside the Next dev server before the UI sign-in: the first
