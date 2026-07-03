@@ -69,6 +69,10 @@ const realBackendProjects = [
     name: "dashboard-real",
     testMatch: /dashboard-real\.spec\.ts/,
     use: { ...devices["Desktop Chrome"], baseURL },
+    // The DEV server compiles each route on first hit; on a CI runner those
+    // first-compiles regularly exceed the default 5s expect timeout.
+    expect: { timeout: 30_000 },
+    timeout: 180_000,
   },
 ];
 
