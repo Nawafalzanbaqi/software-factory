@@ -15,7 +15,10 @@ public class OrderStatusHistoryEntry : BaseEntity
 
     public OrderStatusHistoryEntry(OrderStatus status, DateTimeOffset at)
     {
-        Id = Guid.NewGuid();
+        // Id is intentionally NOT assigned here (persistence generates it on
+        // add): entries are APPENDED to already-tracked orders on status
+        // transitions, and an append discovered with a pre-set key would be
+        // treated as an existing row to update rather than a new row.
         Status = status;
         At = at;
     }

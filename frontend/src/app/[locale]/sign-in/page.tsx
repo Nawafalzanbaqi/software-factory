@@ -22,15 +22,28 @@ export async function generateMetadata({
   });
 }
 
+/**
+ * Open-redirect guard: only same-site relative paths may be used as the
+ * post-sign-in destination ("/foo", not "//evil.com" or "https://...").
+ */
+function safeCallbackUrl(raw: string | string[] | undefined): string | undefined {
+  const value = Array.isArray(raw) ? raw[0] : raw;
+  if (value && value.startsWith("/") && !value.startsWith("//")) return value;
+  return undefined;
+}
+
 /** Self-hosted Auth.js sign-in screen (authConfig.pages.signIn = "/sign-in"). */
 export default async function SignInPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: Locale }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("signIn");
+  const callbackUrl = safeCallbackUrl((await searchParams).callbackUrl);
 
   return (
     <div className="container flex min-h-[70vh] items-center justify-center section-y">
@@ -40,7 +53,7 @@ export default async function SignInPage({
           <CardDescription>{t("subtitle")}</CardDescription>
         </CardHeader>
         <CardContent>
-          <SignInForm />
+          <SignInForm callbackUrl={callbackUrl} />
         </CardContent>
       </Card>
     </div>

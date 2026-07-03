@@ -1,0 +1,29 @@
+{
+  "dashboardCatalog": {
+    "titleProducts": "Products",
+    "titleMenu": "Menu items",
+    "introProducts": "Edit the products your storefront sells.",
+    "introMenu": "Edit the dishes on your menu.",
+    "empty": "No items yet.",
+    "loadError": "Could not load the catalog. Sign in again and retry.",
+    "colName": "Name",
+    "colPrice": "Price",
+    "colAvailability": "Availability",
+    "colActions": "Actions",
+    "available": "Available",
+    "unavailable": "Unavailable",
+    "edit": "Edit",
+    "editTitle": "Edit item",
+    "editSubtitle": "Changes are saved to the CMS in both languages.",
+    "nameEn": "Name (English)",
+    "nameAr": "Name (Arabic)",
+    "price": "Price",
+    "availableLabel": "Available for customers",
+    "required": "This field is required.",
+    "invalidPrice": "Enter a valid price.",
+    "save": "Save changes",
+    "saving": "Saving…",
+    "saved": "Item updated.",
+    "saveError": "Could not save the item."
+  }
+}

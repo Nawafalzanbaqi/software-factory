@@ -197,6 +197,16 @@ Contact) and `IntegrationTests` (ProductRepository) pass **unchanged**, and the 
 contract is byte-identical. Frontend `frontend/src/features/*` mirrors the same split (shared
 `cart` feature; vertical `products`/`menu`, `checkout`/`restaurant-checkout`).
 
+### Phase 4 applications of the rule (client dashboard — see docs/PHASE4.md)
+- **Order management is the process ⇒ Shared.** The dashboard's list/detail/status-transition
+  slice lives in `Shared/Ordering/Orders/Manage` and reuses `Order.TransitionTo` +
+  `OrderRepository` — both verticals get it unchanged (`/api/v1/manage/orders*`, gated by
+  `features.clientDashboard`).
+- **The catalog being managed is the vertical ⇒ adaptation, not forking.** The single
+  `features/dashboard-catalog` module switches its Payload collection by `getSiteType()`
+  (`products` ↔ `menuItems`, `inStock` ↔ `isAvailable`) — the dashboard equivalent of
+  `ICatalogItemLookup`. No dashboard code imports another vertical's module.
+
 ---
 
 ## 3b. Verticals — one codebase, two sites

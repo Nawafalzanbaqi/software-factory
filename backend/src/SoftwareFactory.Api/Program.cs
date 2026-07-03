@@ -49,6 +49,10 @@ builder.Services
     .AddJwtBearer(options =>
     {
         options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
+        // Keep raw JWT claim names ("sub"/"email"/"role") instead of the legacy
+        // SOAP-era remapping, so NameClaimType/RoleClaimType below match what
+        // the frontend actually mints (Phase 4 dashboard bearer).
+        options.MapInboundClaims = false;
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = !string.IsNullOrWhiteSpace(jwt["Issuer"]),
@@ -58,10 +62,18 @@ builder.Services
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signingKey)),
             ValidateLifetime = true,
-            NameClaimType = "sub"
+            NameClaimType = "sub",
+            // Phase 4: the frontend-issued JWT carries the dashboard role
+            // (owner|staff) in a plain "role" claim.
+            RoleClaimType = "role"
         };
     });
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+    // Client-dashboard staff surface (Phase 4). The frontend role model treats
+    // `admin` (factory operator) as a superset of the dashboard roles — keep
+    // the policy in lock-step with features/dashboard/lib/access.ts.
+    options.AddPolicy(OrdersManageEndpoints.StaffPolicy, policy =>
+        policy.RequireRole("admin", "owner", "staff")));
 
 // ---------------------------------------------------------------------------
 // CORS — origins from Cors:AllowedOrigins (comma or array).
@@ -165,6 +177,13 @@ if (features.IsSectionEnabled("contact"))
 if (features.IsFeatureEnabled("orderTracking"))
 {
     app.MapOrderTracking();
+}
+
+// Client dashboard (Phase 4): staff order management, both verticals.
+// Flag off => routes not mapped (404), absent from OpenAPI.
+if (features.IsFeatureEnabled("clientDashboard"))
+{
+    app.MapOrdersManage();
 }
 
 // Reviews is OFF by default; shared across verticals when enabled.

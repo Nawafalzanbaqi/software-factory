@@ -1,0 +1,20 @@
+{
+  "dashboardSettings": {
+    "title": "Settings",
+    "intro": "Site details your storefront shows — saved to the CMS.",
+    "taglineEn": "Tagline (English)",
+    "taglineAr": "Tagline (Arabic)",
+    "announcementEn": "Announcement (English)",
+    "announcementAr": "Announcement (Arabic)",
+    "supportEmail": "Support email",
+    "supportPhone": "Support phone",
+    "twitter": "Twitter / X",
+    "instagram": "Instagram",
+    "tiktok": "TikTok",
+    "invalidEmail": "Enter a valid email address.",
+    "save": "Save settings",
+    "saving": "Saving…",
+    "saved": "Settings saved.",
+    "saveError": "Could not save settings."
+  }
+}

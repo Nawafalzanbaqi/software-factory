@@ -220,3 +220,57 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Playwright E2E (mocked Platform API)
         run: npm run test:e2e
+
+  # ---------------------------------------------------------------------
+  # Phase 4 — client dashboard against the REAL backend (docker compose).
+  # Sign-in -> orders list -> order detail -> status transition, unmocked.
+  # ---------------------------------------------------------------------
+  e2e-dashboard-real:
+    name: Frontend • Playwright E2E (dashboard • real backend)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    env:
+      # Payload gets its OWN database in the compose postgres so its dev push
+      # never collides with the backend's EF-managed tables in `factory`.
+      DATABASE_URI: postgres://factory:change_me_in_prod@localhost:5432/payload_e2e
+      PAYLOAD_SECRET: ci_dummy_payload_secret_value_here
+      AUTH_SECRET: ci_dummy_secret_ci_dummy_secret_32
+      NEXT_PUBLIC_API_BASE_URL: http://localhost:5080
+      NEXT_PUBLIC_SITE_URL: http://localhost:3000
+      DASHBOARD_OWNER_EMAIL: owner@softwarefactory.local
+      DASHBOARD_OWNER_PASSWORD: ChangeMe!123
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+      - name: Start backend stack (postgres + redis + api)
+        working-directory: .
+        run: docker compose up -d --build postgres redis backend
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Wait for the backend to be healthy
+        working-directory: .
+        run: |
+          for i in $(seq 1 90); do
+            if curl -fsS http://localhost:5080/health > /dev/null 2>&1; then exit 0; fi
+            sleep 2
+          done
+          echo "backend never became healthy"; docker compose logs backend; exit 1
+      - name: Create the Payload database
+        working-directory: .
+        run: docker compose exec -T postgres psql -U factory -d factory -c "CREATE DATABASE payload_e2e;"
+      - name: Seed Payload (admin + owner users, sample content)
+        run: npm run payload:seed
+      - name: Run E2E (dashboard, real backend)
+        run: npm run test:e2e
+        env:
+          REAL_BACKEND: "1"
+      - name: Compose logs on failure
+        if: failure()
+        working-directory: .
+        run: docker compose logs backend postgres
