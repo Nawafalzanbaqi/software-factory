@@ -49,6 +49,10 @@ builder.Services
     .AddJwtBearer(options =>
     {
         options.RequireHttpsMetadata = !builder.Environment.IsDevelopment();
+        // Keep raw JWT claim names ("sub"/"email"/"role") instead of the legacy
+        // SOAP-era remapping, so NameClaimType/RoleClaimType below match what
+        // the frontend actually mints (Phase 4 dashboard bearer).
+        options.MapInboundClaims = false;
         options.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuer = !string.IsNullOrWhiteSpace(jwt["Issuer"]),
