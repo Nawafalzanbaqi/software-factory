@@ -13,7 +13,12 @@
  *   5. (Phase 4) the client-dashboard nav derives ONLY from dashboard flags —
  *      present for both verticals when flags are on, EMPTY when
  *      features.clientDashboard is off — and every dashboard route file exists
- *      and calls the requireDashboardAccess guard.
+ *      and calls the requireDashboardAccess guard;
+ *   6. (Phase 4, security audit fix #3/#4) the Payload REST surface obeys the
+ *      same gating: /api/users + /api/globals/siteSettings derive as DENIED to
+ *      owner/staff whenever clientDashboard (or the module flag) is off, staff
+ *      never get the settings surface at all, and the real access files carry
+ *      the manifest gate (+ the settings/users pages their ownerOnly guard).
  *
  * Exits non-zero with a clear diff on any mismatch; prints a PASS summary table.
  * Pure node, no dependencies.
@@ -118,6 +123,33 @@ const DASHBOARD_ROUTES = [
   "dashboard/content/page.tsx",
   "dashboard/users/page.tsx",
   "dashboard/settings/page.tsx",
+];
+
+/** Owner-only dashboard pages (audit fix #4): guard must pass ownerOnly. */
+const OWNER_ONLY_ROUTES = ["dashboard/users/page.tsx", "dashboard/settings/page.tsx"];
+
+// ---------------------------------------------------------------------------
+// Payload REST gating derivation (security audit fix #3/#4) — mirrors
+// frontend/src/payload/manifest-flags.ts (isDashboardModuleEnabled: master
+// clientDashboard AND the module flag) plus the role scoping wired into
+// collections/Users.ts and globals/SiteSettings.ts. Keep in lock-step.
+// ---------------------------------------------------------------------------
+function deriveDashboardRestAccess(o, role) {
+  const moduleOn = (m) => featureOn(o, "clientDashboard") && featureOn(o, m);
+  return {
+    // /api/users management surface: admin always; owner needs the flags;
+    // staff never manage users (self-scope only, which the flag also gates).
+    users: role === "admin" || (role === "owner" && moduleOn("dashboardUsers")),
+    // /api/globals/siteSettings update: admin always; owner needs the flags;
+    // staff NEVER (owner-scoped role model, fix #4).
+    siteSettings: role === "admin" || (role === "owner" && moduleOn("dashboardSettings")),
+  };
+}
+
+/** Files that must carry the manifest gate for the Payload REST surface. */
+const PAYLOAD_GATED_FILES = [
+  "src/payload/collections/Users.ts",
+  "src/payload/globals/SiteSettings.ts",
 ];
 
 const DASHBOARD_NAV_ALL = [
@@ -271,6 +303,67 @@ for (const [vertical, spec] of Object.entries(SPECS)) {
         "dash-route-guard",
         src.includes("requireDashboardAccess"),
         `dashboard route src/app/[locale]/${rel} has no requireDashboardAccess(...) guard`,
+      );
+      if (OWNER_ONLY_ROUTES.includes(rel)) {
+        check(
+          vertical,
+          "dash-owner-only",
+          src.includes("ownerOnly: true"),
+          `owner-only route src/app/[locale]/${rel} does not pass ownerOnly: true to the guard`,
+        );
+      }
+    }
+  }
+
+  // 6. Payload REST gating (security audit fix #3/#4).
+  // 6a. Shipped manifest (flags on): owner allowed, staff never manage
+  //     users/settings, admin always allowed.
+  const restOwner = deriveDashboardRestAccess(o, "owner");
+  const restStaff = deriveDashboardRestAccess(o, "staff");
+  const restAdmin = deriveDashboardRestAccess(o, "admin");
+  check(vertical, "rest-owner+", restOwner.users && restOwner.siteSettings,
+    "owner must derive ALLOWED on /api/users + /api/globals/siteSettings with flags on");
+  check(vertical, "rest-staff-", !restStaff.users && !restStaff.siteSettings,
+    "staff must derive DENIED on the users-manage + siteSettings surfaces (owner-scoped)");
+  check(vertical, "rest-admin+", restAdmin.users && restAdmin.siteSettings,
+    "admin (factory operator) must never be gated off the Payload REST surface");
+  // 6b. clientDashboard=false ⇒ owner/staff denied on BOTH surfaces.
+  const dashOffManifest = { ...o, features: { ...o.features, clientDashboard: false } };
+  for (const role of ["owner", "staff"]) {
+    const rest = deriveDashboardRestAccess(dashOffManifest, role);
+    check(
+      vertical,
+      "rest-flag-off",
+      !rest.users && !rest.siteSettings,
+      `clientDashboard=false must deny ${role} on /api/users + /api/globals/siteSettings`,
+    );
+  }
+  check(vertical, "rest-flag-off-admin",
+    deriveDashboardRestAccess(dashOffManifest, "admin").users,
+    "clientDashboard=false must keep the admin path open");
+  // 6c. A single module flag off removes exactly that surface (owner view).
+  const noUsers = deriveDashboardRestAccess(
+    { ...o, features: { ...o.features, dashboardUsers: false } }, "owner");
+  check(vertical, "rest-module-off", !noUsers.users && noUsers.siteSettings,
+    "dashboardUsers=false must deny only /api/users, not siteSettings");
+  const noSettings = deriveDashboardRestAccess(
+    { ...o, features: { ...o.features, dashboardSettings: false } }, "owner");
+  check(vertical, "rest-module-off", !noSettings.siteSettings && noSettings.users,
+    "dashboardSettings=false must deny only /api/globals/siteSettings, not users");
+  // 6d. The real access files carry the manifest gate (lock-step with the
+  //     derivation above; behavior itself is pinned by
+  //     src/payload/dashboard-rest-gating.test.ts).
+  for (const rel of PAYLOAD_GATED_FILES) {
+    const p = path.join(FRONTEND, ...rel.split("/"));
+    const exists = existsSync(p);
+    check(vertical, "rest-gate-file", exists, `Payload access file missing: frontend/${rel}`);
+    if (exists) {
+      const src = readFileSync(p, "utf-8");
+      check(
+        vertical,
+        "rest-gate-wired",
+        src.includes("isDashboardModuleEnabled("),
+        `frontend/${rel} does not call the isDashboardModuleEnabled(...) manifest gate`,
       );
     }
   }

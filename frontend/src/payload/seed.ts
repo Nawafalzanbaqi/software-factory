@@ -36,6 +36,23 @@ function loadOptions(): SeedOptions {
   return {};
 }
 
+/**
+ * Account passwords are NEVER defaulted (security audit fix #2): a repo-known
+ * credential must not exist in any environment. When the env var is unset the
+ * account is skipped with a loud log (error-level in production) telling the
+ * operator to set it and re-run the seed — fail closed, nothing to reset later.
+ */
+function seedPassword(payload: Payload, envVar: string, account: string): string | undefined {
+  const value = process.env[envVar];
+  if (value) return value;
+  const message =
+    `[seed] ${envVar} is not set — SKIPPING the ${account} account. ` +
+    `Set ${envVar} and re-run \`npm run payload:seed\` to create it.`;
+  if (process.env.NODE_ENV === "production") payload.logger.error(message);
+  else payload.logger.warn(message);
+  return undefined;
+}
+
 export async function seed(payload: Payload): Promise<void> {
   const options = loadOptions();
   const sectionOn = (key: string) => options.sections?.[key]?.enabled === true;
@@ -47,15 +64,24 @@ export async function seed(payload: Payload): Promise<void> {
   }
 
   // --- Admin user (so /admin is usable out of the box) -----------------------
-  const users = await payload.count({ collection: "users" });
-  if (users.totalDocs === 0) {
-    const email = process.env.PAYLOAD_ADMIN_EMAIL ?? "admin@softwarefactory.local";
-    const password = process.env.PAYLOAD_ADMIN_PASSWORD ?? "ChangeMe!123";
-    await payload.create({
-      collection: "users",
-      data: { email, password, name: "Store Admin", role: "admin" },
-    });
-    payload.logger.info(`[seed] created admin user ${email}`);
+  // Gate on "no ADMIN exists", not "collection empty": a run that skipped the
+  // admin (env unset) but created the owner must still honor the logged
+  // "set PAYLOAD_ADMIN_PASSWORD and re-run" recovery on the next run.
+  const existingAdmin = await payload.find({
+    collection: "users",
+    where: { role: { equals: "admin" } },
+    limit: 1,
+  });
+  if (existingAdmin.totalDocs === 0) {
+    const adminPassword = seedPassword(payload, "PAYLOAD_ADMIN_PASSWORD", "factory admin");
+    if (adminPassword) {
+      const email = process.env.PAYLOAD_ADMIN_EMAIL ?? "admin@softwarefactory.local";
+      await payload.create({
+        collection: "users",
+        data: { email, password: adminPassword, name: "Store Admin", role: "admin" },
+      });
+      payload.logger.info(`[seed] created admin user ${email}`);
+    }
   }
 
   // --- Dashboard owner (Phase 4, features.clientDashboard) -------------------
@@ -69,16 +95,19 @@ export async function seed(payload: Payload): Promise<void> {
       limit: 1,
     });
     if (existingOwner.totalDocs === 0) {
-      await payload.create({
-        collection: "users",
-        data: {
-          email: ownerEmail,
-          password: process.env.DASHBOARD_OWNER_PASSWORD ?? "ChangeMe!123",
-          name: "Store Owner",
-          role: "owner",
-        },
-      });
-      payload.logger.info(`[seed] created dashboard owner ${ownerEmail}`);
+      const ownerPassword = seedPassword(payload, "DASHBOARD_OWNER_PASSWORD", "dashboard owner");
+      if (ownerPassword) {
+        await payload.create({
+          collection: "users",
+          data: {
+            email: ownerEmail,
+            password: ownerPassword,
+            name: "Store Owner",
+            role: "owner",
+          },
+        });
+        payload.logger.info(`[seed] created dashboard owner ${ownerEmail}`);
+      }
     }
   }
 
