@@ -20,7 +20,7 @@ interface SeedOptions {
   sections?: Record<string, { enabled?: boolean; order?: number }>;
 }
 
-function loadOptions(): SeedOptions {
+function loadOptions(): { options: SeedOptions; source: string | null } {
   const candidates = [
     path.resolve(process.cwd(), "..", "options.json"),
     path.resolve(process.cwd(), "options.json"),
@@ -28,12 +28,15 @@ function loadOptions(): SeedOptions {
   ].filter(Boolean);
   for (const candidate of candidates) {
     try {
-      return JSON.parse(readFileSync(candidate, "utf-8")) as SeedOptions;
+      return {
+        options: JSON.parse(readFileSync(candidate, "utf-8")) as SeedOptions,
+        source: candidate,
+      };
     } catch {
       // try next
     }
   }
-  return {};
+  return { options: {}, source: null };
 }
 
 /**
@@ -54,7 +57,18 @@ function seedPassword(payload: Payload, envVar: string, account: string): string
 }
 
 export async function seed(payload: Payload): Promise<void> {
-  const options = loadOptions();
+  const { options, source } = loadOptions();
+  // Unconditional first line: a seed run must never be silent about WHICH
+  // manifest drove it (or that none was readable) — a skipped-everything run
+  // and a never-ran run were previously indistinguishable in CI logs.
+  if (source) {
+    payload.logger.info(`[seed] manifest: ${source}`);
+  } else {
+    payload.logger.error(
+      "[seed] NO readable options manifest (tried ../options.json, ./options.json, " +
+        "OPTIONS_MANIFEST_PATH) — nothing will be seeded",
+    );
+  }
   const sectionOn = (key: string) => options.sections?.[key]?.enabled === true;
   const featureOn = (key: string) => options.features?.[key] === true;
 

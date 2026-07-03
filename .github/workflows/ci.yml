@@ -268,6 +268,16 @@ jobs:
         run: docker compose exec -T postgres psql -U factory -d factory -c "CREATE DATABASE payload_e2e;"
       - name: Seed Payload (admin + owner users, sample content)
         run: npm run payload:seed
+      # Guards the silent-seed failure mode (runs 28676046198/28677299065: the
+      # seed step exited 0 with no output and no users, and the suite then
+      # burned 6 minutes on a misleading login-warmup timeout). Independent of
+      # node: asserts the owner row actually exists in the Payload database.
+      - name: Verify the seed created the owner account
+        working-directory: .
+        run: |
+          docker compose exec -T postgres psql -U factory -d payload_e2e -tAc \
+            "SELECT email FROM users WHERE email = '${DASHBOARD_OWNER_EMAIL}';" | grep -q . \
+            || { echo "::error::payload:seed did not create ${DASHBOARD_OWNER_EMAIL} — silent seed failure"; exit 1; }
       - name: Run E2E (dashboard, real backend)
         run: npm run test:e2e
         env:
