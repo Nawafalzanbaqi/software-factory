@@ -180,7 +180,10 @@ test.describe("dashboard access gates", () => {
     await expect(page.getByRole("heading", { name: /access denied/i })).toBeVisible();
   });
 
-  test("staff can open the dashboard but see no Users module", async ({ page, context }) => {
+  test("staff can open the dashboard but see no Users or Settings module", async ({
+    page,
+    context,
+  }) => {
     await signInAs(context, {
       sub: "e2e-staff",
       name: "E2E Staff",
@@ -193,9 +196,13 @@ test.describe("dashboard access gates", () => {
     await expect(nav).toBeVisible();
     await expect(nav.getByRole("link", { name: /orders/i })).toBeVisible();
     await expect(nav.getByRole("link", { name: /users/i })).toHaveCount(0);
+    // Settings is owner-scoped per the role model (audit fix #4).
+    await expect(nav.getByRole("link", { name: /settings/i })).toHaveCount(0);
 
-    // Owner-only route: staff get the 403 screen, not the users table.
+    // Owner-only routes: staff get the 403 screen, not the module UI.
     await page.goto("/en/dashboard/users");
+    await expect(page.getByText("403")).toBeVisible();
+    await page.goto("/en/dashboard/settings");
     await expect(page.getByText("403")).toBeVisible();
   });
 });

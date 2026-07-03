@@ -38,12 +38,18 @@ builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 
 // ---------------------------------------------------------------------------
-// AuthN/AuthZ — Phase 1 bearer JWT (symmetric key from config).
+// AuthN/AuthZ — Phase 1 bearer JWT (symmetric key from config). FAIL-CLOSED:
+// outside Development the key/issuer/audience must be real (non-dev-constant)
+// values and issuer/audience validation is forced on — JwtStartupValidation
+// throws at boot otherwise, so a misconfigured deployment never accepts
+// forgeable tokens. Resolved HERE (not inside the deferred options lambda) so
+// the boot itself fails, loudly.
 // TODO (backlog): wire real Auth.js / NextAuth JWKS validation
 // (Authority + /.well-known/jwks.json) and drop the shared symmetric key.
 // ---------------------------------------------------------------------------
 var jwt = builder.Configuration.GetSection("Jwt");
-var signingKey = jwt["Key"] ?? "dev-only-insecure-signing-key-change-me-32bytes!";
+var jwtOptions = JwtStartupValidation.Resolve(
+    jwt["Key"], jwt["Issuer"], jwt["Audience"], builder.Environment.IsDevelopment());
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -55,12 +61,12 @@ builder.Services
         options.MapInboundClaims = false;
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            ValidateIssuer = !string.IsNullOrWhiteSpace(jwt["Issuer"]),
-            ValidIssuer = jwt["Issuer"],
-            ValidateAudience = !string.IsNullOrWhiteSpace(jwt["Audience"]),
-            ValidAudience = jwt["Audience"],
+            ValidateIssuer = jwtOptions.ValidateIssuer,
+            ValidIssuer = jwtOptions.Issuer,
+            ValidateAudience = jwtOptions.ValidateAudience,
+            ValidAudience = jwtOptions.Audience,
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(signingKey)),
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Key)),
             ValidateLifetime = true,
             NameClaimType = "sub",
             // Phase 4: the frontend-issued JWT carries the dashboard role

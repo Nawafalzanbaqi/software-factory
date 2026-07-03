@@ -4,6 +4,7 @@ import type { Locale } from "@/lib/i18n/routing";
 import { buildMetadata } from "@/lib/seo/metadata";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { SignInForm } from "@/components/auth/SignInForm";
+import { safeCallbackUrl } from "@/lib/auth/callback-url";
 
 export async function generateMetadata({
   params,
@@ -22,17 +23,9 @@ export async function generateMetadata({
   });
 }
 
-/**
- * Open-redirect guard: only same-site relative paths may be used as the
- * post-sign-in destination ("/foo", not "//evil.com" or "https://...").
- */
-function safeCallbackUrl(raw: string | string[] | undefined): string | undefined {
-  const value = Array.isArray(raw) ? raw[0] : raw;
-  if (value && value.startsWith("/") && !value.startsWith("//")) return value;
-  return undefined;
-}
-
-/** Self-hosted Auth.js sign-in screen (authConfig.pages.signIn = "/sign-in"). */
+/** Self-hosted Auth.js sign-in screen (authConfig.pages.signIn = "/sign-in").
+ * The callbackUrl search param passes the structural open-redirect guard in
+ * lib/auth/callback-url.ts (audit fix #5) before reaching the form. */
 export default async function SignInPage({
   params,
   searchParams,

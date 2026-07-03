@@ -23,7 +23,11 @@ export async function generateMetadata({
   });
 }
 
-/** Settings module (features.dashboardSettings): the siteSettings global. */
+/**
+ * Settings module (features.dashboardSettings): the siteSettings global.
+ * OWNER ONLY (audit fix #4) — staff get 403, matching the Payload-side
+ * canEditSettings rule.
+ */
 export default async function DashboardSettingsPage({
   params,
 }: {
@@ -35,6 +39,7 @@ export default async function DashboardSettingsPage({
   const { session } = await requireDashboardAccess({
     locale,
     moduleFlags: ["dashboardSettings"],
+    ownerOnly: true,
     returnTo: "/dashboard/settings",
   });
 

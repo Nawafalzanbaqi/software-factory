@@ -53,6 +53,12 @@ services:
       ConnectionStrings__Postgres: Host=postgres;Port=5432;Database=${POSTGRES_DB:-factory};Username=${POSTGRES_USER:-factory};Password=${POSTGRES_PASSWORD:-change_me_in_prod}
       ConnectionStrings__Redis: redis:6379
       Cors__AllowedOrigins: ${Cors__AllowedOrigins:-http://localhost:3000}
+      # Dashboard bearer signing key (pair of the frontend's BACKEND_JWT_KEY).
+      # Blank + Development ⇒ dev fallback; REQUIRED (with Jwt__Issuer /
+      # Jwt__Audience) when ASPNETCORE_ENVIRONMENT is not Development.
+      Jwt__Key: ${Jwt__Key:-}
+      Jwt__Issuer: ${Jwt__Issuer:-}
+      Jwt__Audience: ${Jwt__Audience:-}
     ports:
       - "${API_HTTP_PORT:-5080}:8080"
     # options.json is read at startup to conditionally register modules
@@ -76,6 +82,14 @@ services:
       AUTH_SECRET: ${AUTH_SECRET:-change_me_generate_a_32_byte_secret}
       AUTH_TRUST_HOST: "true"
       PAYLOAD_SECRET: ${PAYLOAD_SECRET:-change_me_generate_a_long_random_string}
+      # Dashboard bearer signing key (audit fix #1): this image is a
+      # PRODUCTION `next build` (NODE_ENV is inlined at build time — the
+      # runtime NODE_ENV above does not relax it), so minting FAILS CLOSED
+      # unless BACKEND_JWT_KEY (= backend Jwt__Key) is set in .env. Required
+      # to use /dashboard against the compose stack.
+      BACKEND_JWT_KEY: ${BACKEND_JWT_KEY:-}
+      BACKEND_JWT_ISSUER: ${BACKEND_JWT_ISSUER:-}
+      BACKEND_JWT_AUDIENCE: ${BACKEND_JWT_AUDIENCE:-}
     ports:
       - "${FRONTEND_PORT:-3000}:3000"
     # options.json is read at build/startup to conditionally enable features
