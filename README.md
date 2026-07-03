@@ -42,6 +42,11 @@ This starts **postgres**, **redis**, the **backend API**, and the **frontend**:
 - Backend API + Swagger → http://localhost:5080 (Swagger UI at `/swagger` in Development)
 - Payload admin → http://localhost:3000/admin
 
+> Deploying beyond local Development? Read **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)**
+> first: outside `Development` the backend refuses to boot without real
+> `Jwt__Key`/`Jwt__Issuer`/`Jwt__Audience`, the frontend needs
+> `BACKEND_JWT_KEY == Jwt__Key`, and seeding needs explicit account passwords.
+
 `options.json` is mounted read-only into both the backend and frontend containers, so a
 change to it re-shapes what each service registers on the next start.
 
@@ -342,6 +347,13 @@ envs). All use `actions/setup-dotnet@v4` (9.0.x) / `actions/setup-node@v4` (node
 
 See [`.env.example`](.env.example). Never commit real secrets — everything is injected via
 environment variables. Generate secrets with `openssl rand -base64 32`.
+
+**Hard requirements outside Development** (full matrix + CI secrets checklist in
+[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)): the backend refuses to boot without
+`Jwt__Key` (32+ bytes), `Jwt__Issuer`, `Jwt__Audience`; the frontend refuses to
+mint dashboard bearers without `BACKEND_JWT_KEY` (must equal `Jwt__Key`);
+`npm run payload:seed` skips any account whose
+`PAYLOAD_ADMIN_PASSWORD`/`DASHBOARD_OWNER_PASSWORD` is unset.
 
 ---
 
