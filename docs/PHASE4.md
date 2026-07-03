@@ -186,7 +186,8 @@ throwaway value for its ephemeral database.
   compose stack therefore REQUIRES setting the `BACKEND_JWT_KEY`/`Jwt__Key`
   pair in `.env` (the compose backend runs `Development`, so its issuer/
   audience stay the dev constants and only the key pair is needed). `next dev`
-  outside compose keeps the zero-config dev fallback.
+  outside compose keeps the zero-config dev fallback. Full deployment matrix +
+  CI secrets checklist: `docs/DEPLOYMENT.md`.
 - **Manifest-unreadable fallback divergence** (accepted, deliberate): if NO
   options.json is readable, route gating falls back to the bundled default
   manifest (pages render) while the Payload REST gate treats it as "no flags"
