@@ -27,6 +27,9 @@ public sealed class TransitionOrderStatusCommandHandler
         var status = Enum.Parse<OrderStatus>(request.Status, ignoreCase: true);
 
         order.TransitionTo(status);
+        // The appended timeline entry must be registered as an insert — graph
+        // discovery alone would misread it as an update to a nonexistent row.
+        _orders.TrackTimelineAppends(order);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return order.ToManagedDto();

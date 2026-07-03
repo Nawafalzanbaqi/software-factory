@@ -18,6 +18,15 @@ public interface IOrderRepository
     /// </summary>
     Task<PagedResult<Order>> GetPagedAsync(int page, int pageSize, OrderStatus? status = null, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Registers timeline entries appended to an already-loaded order (a
+    /// status transition) as NEW rows. Persistence cannot infer this from the
+    /// aggregate alone — change-tracker graph discovery treats a key-bearing
+    /// child on a tracked parent as an existing row to update.
+    /// Added in Phase 4 alongside the first order-update flow.
+    /// </summary>
+    void TrackTimelineAppends(Order order);
+
     Task<bool> OrderNumberExistsAsync(string orderNumber, CancellationToken cancellationToken = default);
 
     Task AddAsync(Order order, CancellationToken cancellationToken = default);
