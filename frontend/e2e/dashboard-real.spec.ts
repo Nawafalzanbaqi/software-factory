@@ -97,6 +97,9 @@ test("owner signs in, finds the order, opens it and advances its status", async 
   await page.getByLabel(/new status/i).selectOption("Processing");
   await page.getByRole("button", { name: /^update$/i }).click();
 
-  // The re-rendered detail shows the new status in the timeline.
-  await expect(page.getByRole("list", { name: /timeline|الخط/i })).toContainText(/processing/i);
+  // The re-rendered detail shows the new status in the timeline
+  // (OrderTimeline's <ol> aria-label = orders.timelineLabel).
+  await expect(
+    page.getByRole("list", { name: /order status history|سجل حالات الطلب/i }),
+  ).toContainText(/processing/i);
 });
