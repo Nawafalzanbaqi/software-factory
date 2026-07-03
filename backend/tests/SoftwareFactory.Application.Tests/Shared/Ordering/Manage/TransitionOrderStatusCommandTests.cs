@@ -29,6 +29,9 @@ public class TransitionOrderStatusCommandTests
         // The domain appends to the timeline (Pending from Place + the transition).
         Assert.Equal(2, dto.Timeline.Count);
         Assert.Equal("Processing", dto.Timeline[^1].Status);
+        // The appended entry must be registered as an INSERT with persistence
+        // (see IOrderRepository.TrackTimelineAppends) before saving.
+        _orders.Received(1).TrackTimelineAppends(order);
         await _unitOfWork.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
     }
 

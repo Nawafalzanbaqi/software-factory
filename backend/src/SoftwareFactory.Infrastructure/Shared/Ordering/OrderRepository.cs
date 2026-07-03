@@ -66,4 +66,28 @@ public sealed class OrderRepository : IOrderRepository
 
     public async Task AddAsync(Order order, CancellationToken cancellationToken = default) =>
         await _db.Orders.AddAsync(order, cancellationToken);
+
+    public void TrackTimelineAppends(Order order)
+    {
+        // Suspend auto-detect: Entry() otherwise runs DetectChanges first,
+        // whose graph discovery marks the appended (still untracked) entry as
+        // Modified — an UPDATE against a row that does not exist yet.
+        var autoDetect = _db.ChangeTracker.AutoDetectChangesEnabled;
+        _db.ChangeTracker.AutoDetectChangesEnabled = false;
+        try
+        {
+            foreach (var entry in order.Timeline)
+            {
+                var tracked = _db.Entry(entry);
+                if (tracked.State == EntityState.Detached)
+                {
+                    tracked.State = EntityState.Added;
+                }
+            }
+        }
+        finally
+        {
+            _db.ChangeTracker.AutoDetectChangesEnabled = autoDetect;
+        }
+    }
 }
