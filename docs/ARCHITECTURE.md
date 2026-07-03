@@ -118,7 +118,7 @@ OrderTrackingDto{ orderNumber, status, timeline: { status, at }[] }
 ReviewDto       { id, productId, author, rating, title, body, createdAt }
 ```
 
-## 3. Frontend — Next.js 15 App Router, feature-based
+## 3. Frontend — Next.js 16 App Router, feature-based
 
 ```
 frontend/src/

@@ -14,7 +14,7 @@ estate, restaurant, healthcare, marketplace…).
 
 - **Backend** — .NET 9 / ASP.NET Core, **Clean Architecture** (4 layers), CQRS (MediatR),
   EF Core + PostgreSQL, Redis, OpenAPI-first.
-- **Frontend** — Next.js 15 (App Router) + React 19, TypeScript, Tailwind + shadcn/ui,
+- **Frontend** — Next.js 16 (App Router) + React 19, TypeScript, Tailwind + shadcn/ui,
   **feature-based** structure, Server Components by default.
 - **CMS** — Payload CMS 3, embedded in the Next.js app (all section copy is editable).
 - **Auth** — Auth.js (NextAuth v5), self-hosted, Credentials + JWT sessions.
@@ -253,7 +253,7 @@ software-factory/
 │  └─ tests/
 │     ├─ SoftwareFactory.Application.Tests/ # xUnit use-case tests
 │     └─ SoftwareFactory.IntegrationTests/  # Testcontainers (real Postgres)
-└─ frontend/                                # Next.js 15 — feature-based
+└─ frontend/                                # Next.js 16 — feature-based
    ├─ src/
    │  ├─ app/[locale]/…                     # routes (home, products, cart, checkout,
    │  │                                     #   orders, search, wishlist, dashboard, sign-in…)

@@ -8,6 +8,7 @@ next-env.d.ts
 /coverage
 /playwright-report
 /test-results
+/.lighthouseci
 /.turbo
 *.tsbuildinfo
 .DS_Store
