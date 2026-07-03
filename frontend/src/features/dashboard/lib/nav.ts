@@ -31,8 +31,10 @@ export async function getDashboardNav(role?: DashboardRole): Promise<DashboardNa
   if ((await isFeatureEnabled("dashboardUsers")) && isOwnerRole(role)) {
     items.push({ labelKey: "users", href: "/dashboard/users", ownerOnly: true });
   }
-  if (await isFeatureEnabled("dashboardSettings")) {
-    items.push({ labelKey: "settings", href: "/dashboard/settings" });
+  // Owner-scoped per the role model (audit fix #4): staff manage content and
+  // orders, not site settings.
+  if ((await isFeatureEnabled("dashboardSettings")) && isOwnerRole(role)) {
+    items.push({ labelKey: "settings", href: "/dashboard/settings", ownerOnly: true });
   }
 
   return items;

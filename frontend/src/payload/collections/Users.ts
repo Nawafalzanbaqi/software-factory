@@ -1,4 +1,5 @@
 import type { Access, CollectionConfig, FieldAccess, Where } from "payload";
+import { isDashboardModuleEnabled } from "../manifest-flags";
 
 /**
  * Auth collection powering the Payload admin panel (/admin), the Payload REST
@@ -21,6 +22,10 @@ import type { Access, CollectionConfig, FieldAccess, Where } from "payload";
  * - nobody may change their OWN role; only an admin may assign `admin`.
  *   Trusted server-side writes (seed / Local API with overrideAccess) bypass
  *   the role validate so bootstrap can create the first admin.
+ * - MANIFEST GATE (security audit fix #3): every owner/staff path above also
+ *   requires features.clientDashboard AND features.dashboardUsers — flag off
+ *   ⇒ the /api/users REST surface is absent for them (the §6 gating rule,
+ *   applied to Payload REST). The factory-operator admin path is not gated.
  *
  * TODO (backlog): multi-tenant / white-label — add a `tenant` relationship and
  * per-tenant access rules so admins only see their own store's content.
@@ -43,11 +48,15 @@ const roleOf = (user: UserLike | null | undefined): DashboardRole | undefined =>
 
 const NON_ADMIN_TARGETS: Where = { role: { not_equals: "admin" } };
 
+/** The owner/staff users surface only exists when its module flags are on. */
+const usersModuleOn = () => isDashboardModuleEnabled("dashboardUsers");
+
 /** admin: all · owner: every non-admin doc (self included) · staff: self only. */
 const canReadOrUpdateUsers: Access = ({ req }) => {
   const user = req.user as UserLike | null;
   const role = roleOf(user);
   if (role === "admin") return true;
+  if (!usersModuleOn()) return false;
   if (role === "owner") return NON_ADMIN_TARGETS;
   if (user?.id !== undefined) return { id: { equals: user.id } };
   return false;
@@ -55,7 +64,8 @@ const canReadOrUpdateUsers: Access = ({ req }) => {
 
 const canCreateUsers: Access = ({ req }) => {
   const role = roleOf(req.user as UserLike | null);
-  return !!role && USER_MANAGER_ROLES.includes(role);
+  if (role === "admin") return true;
+  return usersModuleOn() && !!role && USER_MANAGER_ROLES.includes(role);
 };
 
 /** admin: all · owner: non-admin targets excluding themselves · staff: none. */
@@ -63,6 +73,7 @@ const canDeleteUsers: Access = ({ req }) => {
   const user = req.user as UserLike | null;
   const role = roleOf(user);
   if (role === "admin") return true;
+  if (!usersModuleOn()) return false;
   if (role === "owner" && user?.id !== undefined) {
     return { and: [NON_ADMIN_TARGETS, { id: { not_equals: user.id } }] };
   }
@@ -72,7 +83,8 @@ const canDeleteUsers: Access = ({ req }) => {
 /** Only admins/owners may see or set the role field at all. */
 const canTouchRoleField: FieldAccess = ({ req }) => {
   const role = roleOf(req.user as UserLike | null);
-  return !!role && USER_MANAGER_ROLES.includes(role);
+  if (role === "admin") return true;
+  return usersModuleOn() && !!role && USER_MANAGER_ROLES.includes(role);
 };
 
 /**
