@@ -20,5 +20,5 @@
 
 # misc
 *.tsbuildinfo
-next-env.d.ts.timestamp
+next-env.d.ts
 .DS_Store
