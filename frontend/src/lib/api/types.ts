@@ -2,10 +2,13 @@
  * Shared DTO types — MUST match ARCHITECTURE.md §2 "DTO shapes" exactly so the
  * frontend and .NET backend agree on the wire format.
  *
- * NOTE: These are hand-written to unblock development. Once the backend emits
- * openapi.json, run `npm run gen:api` (openapi-typescript) to produce
- * src/lib/api/openapi.ts and switch these aliases to the generated types.
+ * Since Phase 4 the backend's openapi.json is generated into
+ * src/lib/api/openapi.ts (`npm run gen:api`) and NEW response shapes are
+ * DERIVED from it (see the "Derived from OpenAPI" block below) — hand-writing
+ * a response shape is a review finding. The Phase 1/2 interfaces below predate
+ * the generated contract and are kept as the frozen documented shapes.
  */
+import type { components } from "./openapi";
 
 export interface ProductDto {
   id: string;
@@ -89,13 +92,39 @@ export interface ReviewDto {
   createdAt: string;
 }
 
-/** Standard paginated list envelope for GET /products. */
+/**
+ * Standard paginated list envelope (backend `PagedResult<T>`). Field names
+ * mirror the generated OpenAPI contract (`OrderDtoPagedResult`): the count is
+ * `totalCount` — a hand-written `total` shipped in Phase 1/2 and was never
+ * consumed; fixed in Phase 4 when the contract became generated.
+ */
 export interface PagedResult<T> {
   items: T[];
   page: number;
   pageSize: number;
-  total: number;
+  totalCount: number;
+  totalPages?: number;
+  hasNextPage?: boolean;
+  hasPreviousPage?: boolean;
 }
+
+// ---------------------------------------------------------------------------
+// Derived from OpenAPI (npm run gen:api) — Phase 4 client-dashboard shapes.
+// Do not restate these by hand; regenerate openapi.ts when the backend changes.
+// ---------------------------------------------------------------------------
+
+/** GET /api/v1/manage/orders — one page of every store order. */
+export type ManagedOrdersPage = components["schemas"]["OrderDtoPagedResult"];
+
+/** Items of ManagedOrdersPage (wire-identical to the frozen OrderDto). */
+export type ManagedOrderListItem = components["schemas"]["OrderDto"];
+
+/** GET/POST /api/v1/manage/orders/{orderNumber} — staff-facing order detail. */
+export type ManagedOrderDto = components["schemas"]["ManagedOrderDto"];
+
+/** POST /api/v1/manage/orders/{orderNumber}/status request body. */
+export type TransitionOrderStatusRequest =
+  components["schemas"]["TransitionOrderStatusRequest"];
 
 /** Query params for GET /api/v1/products. */
 export interface ProductQuery {

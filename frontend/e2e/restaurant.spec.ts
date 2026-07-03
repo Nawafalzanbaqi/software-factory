@@ -63,7 +63,7 @@ async function mockRestaurantApi(page: Page) {
 
   await page.route("**/api/v1/menu/categories*", (r) => r.fulfill(json(CATEGORIES)));
   await page.route("**/api/v1/menu/items*", (r) =>
-    r.fulfill(json({ items: [ITEM], page: 1, pageSize: 48, total: 1, totalPages: 1 })),
+    r.fulfill(json({ items: [ITEM], page: 1, pageSize: 48, totalCount: 1, totalPages: 1 })),
   );
   await page.route("**/api/v1/branches*", (r) => r.fulfill(json([BRANCH])));
 

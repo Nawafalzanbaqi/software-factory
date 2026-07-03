@@ -10,6 +10,11 @@
   "integrations": ["zatca", "whatsapp"],
   "features": {
     "clientDashboard": true,
+    "dashboardOrders": true,
+    "dashboardCatalog": true,
+    "dashboardContent": true,
+    "dashboardUsers": true,
+    "dashboardSettings": true,
     "cms": true,
     "reviews": false,
     "loyalty": false,

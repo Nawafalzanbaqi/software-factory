@@ -1,0 +1,25 @@
+{
+  "dashboardContent": {
+    "title": "Content",
+    "intro": "Every editable section of your site opens in the content studio.",
+    "openInAdmin": "Opens in the content studio",
+    "links": {
+      "hero": "Hero section",
+      "products": "Products",
+      "categories": "Categories",
+      "promoBanners": "Promo banners",
+      "menuItems": "Menu items",
+      "menuCategories": "Menu categories",
+      "promotions": "Promotions",
+      "gallery": "Gallery",
+      "branches": "Branches",
+      "reservations": "Reservations",
+      "reviews": "Reviews",
+      "about": "About page",
+      "faq": "FAQ",
+      "contact": "Contact details",
+      "footer": "Footer",
+      "media": "Media library"
+    }
+  }
+}

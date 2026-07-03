@@ -12,9 +12,9 @@ import { Button } from "@/components/ui/button";
  * Interactive leaf: Auth.js Credentials sign-in. Posts via `signIn` with
  * redirect:false so we can surface inline errors and route on success.
  *
- * NOTE (Phase 1): the backend `/auth/login` endpoint is a documented stub, so a
- * successful round-trip depends on that being finalized. TODO (backlog): OAuth
- * providers + "remember me" + password reset.
+ * Phase 4: credentials validate against the Payload `users` collection (the
+ * site's user store — admin/owner/staff). TODO (backlog): OAuth providers +
+ * "remember me" + password reset.
  */
 export function SignInForm({ callbackUrl = "/dashboard" }: { callbackUrl?: string }) {
   const t = useTranslations("signIn");

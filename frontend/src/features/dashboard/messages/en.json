@@ -1,0 +1,30 @@
+{
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome back, {name}",
+    "navLabel": "Dashboard sections",
+    "nav": {
+      "overview": "Overview",
+      "orders": "Orders",
+      "catalog": "Catalog",
+      "content": "Content",
+      "users": "Users",
+      "settings": "Settings"
+    },
+    "overview": {
+      "intro": "Manage your store from one place.",
+      "ordersCard": "Track and update customer orders.",
+      "catalogCard": "Edit your catalog items.",
+      "contentCard": "Edit the content of every section.",
+      "usersCard": "Manage team members and roles.",
+      "settingsCard": "Update site details and contacts.",
+      "open": "Open"
+    },
+    "forbiddenTitle": "Access denied",
+    "forbiddenBody": "Your account does not have permission to view this area. Ask the store owner to grant you access.",
+    "backHome": "Back to homepage",
+    "errorTitle": "Something went wrong",
+    "errorBody": "The dashboard could not complete that request. Try again.",
+    "retry": "Try again"
+  }
+}
