@@ -34,15 +34,20 @@ export function usePromoCarousel(options?: EmblaOptions) {
     setCanScrollNext(api.canScrollNext());
   }, []);
 
+  const onInit = useCallback((api: EmblaApi) => {
+    setScrollSnaps(api.scrollSnapList());
+  }, []);
+
   useEffect(() => {
     if (!emblaApi) return;
-    setScrollSnaps(emblaApi.scrollSnapList());
-    onSelect(emblaApi);
-    emblaApi.on("select", onSelect).on("reInit", onSelect);
+    emblaApi.on("reInit", onInit).on("reInit", onSelect).on("select", onSelect);
+    // Prime snap/selection state through embla's own event system: reInit()
+    // re-emits "reInit", running the handlers above with the mounted values.
+    emblaApi.reInit();
     return () => {
-      emblaApi.off("select", onSelect).off("reInit", onSelect);
+      emblaApi.off("reInit", onInit).off("reInit", onSelect).off("select", onSelect);
     };
-  }, [emblaApi, onSelect]);
+  }, [emblaApi, onInit, onSelect]);
 
   return {
     emblaRef,
