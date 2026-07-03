@@ -12,6 +12,12 @@ public interface IOrderRepository
 
     Task<PagedResult<Order>> GetForUserAsync(string userId, int page, int pageSize, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// All orders in the store, newest first, optionally filtered by status.
+    /// Added in Phase 4 for the client dashboard's staff order management.
+    /// </summary>
+    Task<PagedResult<Order>> GetPagedAsync(int page, int pageSize, OrderStatus? status = null, CancellationToken cancellationToken = default);
+
     Task<bool> OrderNumberExistsAsync(string orderNumber, CancellationToken cancellationToken = default);
 
     Task AddAsync(Order order, CancellationToken cancellationToken = default);

@@ -25,6 +25,26 @@
     },
     "features": {
       "type": "object",
+      "description": "Feature flags. Known keys are documented below; verticals may add more (additionalProperties stays open). Phase 4: clientDashboard is the master switch for /dashboard; dashboard* flags gate its individual modules (nav + routes + seed).",
+      "properties": {
+        "clientDashboard": { "type": "boolean", "description": "Master switch for the client dashboard (/dashboard). Off => routes 404, nav absent, owner user not seeded." },
+        "dashboardOrders": { "type": "boolean", "description": "Dashboard module: store-wide order list/detail/status transitions." },
+        "dashboardCatalog": { "type": "boolean", "description": "Dashboard module: catalog management (products or menu items by siteType)." },
+        "dashboardContent": { "type": "boolean", "description": "Dashboard module: deep links into the Payload admin (requires cms)." },
+        "dashboardUsers": { "type": "boolean", "description": "Dashboard module: users & roles (owner only)." },
+        "dashboardSettings": { "type": "boolean", "description": "Dashboard module: site settings via the Payload siteSettings global." },
+        "analytics": { "type": "boolean", "description": "Analytics feature; also gates the dashboard analytics widget." },
+        "cms": { "type": "boolean" },
+        "reviews": { "type": "boolean" },
+        "loyalty": { "type": "boolean" },
+        "wishlist": { "type": "boolean" },
+        "search": { "type": "boolean" },
+        "orderTracking": { "type": "boolean" },
+        "reservations": { "type": "boolean" },
+        "branchLocator": { "type": "boolean" },
+        "gallery": { "type": "boolean" },
+        "promotions": { "type": "boolean" }
+      },
       "additionalProperties": { "type": "boolean" }
     },
     "sections": {

@@ -35,6 +35,13 @@ export interface FeatureFlags {
   branchLocator?: boolean;
   gallery?: boolean;
   promotions?: boolean;
+  // Client dashboard modules (Phase 4) — each module is individually gated;
+  // clientDashboard is the master switch for the whole /dashboard area.
+  dashboardOrders?: boolean;
+  dashboardCatalog?: boolean;
+  dashboardContent?: boolean;
+  dashboardUsers?: boolean;
+  dashboardSettings?: boolean;
   [key: string]: boolean | undefined;
 }
 

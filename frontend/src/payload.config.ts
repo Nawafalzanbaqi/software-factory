@@ -26,6 +26,8 @@ import { Hero } from "./payload/globals/Hero";
 import { About } from "./payload/globals/About";
 import { Contact } from "./payload/globals/Contact";
 import { Footer } from "./payload/globals/Footer";
+// Client dashboard (Phase 4): client-managed settings global.
+import { SiteSettings } from "./payload/globals/SiteSettings";
 
 const filename = fileURLToPath(import.meta.url);
 const dirname = path.dirname(filename);
@@ -73,7 +75,7 @@ export default buildConfig({
     Gallery,
     Promotions,
   ],
-  globals: [Hero, About, Contact, Footer],
+  globals: [Hero, About, Contact, Footer, SiteSettings],
   localization: {
     locales: ["en", "ar"],
     defaultLocale: "en",

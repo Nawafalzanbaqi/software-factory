@@ -53,9 +53,33 @@ export async function seed(payload: Payload): Promise<void> {
     const password = process.env.PAYLOAD_ADMIN_PASSWORD ?? "ChangeMe!123";
     await payload.create({
       collection: "users",
-      data: { email, password, name: "Store Admin" },
+      data: { email, password, name: "Store Admin", role: "admin" },
     });
     payload.logger.info(`[seed] created admin user ${email}`);
+  }
+
+  // --- Dashboard owner (Phase 4, features.clientDashboard) -------------------
+  // The client's owner account for /dashboard. Gated by the flag: a build
+  // without the dashboard gets no owner user seeded.
+  if (featureOn("clientDashboard")) {
+    const ownerEmail = process.env.DASHBOARD_OWNER_EMAIL ?? "owner@softwarefactory.local";
+    const existingOwner = await payload.find({
+      collection: "users",
+      where: { email: { equals: ownerEmail } },
+      limit: 1,
+    });
+    if (existingOwner.totalDocs === 0) {
+      await payload.create({
+        collection: "users",
+        data: {
+          email: ownerEmail,
+          password: process.env.DASHBOARD_OWNER_PASSWORD ?? "ChangeMe!123",
+          name: "Store Owner",
+          role: "owner",
+        },
+      });
+      payload.logger.info(`[seed] created dashboard owner ${ownerEmail}`);
+    }
   }
 
   // --- Restaurant vertical ---------------------------------------------------
@@ -546,7 +570,8 @@ async function seedRestaurant(
 
       const items: {
         slug: string;
-        category: string | number;
+        // Payload postgres ids are numeric (payload-types.ts MenuCategory.id).
+        category: number;
         en: [string, string];
         ar: [string, string];
         price: number;
