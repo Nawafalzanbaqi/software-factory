@@ -39,9 +39,55 @@ public sealed class OrderRepository : IOrderRepository
         return new PagedResult<Order>(items, page, pageSize, total);
     }
 
+    public async Task<PagedResult<Order>> GetPagedAsync(int page, int pageSize, OrderStatus? status = null, CancellationToken cancellationToken = default)
+    {
+        page = page < 1 ? 1 : page;
+        pageSize = pageSize is < 1 or > 100 ? 20 : pageSize;
+
+        var baseQuery = status is { } s
+            ? _db.Orders.Where(o => o.Status == s)
+            : _db.Orders;
+        var total = await baseQuery.CountAsync(cancellationToken);
+
+        var items = await baseQuery
+            .Include(o => o.Items)
+            .Include(o => o.Timeline)
+            .OrderByDescending(o => o.CreatedAtUtc)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .AsSplitQuery()
+            .ToListAsync(cancellationToken);
+
+        return new PagedResult<Order>(items, page, pageSize, total);
+    }
+
     public Task<bool> OrderNumberExistsAsync(string orderNumber, CancellationToken cancellationToken = default) =>
         _db.Orders.AnyAsync(o => o.OrderNumber == orderNumber, cancellationToken);
 
     public async Task AddAsync(Order order, CancellationToken cancellationToken = default) =>
         await _db.Orders.AddAsync(order, cancellationToken);
+
+    public void TrackTimelineAppends(Order order)
+    {
+        // Suspend auto-detect: Entry() otherwise runs DetectChanges first,
+        // whose graph discovery marks the appended (still untracked) entry as
+        // Modified — an UPDATE against a row that does not exist yet.
+        var autoDetect = _db.ChangeTracker.AutoDetectChangesEnabled;
+        _db.ChangeTracker.AutoDetectChangesEnabled = false;
+        try
+        {
+            foreach (var entry in order.Timeline)
+            {
+                var tracked = _db.Entry(entry);
+                if (tracked.State == EntityState.Detached)
+                {
+                    tracked.State = EntityState.Added;
+                }
+            }
+        }
+        finally
+        {
+            _db.ChangeTracker.AutoDetectChangesEnabled = autoDetect;
+        }
+    }
 }

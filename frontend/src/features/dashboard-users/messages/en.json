@@ -1,0 +1,31 @@
+{
+  "dashboardUsers": {
+    "title": "Users & roles",
+    "intro": "Invite your team and control who can manage the store.",
+    "invite": "Invite user",
+    "inviteTitle": "Invite a team member",
+    "inviteSubtitle": "They sign in at /sign-in with the email and password you set.",
+    "inviteSubmit": "Create account",
+    "invited": "User created.",
+    "roleUpdated": "Role updated.",
+    "removed": "User removed.",
+    "actionError": "The action failed. Check your permissions and retry.",
+    "loadError": "Could not load users.",
+    "colUser": "User",
+    "colRole": "Role",
+    "colActions": "Actions",
+    "remove": "Remove",
+    "name": "Name",
+    "email": "Email",
+    "password": "Temporary password",
+    "required": "This field is required.",
+    "invalidEmail": "Enter a valid email address.",
+    "weakPassword": "Use at least 8 characters.",
+    "saving": "Saving…",
+    "roles": {
+      "admin": "Factory admin",
+      "owner": "Owner",
+      "staff": "Staff"
+    }
+  }
+}

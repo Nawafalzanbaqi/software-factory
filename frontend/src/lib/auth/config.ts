@@ -1,30 +1,25 @@
 import NextAuth, { type NextAuthConfig } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { z } from "zod";
-import { apiClient } from "@/lib/api/client";
+import { isDashboardRole, type DashboardRole } from "./roles";
 
 /**
  * Auth.js (NextAuth v5), self-hosted, Credentials provider, JWT sessions.
  * AUTH_SECRET + AUTH_TRUST_HOST come from env (see .env.example).
  *
- * The Credentials provider validates against the backend. The backend endpoint
- * is not part of Phase 1's documented REST contract yet, so this is a STUB that
- * posts to `/auth/login` and expects `{ id, email, name, token }`.
- * TODO (backlog): finalize the backend auth endpoint + real JWT validation, and
- * add optional OAuth providers.
+ * Phase 4: the Credentials provider validates against the embedded Payload CMS
+ * `users` collection (the site's user store — admin/owner/staff roles), which
+ * replaces the Phase 1 stub that posted to a not-yet-built backend /auth/login.
+ * The session carries `role` (dashboard authorization) and `payloadToken`
+ * (authed Payload REST calls from the dashboard). Backend API bearers are
+ * minted on demand server-side — see backend-token.ts.
+ * TODO (backlog): optional OAuth providers + password reset.
  */
 
 const credentialsSchema = z.object({
   email: z.string().email(),
   password: z.string().min(6),
 });
-
-interface BackendAuthResponse {
-  id: string;
-  email: string;
-  name?: string;
-  token: string;
-}
 
 export const authConfig = {
   trustHost: true,
@@ -43,20 +38,38 @@ export const authConfig = {
         if (!parsed.success) return null;
 
         try {
-          const res = await apiClient.post<BackendAuthResponse>(
-            "/auth/login",
-            parsed.data,
-            { cache: "no-store" },
-          );
-          if (!res?.id) return null;
+          // Payload Local API login. Imported lazily so importing authConfig
+          // (unit tests, edge-adjacent modules) never evaluates the Payload
+          // config — only an actual sign-in attempt does.
+          const [{ getPayload }, { default: payloadConfig }] = await Promise.all([
+            import("payload"),
+            import("@payload-config"),
+          ]);
+          const payload = await getPayload({ config: payloadConfig });
+          const result = await payload.login({
+            collection: "users",
+            data: parsed.data,
+          });
+
+          const user = result.user as {
+            id: string | number;
+            email: string;
+            name?: string | null;
+            role?: string | null;
+          };
+          if (!user?.id) return null;
+
           return {
-            id: res.id,
-            email: res.email,
-            name: res.name ?? res.email,
-            // Carry backend JWT so authed API calls can forward it.
-            accessToken: res.token,
+            id: String(user.id),
+            email: user.email,
+            name: user.name ?? user.email,
+            role: isDashboardRole(user.role) ? user.role : undefined,
+            // Payload JWT so dashboard modules can call Payload REST as this user.
+            payloadToken: result.token,
           };
         } catch {
+          // Bad credentials, locked account, or no DB — all surface as a
+          // failed sign-in; never leak the reason to the client.
           return null;
         }
       },
@@ -65,17 +78,20 @@ export const authConfig = {
   callbacks: {
     jwt: ({ token, user }) => {
       if (user) {
-        token.accessToken = (user as { accessToken?: string }).accessToken;
         token.sub = user.id ?? token.sub;
+        token.role = (user as { role?: DashboardRole }).role;
+        token.payloadToken = (user as { payloadToken?: string }).payloadToken;
       }
       return token;
     },
     session: ({ session, token }) => {
       if (session.user) {
         session.user.id = token.sub ?? "";
+        // Casts: the JWT interface keeps an unknown index signature in
+        // next-auth beta.31, so augmented custom claims read as unknown.
+        session.user.role = token.role as DashboardRole | undefined;
       }
-      (session as { accessToken?: string }).accessToken =
-        token.accessToken as string | undefined;
+      session.payloadToken = token.payloadToken as string | undefined;
       return session;
     },
   },

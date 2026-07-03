@@ -11,8 +11,17 @@ import { defineConfig, devices } from "@playwright/test";
  * CONTENT (the not-found UI), since a child `notFound()` under the root layout
  * keeps a 200 status in both dev and prod. The restaurant spec mocks /api/v1/*
  * via page.route so the flow is deterministic without a backend.
+ *
+ * Phase 4 modes:
+ * - dashboard.spec.ts (mock) joins the ecommerce run — CHROMIUM ONLY, because
+ *   the spec binds an in-process stub backend on port 5080 and exactly one
+ *   worker may own that port.
+ * - REAL_BACKEND=1 switches to the `dashboard-real` project (its own CI job):
+ *   docker-compose backend on :5080 + Payload sharing the compose postgres,
+ *   so the dev server additionally needs DATABASE_URI + BACKEND_JWT_KEY.
  */
 const VERTICAL = (process.env.E2E_VERTICAL || "ecommerce") as "ecommerce" | "restaurant";
+const REAL_BACKEND = process.env.REAL_BACKEND === "1";
 const baseURL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
 const serverEnv: Record<string, string> = {
@@ -24,12 +33,20 @@ const serverEnv: Record<string, string> = {
   // Restaurant vertical: point the loader at the restaurant manifest (resolved
   // relative to the repo root from the frontend/ cwd) for BOTH build and start.
   ...(VERTICAL === "restaurant" ? { OPTIONS_FILE: "options.restaurant.json" } : {}),
+  // Real-backend mode: Payload needs the compose postgres; the manage-orders
+  // bearer must be signed with the same key the backend validates (Jwt:Key).
+  ...(REAL_BACKEND && process.env.DATABASE_URI
+    ? { DATABASE_URI: process.env.DATABASE_URI }
+    : {}),
+  ...(REAL_BACKEND && process.env.BACKEND_JWT_KEY
+    ? { BACKEND_JWT_KEY: process.env.BACKEND_JWT_KEY }
+    : {}),
 };
 
 const ecommerceProjects = [
   {
     name: "ecommerce-chromium",
-    testMatch: /smoke\.spec\.ts/,
+    testMatch: /smoke\.spec\.ts|dashboard\.spec\.ts/,
     use: { ...devices["Desktop Chrome"], baseURL },
   },
   {
@@ -47,6 +64,18 @@ const restaurantProjects = [
   },
 ];
 
+const realBackendProjects = [
+  {
+    name: "dashboard-real",
+    testMatch: /dashboard-real\.spec\.ts/,
+    use: { ...devices["Desktop Chrome"], baseURL },
+    // The DEV server compiles each route on first hit; on a CI runner those
+    // first-compiles regularly exceed the default 5s expect timeout.
+    expect: { timeout: 30_000 },
+    timeout: 180_000,
+  },
+];
+
 export default defineConfig({
   testDir: "./e2e",
   fullyParallel: true,
@@ -57,7 +86,11 @@ export default defineConfig({
     baseURL,
     trace: "on-first-retry",
   },
-  projects: VERTICAL === "restaurant" ? restaurantProjects : ecommerceProjects,
+  projects: REAL_BACKEND
+    ? realBackendProjects
+    : VERTICAL === "restaurant"
+      ? restaurantProjects
+      : ecommerceProjects,
   webServer: {
     // Dev server: no prior production build needed (the frontend job covers build).
     command: "npm run dev",

@@ -58,6 +58,8 @@ public class VerticalRoutingTests
 
         // Shared modules present in both verticals.
         Assert.True(HasPrefix(routes, "/api/v1/cart"), "cart is shared and should be present");
+        // Phase 4: dashboard order management is shared and clientDashboard=true in the manifest.
+        Assert.True(HasPrefix(routes, "/api/v1/manage/orders"), "ecommerce boot should expose /api/v1/manage/orders*");
     }
 
     [Fact]
@@ -72,5 +74,51 @@ public class VerticalRoutingTests
 
         // Shared modules present in both verticals.
         Assert.True(HasPrefix(routes, "/api/v1/cart"), "cart is shared and should be present");
+        // Phase 4: dashboard order management is shared and clientDashboard=true in the manifest.
+        Assert.True(HasPrefix(routes, "/api/v1/manage/orders"), "restaurant boot should expose /api/v1/manage/orders*");
+    }
+
+    [Fact]
+    public void Disabled_clientDashboard_removes_manage_routes()
+    {
+        // Phase 4 flag-off proof: same boot with features.clientDashboard=false must
+        // not map the manage endpoints (disabled feature => 404, absent from OpenAPI).
+        var manifest = File.ReadAllText(FindRepoFile("options.ecommerce.json"));
+        manifest = manifest.Replace("\"clientDashboard\": true", "\"clientDashboard\": false");
+
+        var tempFile = Path.Combine(Path.GetTempPath(), $"options.dashboard-off.{Guid.NewGuid():N}.json");
+        File.WriteAllText(tempFile, manifest);
+        try
+        {
+            var routes = GetRoutes(tempFile);
+
+            Assert.False(HasPrefix(routes, "/api/v1/manage/orders"),
+                "clientDashboard=false boot should NOT expose /api/v1/manage/orders*");
+            // The rest of the vertical is unaffected by the dashboard flag.
+            Assert.True(HasPrefix(routes, "/api/v1/products"), "products should still be mapped");
+            Assert.True(HasPrefix(routes, "/api/v1/orders"), "public order tracking should still be mapped");
+        }
+        finally
+        {
+            File.Delete(tempFile);
+        }
+    }
+
+    /// <summary>Walk up from the test base directory to find a repo-root file.</summary>
+    private static string FindRepoFile(string fileName)
+    {
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        while (dir is not null)
+        {
+            var candidate = Path.Combine(dir.FullName, fileName);
+            if (File.Exists(candidate))
+            {
+                return candidate;
+            }
+
+            dir = dir.Parent;
+        }
+
+        throw new FileNotFoundException($"Could not locate {fileName} above {AppContext.BaseDirectory}.");
     }
 }

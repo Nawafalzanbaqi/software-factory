@@ -1,0 +1,11 @@
+{
+  "dashboardAnalytics": {
+    "title": "Traffic — last {days} days",
+    "notConnected": "Analytics is not connected yet. Numbers will appear once a provider is configured.",
+    "visitors": "Visitors",
+    "pageviews": "Pageviews",
+    "topPages": "Top pages",
+    "sources": "Sources",
+    "noData": "No data yet."
+  }
+}

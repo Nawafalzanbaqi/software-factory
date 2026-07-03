@@ -9,7 +9,11 @@
  *   2. the derived primary-nav routes are present AND the wrong vertical's routes
  *      are absent (nav derivation mirrors frontend/src/components/layout/nav-items.ts);
  *   3. seed/feature expectations (the flags that gate seeded data + routes);
- *   4. the guarded route files exist on disk and contain a getSiteType(...) guard.
+ *   4. the guarded route files exist on disk and contain a getSiteType(...) guard;
+ *   5. (Phase 4) the client-dashboard nav derives ONLY from dashboard flags —
+ *      present for both verticals when flags are on, EMPTY when
+ *      features.clientDashboard is off — and every dashboard route file exists
+ *      and calls the requireDashboardAccess guard.
  *
  * Exits non-zero with a clear diff on any mismatch; prints a PASS summary table.
  * Pure node, no dependencies.
@@ -35,7 +39,17 @@ const SPECS = {
     navPresent: ["/products", "/categories"],
     navAbsent: ["/menu", "/branches", "/reservations", "/gallery"],
     // Seed/feature expectations: the flags that gate seeded catalog data + routes.
-    featuresOn: ["wishlist", "orderTracking", "clientDashboard", "cms"],
+    featuresOn: [
+      "wishlist",
+      "orderTracking",
+      "clientDashboard",
+      "cms",
+      "dashboardOrders",
+      "dashboardCatalog",
+      "dashboardContent",
+      "dashboardUsers",
+      "dashboardSettings",
+    ],
     featuresOff: ["reviews", "reservations", "branchLocator", "gallery", "promotions"],
     // Guarded route files (must exist + carry a getSiteType guard).
     guardedRoutes: ["products/page.tsx", "categories/page.tsx"],
@@ -47,7 +61,20 @@ const SPECS = {
     sectionsAbsent: ["productListing", "categories"],
     navPresent: ["/menu", "/reservations", "/branches", "/gallery"],
     navAbsent: ["/products", "/categories"],
-    featuresOn: ["reservations", "branchLocator", "gallery", "promotions", "orderTracking"],
+    featuresOn: [
+      "reservations",
+      "branchLocator",
+      "gallery",
+      "promotions",
+      "orderTracking",
+      "clientDashboard",
+      "cms",
+      "dashboardOrders",
+      "dashboardCatalog",
+      "dashboardContent",
+      "dashboardUsers",
+      "dashboardSettings",
+    ],
     featuresOff: ["reviews", "wishlist"],
     guardedRoutes: [
       "menu/page.tsx",
@@ -65,6 +92,42 @@ const SPECS = {
 // ---------------------------------------------------------------------------
 const sectionOn = (o, name) => o.sections?.[name]?.enabled === true;
 const featureOn = (o, name) => o.features?.[name] === true;
+
+// ---------------------------------------------------------------------------
+// Dashboard nav derivation (Phase 4) — mirrors
+// frontend/src/features/dashboard/lib/nav.ts (owner view). Keep in lock-step.
+// ---------------------------------------------------------------------------
+function deriveDashboardNav(o) {
+  if (!featureOn(o, "clientDashboard")) return [];
+  const items = ["/dashboard"];
+  if (featureOn(o, "dashboardOrders")) items.push("/dashboard/orders");
+  if (featureOn(o, "dashboardCatalog")) items.push("/dashboard/catalog");
+  if (featureOn(o, "dashboardContent") && featureOn(o, "cms")) items.push("/dashboard/content");
+  if (featureOn(o, "dashboardUsers")) items.push("/dashboard/users");
+  if (featureOn(o, "dashboardSettings")) items.push("/dashboard/settings");
+  return items;
+}
+
+/** Dashboard route files that must exist AND call the dashboard guard. */
+const DASHBOARD_ROUTES = [
+  "dashboard/layout.tsx",
+  "dashboard/page.tsx",
+  "dashboard/orders/page.tsx",
+  "dashboard/orders/[orderNumber]/page.tsx",
+  "dashboard/catalog/page.tsx",
+  "dashboard/content/page.tsx",
+  "dashboard/users/page.tsx",
+  "dashboard/settings/page.tsx",
+];
+
+const DASHBOARD_NAV_ALL = [
+  "/dashboard",
+  "/dashboard/orders",
+  "/dashboard/catalog",
+  "/dashboard/content",
+  "/dashboard/users",
+  "/dashboard/settings",
+];
 
 function derivePrimaryNav(o) {
   const items = ["/"];
@@ -159,6 +222,55 @@ for (const [vertical, spec] of Object.entries(SPECS)) {
         "route-guard",
         src.includes("getSiteType"),
         `guarded route src/app/[locale]/${rel} has no getSiteType(...) guard`,
+      );
+    }
+  }
+
+  // 5. Phase 4 — client dashboard gating.
+  // 5a. With the manifest's flags (all on), the full dashboard nav derives.
+  const dashNav = deriveDashboardNav(o);
+  for (const r of DASHBOARD_NAV_ALL) {
+    check(
+      vertical,
+      "dash-nav+",
+      dashNav.includes(r),
+      `dashboard nav route '${r}' expected but derived = [${dashNav.join(", ")}]`,
+    );
+  }
+  // 5b. Flag OFF => the entire dashboard derives to ABSENT (404 / no nav).
+  const dashOff = deriveDashboardNav({
+    ...o,
+    features: { ...o.features, clientDashboard: false },
+  });
+  check(
+    vertical,
+    "dash-nav-off",
+    dashOff.length === 0,
+    `clientDashboard=false must derive an EMPTY dashboard nav, got [${dashOff.join(", ")}]`,
+  );
+  // 5c. A single module flag off removes exactly that route.
+  const dashNoOrders = deriveDashboardNav({
+    ...o,
+    features: { ...o.features, dashboardOrders: false },
+  });
+  check(
+    vertical,
+    "dash-module-off",
+    !dashNoOrders.includes("/dashboard/orders") && dashNoOrders.includes("/dashboard/catalog"),
+    `dashboardOrders=false must remove only /dashboard/orders, got [${dashNoOrders.join(", ")}]`,
+  );
+  // 5d. Dashboard route files exist and call the dashboard guard.
+  for (const rel of DASHBOARD_ROUTES) {
+    const p = path.join(APP, ...rel.split("/"));
+    const exists = existsSync(p);
+    check(vertical, "dash-route-file", exists, `dashboard route file missing: src/app/[locale]/${rel}`);
+    if (exists) {
+      const src = readFileSync(p, "utf-8");
+      check(
+        vertical,
+        "dash-route-guard",
+        src.includes("requireDashboardAccess"),
+        `dashboard route src/app/[locale]/${rel} has no requireDashboardAccess(...) guard`,
       );
     }
   }

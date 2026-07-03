@@ -23,6 +23,8 @@ const nextConfig: NextConfig = {
   experimental: {
     // Keep server actions payloads small; tune as needed.
     optimizePackageImports: ["lucide-react"],
+    // Phase 4: forbidden() for the dashboard role gate (wrong role => real 403).
+    authInterrupts: true,
   },
 };
 
