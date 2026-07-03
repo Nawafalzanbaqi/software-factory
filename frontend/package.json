@@ -16,7 +16,7 @@
     "postbuild": "next-sitemap --config next-sitemap.config.js",
     "gen:api": "openapi-typescript ../backend/src/SoftwareFactory.Api/openapi.json -o src/lib/api/openapi.ts",
     "payload": "payload",
-    "payload:seed": "payload run src/payload/seed.run.ts",
+    "payload:seed": "tsx src/payload/seed.run.ts",
     "generate:types": "payload generate:types",
     "generate:importmap": "payload generate:importmap",
     "format": "prettier --write ."
@@ -76,6 +76,7 @@
     "prettier": "3.4.2",
     "prettier-plugin-tailwindcss": "0.6.10",
     "tailwindcss": "3.4.17",
+    "tsx": "4.22.4",
     "typescript": "5.7.3",
     "vitest": "4.1.9"
   },

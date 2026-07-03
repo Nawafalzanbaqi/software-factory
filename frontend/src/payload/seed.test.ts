@@ -60,6 +60,9 @@ describe("seed password policy (fix #2)", () => {
     expect(seededRoles(created)).toEqual([]);
     expect(logs.warn.join("\n")).toMatch(/PAYLOAD_ADMIN_PASSWORD/);
     expect(logs.warn.join("\n")).toMatch(/DASHBOARD_OWNER_PASSWORD/);
+    // The unconditional first line names the manifest that drove the run — a
+    // seed can never again be silent about whether/what it executed.
+    expect(logs.info.join("\n")).toMatch(/\[seed\] manifest: /);
   });
 
   it("never seeds a literal default — the created password IS the env value", async () => {
