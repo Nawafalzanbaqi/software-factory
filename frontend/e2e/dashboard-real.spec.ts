@@ -17,6 +17,30 @@ const API = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5080";
 const OWNER_EMAIL = process.env.DASHBOARD_OWNER_EMAIL || "owner@softwarefactory.local";
 const OWNER_PASSWORD = process.env.DASHBOARD_OWNER_PASSWORD || "ChangeMe!123";
 
+/**
+ * Warm up Payload inside the Next dev server before the UI sign-in: the first
+ * Payload use initializes the ORM (dev push) and can exceed the form's
+ * patience, which would fail the first authorize() attempt.
+ */
+test.beforeAll(async ({ request }) => {
+  const deadline = Date.now() + 120_000;
+  for (;;) {
+    try {
+      const res = await request.post("/api/users/login", {
+        data: { email: OWNER_EMAIL, password: OWNER_PASSWORD },
+        timeout: 30_000,
+      });
+      if (res.ok()) return;
+    } catch {
+      // dev server / Payload still compiling — retry below.
+    }
+    if (Date.now() > deadline) {
+      throw new Error("Payload login warmup never succeeded — check payload:seed + DATABASE_URI");
+    }
+    await new Promise((resolve) => setTimeout(resolve, 3_000));
+  }
+});
+
 /** Create a real order through the public API: add to cart -> checkout. */
 async function placeOrder(request: import("@playwright/test").APIRequestContext) {
   const products = await request.get(`${API}/api/v1/products?pageSize=1`);
