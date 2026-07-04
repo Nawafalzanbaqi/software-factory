@@ -29,7 +29,7 @@ import { AnalyticsPanel } from "@/components/analytics-panel";
 import { IntakeCard } from "@/components/intake-card";
 import { UsageTable } from "@/components/usage-table";
 import { formatDateTime } from "@/lib/utils";
-import { STATUS_LABELS } from "@/lib/phases";
+import { PHASE_LABELS, STATUS_LABELS } from "@/lib/phases";
 import { ArrowLeft } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -47,6 +47,12 @@ export async function generateMetadata({
     return { title: "Project" };
   }
 }
+
+const DEPLOYMENT_BADGE = {
+  success: "success",
+  failure: "destructive",
+  pending: "warning",
+} as const;
 
 export default async function ProjectDetailPage({
   params,
@@ -74,40 +80,47 @@ export default async function ProjectDetailPage({
   const deployments = detail.recentDeployments ?? [];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       <div>
         <Link
           href="/projects"
-          className="inline-flex items-center gap-1 text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+          className="inline-flex items-center gap-1 rounded-sm text-sm text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
-          <ArrowLeft className="size-4" aria-hidden="true" />
+          <ArrowLeft className="size-4 rtl:rotate-180" aria-hidden="true" />
           All projects
         </Link>
       </div>
 
-      <header className="flex flex-col gap-2">
+      <header className="flex flex-col gap-3">
         <div className="flex flex-wrap items-center gap-3">
           <h1 className="text-2xl font-semibold tracking-tight">{p.name}</h1>
-          <Badge variant="secondary">{p.siteType}</Badge>
+          <Badge variant="secondary" className="font-mono">
+            {p.siteType}
+          </Badge>
         </div>
-        <dl className="flex flex-wrap gap-x-6 gap-y-1 text-sm text-muted-foreground">
-          <div className="flex gap-1">
-            <dt>Created</dt>
-            <dd className="text-foreground">{formatDateTime(p.createdAt)}</dd>
+        {/* Console readout: identifiers and links in mono key/value pairs. */}
+        <dl className="flex flex-wrap gap-x-6 gap-y-1.5 font-mono text-xs text-muted-foreground">
+          <div className="flex gap-1.5">
+            <dt className="uppercase tracking-wider">id</dt>
+            <dd className="text-foreground/80">{p.id}</dd>
+          </div>
+          <div className="flex gap-1.5">
+            <dt className="uppercase tracking-wider">created</dt>
+            <dd className="text-foreground/80">{formatDateTime(p.createdAt)}</dd>
           </div>
           {p.branch && (
-            <div className="flex gap-1">
-              <dt>Branch</dt>
-              <dd className="font-mono text-foreground">{p.branch}</dd>
+            <div className="flex gap-1.5">
+              <dt className="uppercase tracking-wider">branch</dt>
+              <dd className="text-foreground/80">{p.branch}</dd>
             </div>
           )}
           {p.repoUrl && (
-            <div className="flex gap-1">
-              <dt>Repo</dt>
+            <div className="flex gap-1.5">
+              <dt className="uppercase tracking-wider">repo</dt>
               <dd>
                 <a
                   href={p.repoUrl}
-                  className="text-primary underline-offset-4 hover:underline"
+                  className="rounded-sm text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   target="_blank"
                   rel="noreferrer"
                 >
@@ -117,12 +130,12 @@ export default async function ProjectDetailPage({
             </div>
           )}
           {p.liveUrl && (
-            <div className="flex gap-1">
-              <dt>Live</dt>
+            <div className="flex gap-1.5">
+              <dt className="uppercase tracking-wider">live</dt>
               <dd>
                 <a
                   href={p.liveUrl}
-                  className="text-primary underline-offset-4 hover:underline"
+                  className="rounded-sm text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   target="_blank"
                   rel="noreferrer"
                 >
@@ -134,18 +147,18 @@ export default async function ProjectDetailPage({
         </dl>
       </header>
 
-      {/* Visual 7-phase pipeline */}
+      {/* Visual 7-phase pipeline — the control room's centerpiece */}
       <Card>
         <CardHeader>
           <CardTitle>Pipeline</CardTitle>
           <CardDescription>
             Current phase:{" "}
-            <span className="font-medium text-foreground">
-              {p.currentPhase}
+            <span className="font-mono text-foreground">
+              {PHASE_LABELS[p.currentPhase] ?? p.currentPhase}
             </span>
           </CardDescription>
         </CardHeader>
-        <CardContent>
+        <CardContent className="pb-8 pt-2">
           <PhasePipeline currentPhase={p.currentPhase} />
         </CardContent>
       </Card>
@@ -156,7 +169,7 @@ export default async function ProjectDetailPage({
       {/* Intake spec + generated options.json (projects registered via New Project) */}
       <IntakeCard intake={detail.intake} optionsJson={detail.optionsJson} />
 
-      <div className="grid gap-8 lg:grid-cols-2">
+      <div className="grid gap-6 lg:grid-cols-2">
         <UsageTable usage={usage} />
         <AnalyticsPanel analytics={analytics} />
       </div>
@@ -189,20 +202,16 @@ export default async function ProjectDetailPage({
                     <TableCell>
                       <Badge
                         variant={
-                          deployment.status === "success"
-                            ? "success"
-                            : deployment.status === "failure"
-                              ? "destructive"
-                              : "secondary"
+                          DEPLOYMENT_BADGE[deployment.status] ?? "secondary"
                         }
                       >
                         {STATUS_LABELS[deployment.status] ?? deployment.status}
                       </Badge>
                     </TableCell>
-                    <TableCell className="uppercase text-muted-foreground">
+                    <TableCell className="font-mono text-xs uppercase text-muted-foreground">
                       {deployment.source}
                     </TableCell>
-                    <TableCell className="text-muted-foreground">
+                    <TableCell className="font-mono text-xs text-muted-foreground">
                       {formatDateTime(deployment.occurredAt)}
                     </TableCell>
                   </TableRow>

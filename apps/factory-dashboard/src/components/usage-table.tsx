@@ -18,9 +18,10 @@ import { formatNumber, formatUsd } from "@/lib/utils";
 import type { UsageResponseDto } from "@/lib/platform-api";
 
 /**
- * API cost table from GET /api/projects/{id}/usage. One row per usage record
- * (per model), with a footer total. If per-model aggregation is desired the
- * Platform API can return pre-aggregated rows; here we render what it sends.
+ * API cost metric panel from GET /api/projects/{id}/usage. One row per usage
+ * record (per model) in mono, with a footer total. If per-model aggregation
+ * is desired the Platform API can return pre-aggregated rows; here we render
+ * what it sends.
  */
 export function UsageTable({ usage }: { usage: UsageResponseDto | null }) {
   const records = usage?.records ?? [];
@@ -47,18 +48,18 @@ export function UsageTable({ usage }: { usage: UsageResponseDto | null }) {
             <TableHeader>
               <TableRow>
                 <TableHead>Model</TableHead>
-                <TableHead className="text-right">Tokens</TableHead>
-                <TableHead className="text-right">Cost (USD)</TableHead>
+                <TableHead className="text-end">Tokens</TableHead>
+                <TableHead className="text-end">Cost (USD)</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {records.map((record) => (
                 <TableRow key={record.id}>
                   <TableCell className="font-mono text-xs">{record.model}</TableCell>
-                  <TableCell className="text-right tabular-nums">
+                  <TableCell className="text-end font-mono text-xs tabular-nums">
                     {formatNumber(record.tokens)}
                   </TableCell>
-                  <TableCell className="text-right tabular-nums">
+                  <TableCell className="text-end font-mono text-xs tabular-nums">
                     {formatUsd(record.costUsd)}
                   </TableCell>
                 </TableRow>
@@ -67,11 +68,11 @@ export function UsageTable({ usage }: { usage: UsageResponseDto | null }) {
             <TableFooter>
               <TableRow>
                 <TableCell>Total</TableCell>
-                <TableCell className="text-right tabular-nums">
+                <TableCell className="text-end font-mono tabular-nums">
                   {formatNumber(usage.totalTokens)}
                 </TableCell>
                 <TableCell
-                  className="text-right tabular-nums"
+                  className="text-end font-mono tabular-nums"
                   data-testid="usage-total"
                 >
                   {formatUsd(usage.totalCostUsd)}

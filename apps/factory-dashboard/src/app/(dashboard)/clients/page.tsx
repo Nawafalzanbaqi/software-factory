@@ -33,7 +33,7 @@ export default async function ClientsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <header className="space-y-1">
         <h1 className="text-2xl font-semibold tracking-tight">Clients</h1>
         <p className="text-sm text-muted-foreground">
@@ -82,7 +82,7 @@ export default async function ClientsPage() {
                         "—"
                       )}
                     </TableCell>
-                    <TableCell className="text-muted-foreground">
+                    <TableCell className="font-mono text-xs text-muted-foreground">
                       {formatDateTime(client.createdAt)}
                     </TableCell>
                   </TableRow>

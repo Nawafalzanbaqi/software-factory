@@ -27,8 +27,8 @@ export default async function SignInPage({
   return (
     <main className="flex min-h-screen items-center justify-center px-4">
       <Card className="w-full max-w-sm animate-fade-in">
-        <CardHeader className="space-y-2 text-center">
-          <div className="mx-auto flex size-11 items-center justify-center rounded-full bg-primary/10">
+        <CardHeader className="space-y-3 text-center">
+          <div className="mx-auto flex size-12 items-center justify-center rounded-lg border border-primary/30 bg-primary/10 shadow-glow-primary-sm">
             <Factory className="size-6 text-primary" aria-hidden="true" />
           </div>
           <CardTitle className="text-xl">Factory Control Plane</CardTitle>
