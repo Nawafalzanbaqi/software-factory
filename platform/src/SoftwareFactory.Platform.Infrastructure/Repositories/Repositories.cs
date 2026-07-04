@@ -17,6 +17,14 @@ public sealed class ClientRepository : IClientRepository
     public async Task<Client?> GetByIdAsync(Guid id, CancellationToken ct = default)
         => await _db.Clients.FirstOrDefaultAsync(c => c.Id == id, ct);
 
+    public async Task<Client?> GetByNameAsync(string name, CancellationToken ct = default)
+    {
+        // Invariant lowering host-side (culture-proof, e.g. tr-TR dotted I);
+        // c.Name.ToLower() translates to SQL lower() on Npgsql and evaluates on InMemory.
+        var normalized = name.Trim().ToLowerInvariant();
+        return await _db.Clients.FirstOrDefaultAsync(c => c.Name.ToLower() == normalized, ct);
+    }
+
     public async Task<IReadOnlyList<Client>> ListAsync(CancellationToken ct = default)
         => await _db.Clients.AsNoTracking().OrderByDescending(c => c.CreatedAt).ToListAsync(ct);
 }

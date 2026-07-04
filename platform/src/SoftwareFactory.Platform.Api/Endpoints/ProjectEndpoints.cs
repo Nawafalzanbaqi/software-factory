@@ -10,49 +10,62 @@ public static class ProjectEndpoints
         var group = app.MapGroup("/api/projects").WithTags("Projects");
 
         group.MapGet("/", async (IProjectService svc, CancellationToken ct)
-            => Results.Ok(await svc.GetProjectsAsync(ct)));
+            => Results.Ok(await svc.GetProjectsAsync(ct)))
+            .Produces<IReadOnlyList<ProjectDto>>();
 
         group.MapPost("/", async (CreateProjectRequest req, IProjectService svc, CancellationToken ct) =>
         {
             var created = await svc.CreateProjectAsync(req, ct);
             return Results.Created($"/api/projects/{created.Id}", created);
-        });
+        }).Produces<ProjectDto>(StatusCodes.Status201Created);
 
         group.MapGet("/{id:guid}", async (Guid id, IProjectService svc, CancellationToken ct) =>
         {
             var detail = await svc.GetProjectDetailAsync(id, ct);
             return detail is null ? Results.NotFound() : Results.Ok(detail);
+        }).Produces<ProjectDetailDto>();
+
+        // The generated build manifest, verbatim (text column) — 404 until the
+        // project is registered through intake.
+        group.MapGet("/{id:guid}/options.json", async (Guid id, IProjectService svc, CancellationToken ct) =>
+        {
+            var optionsJson = await svc.GetProjectOptionsJsonAsync(id, ct);
+            return optionsJson is null
+                ? Results.NotFound()
+                : Results.Content(optionsJson, "application/json");
         });
 
         group.MapPatch("/{id:guid}/phase", async (Guid id, UpdatePhaseRequest req, IProjectService svc, CancellationToken ct) =>
         {
             var updated = await svc.UpdatePhaseAsync(id, req.Phase, ct);
             return updated is null ? Results.NotFound() : Results.Ok(updated);
-        });
+        }).Produces<ProjectDto>();
 
         group.MapPost("/{id:guid}/approvals", async (Guid id, CreateApprovalRequest req, IApprovalService svc, CancellationToken ct) =>
         {
             var gate = await svc.RecordApprovalAsync(id, req, ct);
             return Results.Ok(gate);
-        });
+        }).Produces<ApprovalGateDto>();
 
         group.MapGet("/{id:guid}/usage", async (Guid id, IUsageService svc, CancellationToken ct)
-            => Results.Ok(await svc.GetUsageAsync(id, ct)));
+            => Results.Ok(await svc.GetUsageAsync(id, ct)))
+            .Produces<ProjectUsageDto>();
 
         group.MapPost("/{id:guid}/usage", async (Guid id, CreateUsageRequest req, IUsageService svc, CancellationToken ct) =>
         {
             var record = await svc.RecordUsageAsync(id, req, ct);
             return Results.Created($"/api/projects/{id}/usage", record);
-        });
+        }).Produces<ApiUsageRecordDto>(StatusCodes.Status201Created);
 
         group.MapGet("/{id:guid}/deployments", async (Guid id, IDeploymentService svc, CancellationToken ct)
-            => Results.Ok(await svc.GetProjectDeploymentsAsync(id, ct)));
+            => Results.Ok(await svc.GetProjectDeploymentsAsync(id, ct)))
+            .Produces<IReadOnlyList<DeploymentEventDto>>();
 
         group.MapPost("/{id:guid}/deployments", async (Guid id, CreateDeploymentRequest req, IDeploymentService svc, CancellationToken ct) =>
         {
             var evt = await svc.RecordDeploymentEventAsync(id, req, ct);
             return Results.Created($"/api/projects/{id}/deployments/{evt.Id}", evt);
-        });
+        }).Produces<DeploymentEventDto>(StatusCodes.Status201Created);
 
         return app;
     }
