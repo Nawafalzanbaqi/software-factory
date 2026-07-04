@@ -10,13 +10,13 @@ const NAV_LINKS = [
 
 /**
  * Top navigation for authenticated pages. Server component: reads the session
- * to show the signed-in admin email.
+ * to show the signed-in admin email (in mono — it's an identifier).
  */
 export async function AppNav() {
   const session = await auth();
 
   return (
-    <header className="border-b border-border bg-card/60 backdrop-blur">
+    <header className="sticky top-0 z-40 border-b border-border/70 bg-background/80 backdrop-blur">
       <nav
         aria-label="Primary"
         className="container flex h-14 items-center justify-between gap-4"
@@ -24,9 +24,11 @@ export async function AppNav() {
         <div className="flex items-center gap-6">
           <Link
             href="/projects"
-            className="flex items-center gap-2 font-semibold tracking-tight"
+            className="flex items-center gap-2.5 rounded-md font-semibold tracking-tight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
-            <Factory className="size-5 text-primary" aria-hidden="true" />
+            <span className="flex size-8 items-center justify-center rounded-md border border-primary/30 bg-primary/10 shadow-glow-primary-sm">
+              <Factory className="size-4 text-primary" aria-hidden="true" />
+            </span>
             <span>Factory Control Plane</span>
           </Link>
           <ul className="flex items-center gap-1 text-sm">
@@ -34,7 +36,7 @@ export async function AppNav() {
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className="rounded-md px-3 py-1.5 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  className="rounded-md px-3 py-1.5 text-muted-foreground transition-colors hover:bg-muted/60 hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 >
                   {link.label}
                 </Link>
@@ -44,7 +46,7 @@ export async function AppNav() {
         </div>
         <div className="flex items-center gap-3">
           {session?.user?.email && (
-            <span className="hidden text-sm text-muted-foreground sm:inline">
+            <span className="hidden font-mono text-xs text-muted-foreground sm:inline">
               {session.user.email}
             </span>
           )}

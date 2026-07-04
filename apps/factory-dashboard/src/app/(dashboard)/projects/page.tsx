@@ -41,7 +41,7 @@ export default async function ProjectsPage() {
   const clientName = new Map(clients.map((c) => [c.id, c.name]));
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       <header className="flex flex-wrap items-start justify-between gap-4">
         <div className="space-y-1">
           <h1 className="text-2xl font-semibold tracking-tight">Projects</h1>
@@ -90,7 +90,7 @@ export default async function ProjectsPage() {
                     <TableCell className="font-medium">
                       <Link
                         href={`/projects/${project.id}`}
-                        className="text-primary underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        className="rounded-sm underline-offset-4 transition-colors hover:text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                       >
                         {project.name}
                       </Link>
@@ -98,13 +98,13 @@ export default async function ProjectsPage() {
                     <TableCell className="text-muted-foreground">
                       {clientName.get(project.clientId) ?? "—"}
                     </TableCell>
-                    <TableCell className="text-muted-foreground">
+                    <TableCell className="font-mono text-xs text-muted-foreground">
                       {project.siteType}
                     </TableCell>
                     <TableCell>
                       <PhaseBadge phase={project.currentPhase} />
                     </TableCell>
-                    <TableCell className="text-muted-foreground">
+                    <TableCell className="font-mono text-xs text-muted-foreground">
                       {formatDateTime(project.createdAt)}
                     </TableCell>
                   </TableRow>

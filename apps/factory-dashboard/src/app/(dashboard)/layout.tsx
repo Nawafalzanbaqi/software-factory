@@ -11,7 +11,7 @@ export default function DashboardLayout({
   return (
     <div className="flex min-h-screen flex-col">
       <AppNav />
-      <main className="container flex-1 py-8">{children}</main>
+      <main className="container flex-1 py-10">{children}</main>
     </div>
   );
 }

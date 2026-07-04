@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -253,34 +254,43 @@ export function NewProjectForm({ catalog }: { catalog: IntakeCatalogDto }) {
 
   return (
     <form onSubmit={onSubmit} noValidate className="space-y-6">
-      {/* Step indicator */}
-      <ol className="flex flex-wrap gap-2" aria-label="Form steps">
-        {STEPS.map((s, i) => (
-          <li
-            key={s.key}
-            aria-current={i === step ? "step" : undefined}
-            className={cn(
-              "flex items-center gap-2 rounded-full border px-3 py-1 text-sm",
-              i === step && "border-primary bg-primary/10 text-foreground",
-              i < step && "border-success/50 text-muted-foreground",
-              i > step && "border-border text-muted-foreground",
-            )}
-          >
-            <span
+      {/* Step indicator: done = green check, current = neon, upcoming = muted */}
+      <div className="space-y-3">
+        <ol className="flex flex-wrap gap-2" aria-label="Form steps">
+          {STEPS.map((s, i) => (
+            <li
+              key={s.key}
+              aria-current={i === step ? "step" : undefined}
               className={cn(
-                "flex size-5 items-center justify-center rounded-full text-xs font-semibold",
-                i === step
-                  ? "bg-primary text-primary-foreground"
-                  : "bg-muted text-muted-foreground",
+                "flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm transition-colors",
+                i === step &&
+                  "border-primary/60 bg-primary/10 text-foreground shadow-glow-primary-sm",
+                i < step && "border-success/40 bg-success/5 text-muted-foreground",
+                i > step && "border-border text-muted-foreground",
               )}
-              aria-hidden="true"
             >
-              {i + 1}
-            </span>
-            <Bilingual label={s.label} />
-          </li>
-        ))}
-      </ol>
+              <span
+                className={cn(
+                  "flex size-5 items-center justify-center rounded-full font-mono text-xs font-semibold",
+                  i === step && "bg-primary text-primary-foreground",
+                  i < step && "bg-success/20 text-success",
+                  i > step && "bg-muted text-muted-foreground",
+                )}
+                aria-hidden="true"
+              >
+                {i < step ? <Check className="size-3" /> : i + 1}
+              </span>
+              <Bilingual label={s.label} />
+            </li>
+          ))}
+        </ol>
+        <div className="h-1 overflow-hidden rounded-full bg-muted" aria-hidden="true">
+          <div
+            className="h-full rounded-full bg-primary/70 motion-safe:transition-all motion-safe:duration-500"
+            style={{ width: `${((step + 1) / STEPS.length) * 100}%` }}
+          />
+        </div>
+      </div>
 
       <Card>
         <CardHeader>
@@ -371,7 +381,7 @@ export function NewProjectForm({ catalog }: { catalog: IntakeCatalogDto }) {
                   {catalog.siteTypes.map((s) => (
                     <label
                       key={s.siteType}
-                      className="flex cursor-pointer items-center gap-2 rounded-md border border-input px-3 py-2 text-sm has-[:checked]:border-primary has-[:checked]:bg-primary/5"
+                      className="flex cursor-pointer items-center gap-3 rounded-md border border-input bg-background/40 p-3 text-sm transition-colors hover:border-primary/40 has-[:checked]:border-primary/60 has-[:checked]:bg-primary/[0.06] has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring"
                     >
                       <input
                         type="radio"
@@ -400,7 +410,7 @@ export function NewProjectForm({ catalog }: { catalog: IntakeCatalogDto }) {
                   {catalog.languages.map((lang) => (
                     <label
                       key={lang}
-                      className="flex cursor-pointer items-center gap-2 rounded-md border border-input px-3 py-2 text-sm has-[:checked]:border-primary has-[:checked]:bg-primary/5"
+                      className="flex cursor-pointer items-center gap-3 rounded-md border border-input bg-background/40 p-3 text-sm transition-colors hover:border-primary/40 has-[:checked]:border-primary/60 has-[:checked]:bg-primary/[0.06] has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring"
                     >
                       <input
                         type="radio"
@@ -434,7 +444,7 @@ export function NewProjectForm({ catalog }: { catalog: IntakeCatalogDto }) {
                   {catalog.designDirections.map((d) => (
                     <label
                       key={d}
-                      className="flex cursor-pointer items-center gap-2 rounded-md border border-input px-3 py-2 text-sm has-[:checked]:border-primary has-[:checked]:bg-primary/5"
+                      className="flex cursor-pointer items-center gap-3 rounded-md border border-input bg-background/40 p-3 text-sm transition-colors hover:border-primary/40 has-[:checked]:border-primary/60 has-[:checked]:bg-primary/[0.06] has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring"
                     >
                       <input
                         type="radio"
@@ -475,9 +485,11 @@ export function NewProjectForm({ catalog }: { catalog: IntakeCatalogDto }) {
                     <label
                       key={section.key}
                       className={cn(
-                        "flex items-center gap-2 rounded-md border border-input px-3 py-2 text-sm",
-                        section.core ? "cursor-not-allowed opacity-90" : "cursor-pointer",
-                        checked && "border-primary bg-primary/5",
+                        "flex items-center gap-3 rounded-md border border-input bg-background/40 p-3 text-sm transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring",
+                        section.core
+                          ? "cursor-not-allowed opacity-90"
+                          : "cursor-pointer hover:border-primary/40",
+                        checked && "border-primary/60 bg-primary/[0.06]",
                       )}
                     >
                       <input
@@ -516,8 +528,9 @@ export function NewProjectForm({ catalog }: { catalog: IntakeCatalogDto }) {
                     <label
                       key={key}
                       className={cn(
-                        "flex cursor-pointer items-center gap-2 rounded-md border border-input px-3 py-2 text-sm",
-                        values.payments.includes(key) && "border-primary bg-primary/5",
+                        "flex cursor-pointer items-center gap-3 rounded-md border border-input bg-background/40 p-3 text-sm transition-colors hover:border-primary/40 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring",
+                        values.payments.includes(key) &&
+                          "border-primary/60 bg-primary/[0.06]",
                       )}
                     >
                       <input
@@ -548,9 +561,9 @@ export function NewProjectForm({ catalog }: { catalog: IntakeCatalogDto }) {
                       <label
                         key={key}
                         className={cn(
-                          "flex cursor-pointer items-center gap-2 rounded-md border border-input px-3 py-2 text-sm",
+                          "flex cursor-pointer items-center gap-3 rounded-md border border-input bg-background/40 p-3 text-sm transition-colors hover:border-primary/40 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring",
                           values.integrations.includes(key) &&
-                            "border-primary bg-primary/5",
+                            "border-primary/60 bg-primary/[0.06]",
                         )}
                       >
                         <input
@@ -582,8 +595,9 @@ export function NewProjectForm({ catalog }: { catalog: IntakeCatalogDto }) {
                     <label
                       key={key}
                       className={cn(
-                        "flex cursor-pointer items-center gap-2 rounded-md border border-input px-3 py-2 text-sm",
-                        values.features.includes(key) && "border-primary bg-primary/5",
+                        "flex cursor-pointer items-center gap-3 rounded-md border border-input bg-background/40 p-3 text-sm transition-colors hover:border-primary/40 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring",
+                        values.features.includes(key) &&
+                          "border-primary/60 bg-primary/[0.06]",
                       )}
                     >
                       <input
@@ -692,13 +706,14 @@ export function NewProjectForm({ catalog }: { catalog: IntakeCatalogDto }) {
               // Distinct keys force a remount between Next and Create project —
               // reusing one DOM node would swap type button→submit mid-click and
               // fire a premature submit (the classic React button-type race).
-              <Button key="next" type="button" onClick={goNext}>
+              <Button key="next" type="button" size="lg" onClick={goNext}>
                 Next
               </Button>
             ) : (
               <Button
                 key="submit"
                 type="submit"
+                size="lg"
                 disabled={isPending}
                 data-testid="submit-project"
               >
