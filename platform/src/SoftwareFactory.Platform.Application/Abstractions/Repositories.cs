@@ -7,6 +7,8 @@ public interface IClientRepository
 {
     Task AddAsync(Client client, CancellationToken ct = default);
     Task<Client?> GetByIdAsync(Guid id, CancellationToken ct = default);
+    /// <summary>Case-insensitive exact-name lookup (intake reuses an existing client instead of duplicating it).</summary>
+    Task<Client?> GetByNameAsync(string name, CancellationToken ct = default);
     Task<IReadOnlyList<Client>> ListAsync(CancellationToken ct = default);
 }
 

@@ -35,6 +35,10 @@ builder.Services.AddProblemDetails();
 builder.Services.AddExceptionHandler<AppExceptionHandler>();
 builder.Services.AddEndpointsApiExplorer();
 
+// OpenAPI document at /openapi/v1.json — the factory-dashboard derives its
+// platform types from it (apps/factory-dashboard: npm run gen:platform-api).
+builder.Services.AddOpenApi();
+
 // EF Core (Npgsql) + repositories + NoOp analytics + application services. Secrets from env.
 builder.Services.AddPlatformInfrastructure(builder.Configuration);
 
@@ -45,9 +49,11 @@ app.UseMiddleware<SecurityHeadersMiddleware>();
 app.UseCors(LocalCorsPolicy);
 
 app.MapGet("/health", () => Results.Ok(new { status = "healthy" })).WithTags("Health");
+app.MapOpenApi();
 
 app.MapClientEndpoints();
 app.MapProjectEndpoints();
+app.MapIntakeEndpoints();
 app.MapDeploymentEndpoints();
 app.MapAnalyticsEndpoints();
 

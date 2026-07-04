@@ -1,4 +1,5 @@
 using SoftwareFactory.Platform.Application.Abstractions;
+using SoftwareFactory.Platform.Application.Dtos;
 
 namespace SoftwareFactory.Platform.Api.Endpoints;
 
@@ -9,7 +10,7 @@ public static class AnalyticsEndpoints
         // NoOp in Phase 3 — returns zeros + provider:"noop". TODO(phase-4): real Umami.
         app.MapGet("/api/analytics/{projectId:guid}", async (Guid projectId, IAnalyticsProvider analytics, CancellationToken ct)
             => Results.Ok(await analytics.GetAnalyticsAsync(projectId, ct)))
-            .WithTags("Analytics");
+            .WithTags("Analytics").Produces<AnalyticsDto>();
 
         return app;
     }

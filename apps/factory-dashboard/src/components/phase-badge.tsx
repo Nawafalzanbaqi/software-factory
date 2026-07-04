@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { PROJECT_PHASES } from "@/lib/phases";
+import { PHASE_LABELS, PROJECT_PHASES } from "@/lib/phases";
 import type { ProjectPhase } from "@/lib/platform-api";
 
 /**
@@ -9,10 +9,10 @@ import type { ProjectPhase } from "@/lib/platform-api";
 export function PhaseBadge({ phase }: { phase: ProjectPhase }) {
   const index = PROJECT_PHASES.indexOf(phase);
   const position = index >= 0 ? `${index + 1}/${PROJECT_PHASES.length}` : "?";
-  const isOperate = phase === "Operate";
+  const isOperate = phase === "operate";
   return (
     <Badge variant={isOperate ? "success" : "secondary"}>
-      {phase} · {position}
+      {PHASE_LABELS[phase] ?? phase} · {position}
     </Badge>
   );
 }

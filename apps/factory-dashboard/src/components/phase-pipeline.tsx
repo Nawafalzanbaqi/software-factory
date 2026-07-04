@@ -1,6 +1,6 @@
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { PROJECT_PHASES, phaseState } from "@/lib/phases";
+import { PHASE_LABELS, PROJECT_PHASES, phaseState } from "@/lib/phases";
 import type { ProjectPhase } from "@/lib/platform-api";
 
 /**
@@ -48,7 +48,7 @@ export function PhasePipeline({ currentPhase }: { currentPhase: ProjectPhase }) 
                   state !== "current" && "text-muted-foreground",
                 )}
               >
-                {phase}
+                {PHASE_LABELS[phase]}
                 <span className="sr-only">
                   {state === "done"
                     ? " (completed)"

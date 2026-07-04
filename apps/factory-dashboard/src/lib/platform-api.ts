@@ -1,5 +1,7 @@
 import "server-only";
 
+import type { components } from "./platform-contract";
+
 /**
  * Server-side typed client for the SoftwareFactory Platform API (PHASE3.md §1).
  *
@@ -8,133 +10,58 @@ import "server-only";
  * defaults to http://localhost:5090. All calls run on the server (Server
  * Components, route handlers, server actions), never in the browser.
  *
- * DTOs below mirror the Platform API §1 response shapes exactly.
+ * Every DTO below is DERIVED from the platform's OpenAPI document
+ * (src/lib/platform-contract.ts — regenerate with `npm run gen:platform-api`
+ * while the platform runs locally). Never hand-write these shapes: a
+ * hand-written mirror is how the dashboard previously drifted from the wire
+ * format (enums are camelCase on the wire: "intake", "architecture", "success").
  */
 
 const BASE_URL = process.env.PLATFORM_API_BASE_URL ?? "http://localhost:5090";
 const API_PREFIX = "/api";
 
-// ---------------------------------------------------------------------------
-// Enums (JSON string values). See PHASE3.md §1 "Enums".
-// ---------------------------------------------------------------------------
+type Schemas = components["schemas"];
 
-export type ProjectPhase =
-  | "Intake"
-  | "Foundation"
-  | "Generation"
-  | "Build"
-  | "Harden"
-  | "Ship"
-  | "Operate";
+// ---- enums (camelCase JSON string values, per the contract) ----
 
-export type GateType = "Architecture" | "Security" | "Deploy";
+export type ProjectPhase = Schemas["ProjectPhase"];
+export type GateType = Schemas["GateType"];
+export type DeploymentStatus = Schemas["DeploymentStatus"];
+export type DeploymentSource = Schemas["DeploymentSource"];
 
-export type DeploymentStatus = "Pending" | "Success" | "Failure";
+// ---- response DTOs ----
 
-/** JSON serialization is lower-case: "ci" | "manual". */
-export type DeploymentSource = "ci" | "manual";
-
-// ---------------------------------------------------------------------------
-// DTOs (mirror PHASE3.md §1 responses).
-// ---------------------------------------------------------------------------
-
-export interface ClientDto {
-  id: string;
-  name: string;
-  contactEmail?: string | null;
-  notes?: string | null;
-  createdAt: string;
-}
-
-export interface ProjectDto {
-  id: string;
-  clientId: string;
-  name: string;
-  siteType: string;
-  currentPhase: ProjectPhase;
-  repoUrl?: string | null;
-  branch?: string | null;
-  liveUrl?: string | null;
-  createdAt: string;
-}
-
-export interface ApprovalGateDto {
-  id: string;
-  projectId: string;
-  gateType: GateType;
-  approvedBy?: string | null;
-  approvedAt?: string | null;
-  notes?: string | null;
-  isApproved: boolean;
-}
-
-export interface ApiUsageRecordDto {
-  id: string;
-  projectId: string;
-  model: string;
-  tokens: number;
-  costUsd: number;
-  recordedAt: string;
-}
-
-export interface DeploymentEventDto {
-  id: string;
-  projectId: string;
-  status: DeploymentStatus;
-  source: DeploymentSource;
-  payload: string;
-  occurredAt: string;
-}
+export type ClientDto = Schemas["ClientDto"];
+export type ProjectDto = Schemas["ProjectDto"];
+export type ApprovalGateDto = Schemas["ApprovalGateDto"];
+export type ApiUsageRecordDto = Schemas["ApiUsageRecordDto"];
+export type DeploymentEventDto = Schemas["DeploymentEventDto"];
 
 /** GET /api/projects/{id}/usage response. */
-export interface UsageResponseDto {
-  records: ApiUsageRecordDto[];
-  totalCostUsd: number;
-  totalTokens: number;
-}
+export type UsageResponseDto = Schemas["ProjectUsageDto"];
 
-/**
- * GET /api/projects/{id} — the Platform API returns a NESTED shape:
- * { project, gates[], usage, recentDeployments }. Must match
- * SoftwareFactory.Platform.Application.Dtos.ProjectDetailDto exactly.
- */
-export interface ProjectDetailDto {
-  project: ProjectDto;
-  gates: ApprovalGateDto[];
-  usage: UsageResponseDto;
-  recentDeployments: DeploymentEventDto[];
-}
+/** GET /api/projects/{id} — nested { project, gates[], usage, recentDeployments, intake?, optionsJson }. */
+export type ProjectDetailDto = Schemas["ProjectDetailDto"];
 
-/** One point of the analytics timeseries (matches AnalyticsTimeseriesPointDto). */
-export interface AnalyticsTimeseriesPoint {
-  date: string;
-  visitors: number;
-  pageViews: number;
-}
+export type AnalyticsTimeseriesPoint = Schemas["AnalyticsTimeseriesPointDto"];
 
 /** GET /api/analytics/{projectId} — NoOp provider returns zeros/empty. */
-export interface AnalyticsDto {
-  projectId: string;
-  provider: string; // "noop" until real Umami — // TODO(phase-4)
-  visitors: number;
-  pageViews: number;
-  bounceRate: number;
-  timeseries: AnalyticsTimeseriesPoint[];
-}
+export type AnalyticsDto = Schemas["AnalyticsDto"];
+
+// ---- intake (the "New Project" flow) ----
+
+/** GET /api/intake/catalog — everything the New Project form may offer. */
+export type IntakeCatalogDto = Schemas["IntakeCatalogDto"];
+export type IntakeSiteTypeDto = Schemas["IntakeSiteTypeDto"];
+export type IntakeSectionOptionDto = Schemas["IntakeSectionOptionDto"];
+export type ProjectIntakeDto = NonNullable<Schemas["ProjectIntakeDto"]>;
 
 // ---- request bodies ----
 
-export interface RecordApprovalRequest {
-  gateType: GateType;
-  approvedBy: string;
-  notes?: string;
-}
-
-export interface CreateDeploymentRequest {
-  status: DeploymentStatus;
-  source: DeploymentSource;
-  payload: string;
-}
+export type RecordApprovalRequest = Schemas["CreateApprovalRequest"];
+export type CreateDeploymentRequest = Schemas["CreateDeploymentRequest"];
+export type CreateProjectRequest = Schemas["CreateProjectRequest"];
+export type ProjectIntakeRequest = NonNullable<Schemas["ProjectIntakeRequest"]>;
 
 // ---------------------------------------------------------------------------
 // Transport
@@ -227,6 +154,11 @@ export const platformApi = {
   // Projects
   listProjects: () => request<ProjectDto[]>("/projects"),
   getProject: (id: string) => request<ProjectDetailDto>(`/projects/${id}`),
+  createProject: (body: CreateProjectRequest) =>
+    request<ProjectDto>("/projects", { method: "POST", body }),
+
+  // Intake (the "New Project" flow)
+  getIntakeCatalog: () => request<IntakeCatalogDto>("/intake/catalog"),
 
   // Approvals (the 3 human gates)
   recordApproval: (id: string, body: RecordApprovalRequest) =>

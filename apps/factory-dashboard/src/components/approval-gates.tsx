@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ApproveButton } from "@/components/approve-button";
-import { GATE_DESCRIPTIONS, GATE_TYPES } from "@/lib/phases";
+import { GATE_DESCRIPTIONS, GATE_LABELS, GATE_TYPES } from "@/lib/phases";
 import { formatDateTime } from "@/lib/utils";
 import type { ApprovalGateDto, GateType } from "@/lib/platform-api";
 
@@ -60,7 +60,7 @@ export function ApprovalGates({
                   )}
                   <div className="space-y-0.5">
                     <div className="flex items-center gap-2">
-                      <span className="font-medium">{gateType}</span>
+                      <span className="font-medium">{GATE_LABELS[gateType]}</span>
                       <Badge variant={approved ? "success" : "secondary"}>
                         {approved ? "Approved" : "Pending"}
                       </Badge>

@@ -26,8 +26,10 @@ import {
 import { PhasePipeline } from "@/components/phase-pipeline";
 import { ApprovalGates } from "@/components/approval-gates";
 import { AnalyticsPanel } from "@/components/analytics-panel";
+import { IntakeCard } from "@/components/intake-card";
 import { UsageTable } from "@/components/usage-table";
 import { formatDateTime } from "@/lib/utils";
+import { STATUS_LABELS } from "@/lib/phases";
 import { ArrowLeft } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -151,6 +153,9 @@ export default async function ProjectDetailPage({
       {/* The 3 human approval gates with approve actions */}
       <ApprovalGates projectId={p.id} gates={detail.gates ?? []} />
 
+      {/* Intake spec + generated options.json (projects registered via New Project) */}
+      <IntakeCard intake={detail.intake} optionsJson={detail.optionsJson} />
+
       <div className="grid gap-8 lg:grid-cols-2">
         <UsageTable usage={usage} />
         <AnalyticsPanel analytics={analytics} />
@@ -184,14 +189,14 @@ export default async function ProjectDetailPage({
                     <TableCell>
                       <Badge
                         variant={
-                          deployment.status === "Success"
+                          deployment.status === "success"
                             ? "success"
-                            : deployment.status === "Failure"
+                            : deployment.status === "failure"
                               ? "destructive"
                               : "secondary"
                         }
                       >
-                        {deployment.status}
+                        {STATUS_LABELS[deployment.status] ?? deployment.status}
                       </Badge>
                     </TableCell>
                     <TableCell className="uppercase text-muted-foreground">
