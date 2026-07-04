@@ -1,4 +1,8 @@
-import type { GateType, ProjectPhase } from "@/lib/platform-api";
+import type {
+  DeploymentStatus,
+  GateType,
+  ProjectPhase,
+} from "@/lib/platform-api";
 
 /**
  * The 7 factory phases in pipeline order. Values are the WIRE values from the
@@ -45,6 +49,12 @@ export const GATE_DESCRIPTIONS: Record<GateType, string> = {
   architecture: "Approve the proposed architecture before generation begins.",
   security: "Sign off on the security hardening pass before shipping.",
   deploy: "Authorize the production deployment.",
+};
+
+export const STATUS_LABELS: Record<DeploymentStatus, string> = {
+  pending: "Pending",
+  success: "Success",
+  failure: "Failure",
 };
 
 export type PhaseState = "done" | "current" | "upcoming";
