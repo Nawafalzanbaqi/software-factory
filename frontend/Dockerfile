@@ -15,6 +15,12 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 ENV NEXT_TELEMETRY_DISABLED=1
+# NEXT_PUBLIC_* values are inlined into the client bundle at BUILD time, so the
+# browser-facing backend URL must be baked here (docker-compose passes it as a
+# build arg matching the published backend port). Default mirrors compose's
+# API_HTTP_PORT default.
+ARG NEXT_PUBLIC_API_BASE_URL=http://localhost:8080
+ENV NEXT_PUBLIC_API_BASE_URL=${NEXT_PUBLIC_API_BASE_URL}
 RUN npm run build
 
 # ---------- runner ----------

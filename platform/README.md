@@ -40,6 +40,10 @@ dotnet run   --project platform/src/SoftwareFactory.Platform.Api   # http://loca
 
 - `PLATFORM_DB_CONNECTION` (or `ConnectionStrings:Platform`) — Postgres connection string.
 - `PLATFORM_SKIP_DB_INIT=1` — skip startup migrate/seed (used by tests / CI).
+- `SEED_DEMO=true` — seed 1 demo client + 1 demo `ecommerce` project in `intake`
+  (idempotent; anything else skips). Off unless explicitly set — the root
+  `.env.example` template turns it on as a local-dev convenience so the
+  dashboard isn't empty on a fresh stack.
 - `ASPNETCORE_URLS` — overrides the default `http://localhost:5090`.
 
 ## REST API

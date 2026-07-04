@@ -1,7 +1,18 @@
 # =========================================================================
-# One command spins up the full local environment:
+# One command spins up the WHOLE factory:
 #   docker compose up --build
-# Services: postgres, redis, backend (.NET 9 API), frontend (Next.js 15)
+#
+# Every service lives on the default compose network and talks to the
+# others BY SERVICE NAME (postgres, redis, backend, platform) — no host
+# IPs, no WSL/Windows localhost bridging. Host-published ports:
+#   frontend   http://localhost:3000  client storefront (Next.js + Payload)
+#   backend    http://localhost:8080  client product API (.NET 9)
+#   dashboard  http://localhost:3001  factory dashboard (internal admin)
+#   platform   http://localhost:5090  factory control-plane API (.NET 9)
+#   postgres   localhost:5432         shared PostgreSQL (factory + factory_platform DBs)
+#   redis      localhost:6379         cache for the backend
+#
+# Configuration: copy .env.example -> .env (compose reads .env automatically).
 # =========================================================================
 name: software-factory
 
@@ -60,7 +71,7 @@ services:
       Jwt__Issuer: ${Jwt__Issuer:-}
       Jwt__Audience: ${Jwt__Audience:-}
     ports:
-      - "${API_HTTP_PORT:-5080}:8080"
+      - "${API_HTTP_PORT:-8080}:8080"
     # options.json is read at startup to conditionally register modules
     volumes:
       - ./options.json:/app/options.json:ro
@@ -69,13 +80,17 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        # Baked into the CLIENT bundle at build time: the URL the BROWSER
+        # uses to reach the backend, i.e. the host-published port above.
+        NEXT_PUBLIC_API_BASE_URL: http://localhost:${API_HTTP_PORT:-8080}
     restart: unless-stopped
     depends_on:
       - backend
       - postgres
     environment:
       NODE_ENV: ${NODE_ENV:-development}
-      NEXT_PUBLIC_API_BASE_URL: http://localhost:${API_HTTP_PORT:-5080}
+      NEXT_PUBLIC_API_BASE_URL: http://localhost:${API_HTTP_PORT:-8080}
       NEXT_PUBLIC_SITE_URL: http://localhost:${FRONTEND_PORT:-3000}
       DATABASE_URI: postgres://${POSTGRES_USER:-factory}:${POSTGRES_PASSWORD:-change_me_in_prod}@postgres:5432/${POSTGRES_DB:-factory}
       REDIS_URL: redis://redis:6379
@@ -95,6 +110,59 @@ services:
     # options.json is read at build/startup to conditionally enable features
     volumes:
       - ./options.json:/app/options.json:ro
+
+  platform:
+    build:
+      context: ./platform
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ASPNETCORE_URLS: http://+:5090
+      # Dedicated database on the shared postgres service; EF applies the
+      # platform migrations on startup (creating the database if missing).
+      PLATFORM_DB_CONNECTION: Host=postgres;Port=5432;Database=${PLATFORM_POSTGRES_DB:-factory_platform};Username=${POSTGRES_USER:-factory};Password=${POSTGRES_PASSWORD:-change_me_in_prod}
+      # SEED_DEMO=true seeds 1 demo client + 1 demo ecommerce project
+      # (idempotent) so the dashboard isn't empty. Off by default.
+      SEED_DEMO: ${SEED_DEMO:-false}
+    ports:
+      - "${PLATFORM_HTTP_PORT:-5090}:5090"
+    # /health only responds once migrations (and the optional demo seed) are
+    # done, so `service_healthy` below means "API up AND data ready".
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:5090/health"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+  dashboard:
+    build:
+      context: ./apps/factory-dashboard
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    depends_on:
+      platform:
+        condition: service_healthy
+    environment:
+      # Server-side base URL of the control plane — the compose service name,
+      # never a host IP (read at runtime by src/lib/platform-api.ts).
+      PLATFORM_API_BASE_URL: http://platform:5090
+      # No default on purpose: a repo-known session-signing secret would let
+      # anyone forge an admin cookie. Unset ⇒ the dashboard errors on every
+      # request (fails closed) until .env provides a real value.
+      AUTH_SECRET: ${DASHBOARD_AUTH_SECRET:-}
+      # Sign-in credentials for the single operator. The password has NO
+      # default — leave it unset and sign-in fails closed; set it in .env.
+      ADMIN_EMAIL: ${DASHBOARD_ADMIN_EMAIL:-admin@softwarefactory.local}
+      ADMIN_PASSWORD: ${DASHBOARD_ADMIN_PASSWORD:-}
+      # Shared secret for POST /api/webhooks/ci (X-Webhook-Secret header).
+      CI_WEBHOOK_SECRET: ${DASHBOARD_CI_WEBHOOK_SECRET:-}
+    ports:
+      - "${DASHBOARD_PORT:-3001}:3000"
 
 volumes:
   postgres-data:

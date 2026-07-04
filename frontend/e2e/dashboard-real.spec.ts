@@ -3,7 +3,7 @@ import { test, expect } from "@playwright/test";
 /**
  * Client dashboard E2E (Phase 4) — REAL BACKEND MODE. Runs only in the
  * `dashboard-real` Playwright project (REAL_BACKEND=1; its own CI job) against
- * the docker-compose stack: postgres + redis + the .NET backend on :5080,
+ * the docker-compose stack: postgres + redis + the .NET backend on :8080,
  * with Payload sharing the same postgres (DATABASE_URI) and `npm run
  * payload:seed` having provisioned the admin/owner users.
  *
@@ -13,7 +13,7 @@ import { test, expect } from "@playwright/test";
  * exercises POST /api/v1/manage/orders/{n}/status with the minted staff JWT.
  */
 
-const API = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5080";
+const API = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
 const OWNER_EMAIL = process.env.DASHBOARD_OWNER_EMAIL || "owner@softwarefactory.local";
 // No fallback (audit fix #2: no repo-known credential anywhere): the same env
 // var must have been set for `npm run payload:seed`, or the owner account
