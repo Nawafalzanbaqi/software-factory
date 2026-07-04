@@ -237,7 +237,8 @@ jobs:
       DATABASE_URI: postgres://factory:change_me_in_prod@localhost:5432/payload_e2e
       PAYLOAD_SECRET: ci_dummy_payload_secret_value_here
       AUTH_SECRET: ci_dummy_secret_ci_dummy_secret_32
-      NEXT_PUBLIC_API_BASE_URL: http://localhost:5080
+      # compose publishes the backend on host 8080 (API_HTTP_PORT default)
+      NEXT_PUBLIC_API_BASE_URL: http://localhost:8080
       NEXT_PUBLIC_SITE_URL: http://localhost:3000
       DASHBOARD_OWNER_EMAIL: owner@softwarefactory.local
       # CI-scoped throwaway credential for the ephemeral compose database —
@@ -259,7 +260,7 @@ jobs:
         working-directory: .
         run: |
           for i in $(seq 1 90); do
-            if curl -fsS http://localhost:5080/health > /dev/null 2>&1; then exit 0; fi
+            if curl -fsS http://localhost:8080/health > /dev/null 2>&1; then exit 0; fi
             sleep 2
           done
           echo "backend never became healthy"; docker compose logs backend; exit 1
@@ -286,3 +287,16 @@ jobs:
         if: failure()
         working-directory: .
         run: docker compose logs backend postgres
+
+  # ---------------------------------------------------------------------
+  # Proves `docker compose up --build` stays buildable end to end: the
+  # platform and factory-dashboard images are built by no other job (the
+  # backend image is covered by e2e-dashboard-real above).
+  # ---------------------------------------------------------------------
+  compose-images:
+    name: Compose • build platform + dashboard images
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the platform and factory-dashboard images
+        run: docker compose build platform dashboard
