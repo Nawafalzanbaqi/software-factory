@@ -43,7 +43,10 @@
     "subtitle": "Fast, accessible and bilingual by default — launch a premium shopping experience in Arabic and English from day one.",
     "ctaPrimary": "Shop products",
     "ctaSecondary": "Explore categories",
-    "imageAlt": "Curated premium products on display"
+    "imageAlt": "Curated premium products on display",
+    "trustDelivery": "Delivery in 3–5 business days",
+    "trustPayment": "Secure, encrypted checkout",
+    "trustReturns": "Easy returns within 14 days"
   },
   "products": {
     "title": "Products",

@@ -3,6 +3,7 @@ import { getLocale, getTranslations } from "next-intl/server";
 import { ArrowRight } from "lucide-react";
 import { Link } from "@/lib/i18n/navigation";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { getAboutContent } from "@/lib/cms";
 import type { Locale } from "@/lib/i18n/routing";
 import { localizeAbout, toParagraphs } from "../types";
@@ -42,14 +43,20 @@ export async function AboutSection({
   const imageUrl = localized?.imageUrl;
   const imageAlt = localized?.imageAlt ?? t("imageAlt");
 
+  // One markup tree for both variants: the homepage ("section") variant adds the
+  // gold kicker, wider desktop gaps and a softer image treatment; the /about page
+  // keeps its original presentation. Band backgrounds come from HomeSections.
   return (
     <section
       id="about"
       aria-labelledby="about-heading"
       className="container section-y"
     >
-      <div className="grid items-center gap-10 lg:grid-cols-2">
+      <div
+        className={cn("grid items-center gap-10 lg:grid-cols-2", !isPage && "lg:gap-16")}
+      >
         <div className="max-w-xl">
+          {!isPage && <div aria-hidden="true" className="kicker mb-4" />}
           <Heading
             id="about-heading"
             className="font-display text-2xl font-semibold sm:text-3xl"
@@ -75,7 +82,12 @@ export async function AboutSection({
           )}
         </div>
 
-        <div className="relative aspect-[4/3] overflow-hidden rounded-xl border bg-muted shadow-premium">
+        <div
+          className={cn(
+            "relative aspect-[4/3] overflow-hidden border bg-muted shadow-premium",
+            isPage ? "rounded-xl" : "rounded-2xl ring-1 ring-border/60",
+          )}
+        >
           {imageUrl ? (
             <Image
               src={imageUrl}

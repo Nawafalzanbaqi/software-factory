@@ -49,18 +49,20 @@ export function PromoBannerSlide({
       {/* Legibility scrim behind the copy. */}
       <div
         aria-hidden="true"
-        className="absolute inset-0 bg-gradient-to-t from-foreground/60 via-foreground/10 to-transparent"
+        className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/20 to-transparent"
       />
 
       <div className="absolute inset-x-0 bottom-0 flex flex-col items-start gap-3 p-5 sm:p-8">
-        <h3 className="max-w-xl font-display text-xl font-semibold text-background drop-shadow-sm sm:text-3xl">
+        <h3 className="max-w-xl text-balance font-display text-xl font-semibold text-background drop-shadow-sm sm:text-3xl">
           {banner.headline}
         </h3>
         {banner.href && (
+          // Gold CTA — the single accent pop per slide (accent-foreground on
+          // accent is ≥4.5:1). Visual affordance only; the slide is the link.
           <span
             className={cn(
-              buttonVariants({ variant: "secondary", size: "sm" }),
-              "pointer-events-none",
+              buttonVariants({ size: "sm" }),
+              "pointer-events-none bg-accent text-accent-foreground shadow-md",
             )}
           >
             {ctaLabel}

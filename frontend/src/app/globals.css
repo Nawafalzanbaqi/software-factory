@@ -31,6 +31,9 @@
     /* Warm gold accent. */
     --accent: 38 62% 52%;
     --accent-foreground: 24 30% 14%;
+    /* Darker gold for accent-colored TEXT on light surfaces (≥4.5:1 on
+       background, band and card — the base --accent is only 2.5:1 as text). */
+    --accent-strong: 38 62% 30%;
 
     --destructive: 0 72% 45%;
     --destructive-foreground: 0 0% 100%;
@@ -66,6 +69,7 @@
 
     --accent: 38 62% 55%;
     --accent-foreground: 24 30% 12%;
+    --accent-strong: 38 60% 64%;
 
     --destructive: 0 62% 50%;
     --destructive-foreground: 0 0% 100%;
@@ -115,6 +119,9 @@
     *::before,
     *::after {
       animation-duration: 0.01ms !important;
+      /* Also zero delays: staggered entrances use fill-mode `both`, which holds
+         the from-frame (invisible) for the whole delay if it isn't neutralized. */
+      animation-delay: 0.01ms !important;
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
       scroll-behavior: auto !important;
@@ -128,5 +135,10 @@
   }
   .section-y {
     @apply py-12 sm:py-16 lg:py-20;
+  }
+  /* Gold "kicker" rule above section headings — the homepage's section motif.
+     Mark it aria-hidden at the call site (decorative). */
+  .kicker {
+    @apply h-1 w-10 rounded-full bg-accent;
   }
 }
