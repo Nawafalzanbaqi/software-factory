@@ -94,7 +94,11 @@ export function IntakeCard({
           <div className="space-y-2">
             <div className="flex items-center justify-between gap-2">
               <h3 className="text-sm font-medium">options.json</h3>
-              <CopyButton text={optionsJson} label="Copy options.json" />
+              <CopyButton
+                text={optionsJson}
+                label="Copy options.json"
+                testId="copy-options-json"
+              />
             </div>
             <pre
               dir="ltr"

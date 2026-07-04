@@ -284,10 +284,10 @@ export function NewProjectForm({ catalog }: { catalog: IntakeCatalogDto }) {
 
       <Card>
         <CardHeader>
-          <CardTitle>
-            <h2 ref={headingRef} tabIndex={-1} className="focus:outline-none">
-              <Bilingual label={STEPS[step]!.label} />
-            </h2>
+          {/* CardTitle IS the heading element — nesting another heading inside
+              it would be invalid HTML and break hydration. */}
+          <CardTitle ref={headingRef} tabIndex={-1} className="focus:outline-none">
+            <Bilingual label={STEPS[step]!.label} />
           </CardTitle>
           <CardDescription>
             {step === 0 && "Who the site is for and what kind of site it is."}

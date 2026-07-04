@@ -29,6 +29,7 @@ import { AnalyticsPanel } from "@/components/analytics-panel";
 import { IntakeCard } from "@/components/intake-card";
 import { UsageTable } from "@/components/usage-table";
 import { formatDateTime } from "@/lib/utils";
+import { STATUS_LABELS } from "@/lib/phases";
 import { ArrowLeft } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -195,7 +196,7 @@ export default async function ProjectDetailPage({
                               : "secondary"
                         }
                       >
-                        {deployment.status}
+                        {STATUS_LABELS[deployment.status] ?? deployment.status}
                       </Badge>
                     </TableCell>
                     <TableCell className="uppercase text-muted-foreground">

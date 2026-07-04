@@ -9,7 +9,15 @@ import { Button } from "@/components/ui/button";
  * clipboard, with a short "Copied" confirmation for sighted users and an
  * aria-live announcement for screen readers.
  */
-export function CopyButton({ text, label }: { text: string; label: string }) {
+export function CopyButton({
+  text,
+  label,
+  testId,
+}: {
+  text: string;
+  label: string;
+  testId?: string;
+}) {
   const [copied, setCopied] = useState(false);
 
   async function handleCopy() {
@@ -29,7 +37,7 @@ export function CopyButton({ text, label }: { text: string; label: string }) {
       size="sm"
       onClick={handleCopy}
       aria-label={label}
-      data-testid="copy-options-json"
+      data-testid={testId}
     >
       {copied ? (
         <Check className="size-4 text-success" aria-hidden="true" />
