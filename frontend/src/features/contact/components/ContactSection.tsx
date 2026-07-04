@@ -23,6 +23,13 @@ export async function ContactSection({
 } = {}) {
   const t = await getTranslations("contact");
   const Heading = headingLevel;
+  const isPage = headingLevel === "h1";
+
+  // One markup tree for both variants: the homepage ("h2") variant adds the gold
+  // kicker and puts the form on a raised card so the final section before the
+  // footer reads as a contained call-to-action; the /contact page is unchanged.
+  // Band backgrounds come from HomeSections, never hardcoded here.
+  const form = <ContactForm />;
 
   return (
     <section
@@ -31,7 +38,8 @@ export async function ContactSection({
       className="container section-y"
     >
       <div className="mx-auto max-w-2xl">
-        <div className="mb-8 text-center">
+        <div className={isPage ? "mb-8 text-center" : "mb-10 text-center"}>
+          {!isPage && <div aria-hidden="true" className="kicker mx-auto mb-4" />}
           <Heading
             id="contact-heading"
             className="font-display text-2xl font-semibold sm:text-3xl"
@@ -40,7 +48,13 @@ export async function ContactSection({
           </Heading>
           <p className="mt-3 text-muted-foreground">{t("subtitle")}</p>
         </div>
-        <ContactForm />
+        {isPage ? (
+          form
+        ) : (
+          <div className="rounded-2xl border bg-card p-6 shadow-premium sm:p-8">
+            {form}
+          </div>
+        )}
       </div>
     </section>
   );
