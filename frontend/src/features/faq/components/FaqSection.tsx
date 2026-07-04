@@ -40,7 +40,8 @@ export async function FaqSection() {
   return (
     <section aria-labelledby="faq-heading" className="container section-y">
       <div className="mx-auto max-w-3xl">
-        <div className="mb-8 text-center">
+        <div className="mb-10 text-center">
+          <div aria-hidden="true" className="kicker mx-auto mb-4" />
           <h2
             id="faq-heading"
             className="font-display text-2xl font-semibold sm:text-3xl"
@@ -53,8 +54,8 @@ export async function FaqSection() {
         <FaqAccordion entries={visible} />
 
         {hasMore && (
-          <div className="mt-6 text-center">
-            <Button asChild variant="link">
+          <div className="mt-8 text-center">
+            <Button asChild variant="outline">
               <Link href="/faq">{t("viewAllCta")}</Link>
             </Button>
           </div>

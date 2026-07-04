@@ -26,10 +26,11 @@ export async function PromoBannersSection() {
 
   return (
     <section aria-labelledby="promo-banners-heading" className="container section-y">
-      <div className="mb-6">
+      <div className="mb-8">
+        <div aria-hidden="true" className="kicker mb-4" />
         <h2
           id="promo-banners-heading"
-          className="font-display text-2xl font-semibold"
+          className="font-display text-2xl font-semibold sm:text-3xl"
         >
           {t("title")}
         </h2>

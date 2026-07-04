@@ -102,16 +102,25 @@ export async function HomeSections() {
   const sections = await getEnabledSections();
 
   const nodes: ReactNode[] = [];
+  let contentIndex = 0;
   for (const { name } of sections) {
     if (name === "footer") continue; // rendered by layout
     if (name === "hero") {
       nodes.push(<HeroSection key="hero" />);
       continue;
     }
+    // Alternating white / warm-sand full-bleed bands, assigned by RENDER
+    // POSITION here (not hardcoded inside sections) so the rhythm survives any
+    // options.json reorder/disable. A section that renders null collapses to a
+    // zero-height band, which is invisible.
+    const banded = contentIndex % 2 === 1;
+    contentIndex += 1;
     nodes.push(
-      <Suspense key={name} fallback={<SectionFallback />}>
-        <LazySection name={name} />
-      </Suspense>,
+      <div key={name} className={banded ? "bg-secondary/40" : undefined}>
+        <Suspense fallback={<SectionFallback />}>
+          <LazySection name={name} />
+        </Suspense>
+      </div>,
     );
   }
 
