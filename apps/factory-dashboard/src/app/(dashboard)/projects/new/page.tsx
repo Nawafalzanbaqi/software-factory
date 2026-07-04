@@ -33,9 +33,9 @@ export default async function NewProjectPage() {
       <div>
         <Link
           href="/projects"
-          className="inline-flex items-center gap-1 text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+          className="inline-flex items-center gap-1 rounded-sm text-sm text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         >
-          <ArrowLeft className="size-4" aria-hidden="true" />
+          <ArrowLeft className="size-4 rtl:rotate-180" aria-hidden="true" />
           All projects
         </Link>
       </div>
