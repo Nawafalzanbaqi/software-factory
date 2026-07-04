@@ -17,7 +17,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { PhaseBadge } from "@/components/phase-badge";
+import { Button } from "@/components/ui/button";
 import { formatDateTime } from "@/lib/utils";
+import { Plus } from "lucide-react";
 
 export const metadata: Metadata = { title: "Projects" };
 
@@ -40,11 +42,19 @@ export default async function ProjectsPage() {
 
   return (
     <div className="space-y-6">
-      <header className="space-y-1">
-        <h1 className="text-2xl font-semibold tracking-tight">Projects</h1>
-        <p className="text-sm text-muted-foreground">
-          Each project moves through the 7-phase factory pipeline.
-        </p>
+      <header className="flex flex-wrap items-start justify-between gap-4">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-semibold tracking-tight">Projects</h1>
+          <p className="text-sm text-muted-foreground">
+            Each project moves through the 7-phase factory pipeline.
+          </p>
+        </div>
+        <Button asChild>
+          <Link href="/projects/new">
+            <Plus aria-hidden="true" />
+            New Project
+          </Link>
+        </Button>
       </header>
 
       <Card>

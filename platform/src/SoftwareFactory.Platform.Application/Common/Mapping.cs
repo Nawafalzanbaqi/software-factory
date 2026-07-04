@@ -1,5 +1,7 @@
 using SoftwareFactory.Platform.Application.Dtos;
+using SoftwareFactory.Platform.Application.Intake;
 using SoftwareFactory.Platform.Domain.Entities;
+using SoftwareFactory.Platform.Domain.ValueObjects;
 
 namespace SoftwareFactory.Platform.Application.Common;
 
@@ -8,6 +10,19 @@ internal static class Mapping
 {
     public static ClientDto ToDto(this Client c) =>
         new(c.Id, c.Name, c.ContactEmail, c.Notes, c.CreatedAt);
+
+    public static ProjectIntakeDto ToDto(this IntakeSpec s) =>
+        new(
+            s.ClientName,
+            s.ClientContact,
+            s.Language,
+            IntakeCatalog.DeriveDirection(s.Language).DefaultDirection,
+            s.DesignDirection,
+            s.Sections,
+            s.Payments,
+            s.Integrations,
+            s.Features,
+            s.Notes);
 
     public static ProjectDto ToDto(this Project p) =>
         new(p.Id, p.ClientId, p.Name, p.SiteType, p.CurrentPhase, p.RepoUrl, p.Branch, p.LiveUrl, p.CreatedAt);

@@ -78,6 +78,41 @@ GET  /api/analytics/{projectId}              -> AnalyticsDto (NoOp: zeros/empty 
 - Security headers + a permissive-for-localhost CORS; secrets from env. Honor `PLATFORM_SKIP_DB_INIT=1`
   to skip migrate/seed at startup (testability). `// TODO(phase-4)`: real admin authn/z, multi-tenant.
 
+### Intake extension (the dashboard "New Project" flow)
+
+`POST /api/projects` additionally accepts an optional `intake` payload. When present,
+`clientId` may be null — the client is reused by case-insensitive name match or created from
+`{ clientName, clientContact }`. The platform validates the mandatory intake criteria and the
+siteType/section combination server-side (guard-clause style, all violations reported in one
+400 ProblemDetails `detail`), persists the normalized `IntakeSpec` value object on the project
+(jsonb), and generates the normalized **options.json build manifest** from it (stored verbatim
+in a text column).
+
+```
+POST /api/projects { clientId?, name, siteType, repoUrl?, branch?, intake? } -> ProjectDto
+  intake: { clientName, clientContact, language: ar|en|ar-en,
+            designDirection: clean|premium|bold|tech,
+            sections[] (per-siteType; core sections mandatory),
+            payments[]?: tamara|tabby|mada|stripe,
+            integrations[]?: zatca|whatsapp|maps,
+            features[]?: clientDashboard|cms|reviews|wishlist|search|faq|loyalty|analytics,
+            notes? }
+GET  /api/intake/catalog             -> IntakeCatalogDto — site types wired for intake
+                                        (ecommerce|restaurant|corporate|landing|portfolio|booking),
+                                        the valid section list per siteType (core flags + canonical
+                                        order), payments/integrations/features, and per-siteType
+                                        recommendations (ZATCA is recommended — never forced — for
+                                        ecommerce in the KSA market).
+GET  /api/projects/{id}              -> ProjectDetailDto also carries { intake?, optionsJson? }
+GET  /api/projects/{id}/options.json -> the generated manifest verbatim (404 for legacy projects)
+```
+
+- `defaultLocale`/`defaultDirection` are derived from `language` (ar / ar-en → ar+rtl, en → en+ltr);
+  currency is SAR (KSA market).
+- The API serves OpenAPI at `/openapi/v1.json`; `apps/factory-dashboard` DERIVES its platform
+  types from it (`npm run gen:platform-api` → `src/lib/platform-contract.ts`, committed). Enum
+  wire values are camelCase (`"intake"`, `"architecture"`, `"success"`).
+
 ## 2. apps/factory-dashboard — Next.js 15 (English only, admin-only)
 
 - English only (no multi-locale). Auth.js (NextAuth v5) Credentials, **admin-only** (single admin

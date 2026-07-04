@@ -1,4 +1,5 @@
 using SoftwareFactory.Platform.Application.Abstractions;
+using SoftwareFactory.Platform.Application.Dtos;
 
 namespace SoftwareFactory.Platform.Api.Endpoints;
 
@@ -11,7 +12,7 @@ public static class DeploymentEndpoints
         {
             var from = since ?? DateTimeOffset.MinValue;
             return Results.Ok(await svc.GetDeploymentsSinceAsync(from, ct));
-        }).WithTags("Deployments");
+        }).WithTags("Deployments").Produces<IReadOnlyList<DeploymentEventDto>>();
 
         return app;
     }

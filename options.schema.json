@@ -7,7 +7,7 @@
   "properties": {
     "siteType": {
       "type": "string",
-      "enum": ["ecommerce", "corporate", "portfolio", "booking", "lms", "realestate", "restaurant", "healthcare", "marketplace"],
+      "enum": ["ecommerce", "corporate", "portfolio", "booking", "landing", "lms", "realestate", "restaurant", "healthcare", "marketplace"],
       "description": "The vertical template to build. Phase 1 only implements 'ecommerce'."
     },
     "siteName": { "type": "string" },
@@ -17,11 +17,12 @@
     "currency": { "type": "string" },
     "payments": {
       "type": "array",
-      "items": { "type": "string", "enum": ["tamara", "tabi", "stripe", "cod", "mada"] }
+      "description": "'tabby' is the canonical key (intake-generated manifests); 'tabi' is a legacy spelling kept so existing manifests stay valid.",
+      "items": { "type": "string", "enum": ["tamara", "tabi", "tabby", "stripe", "cod", "mada"] }
     },
     "integrations": {
       "type": "array",
-      "items": { "type": "string", "enum": ["zatca", "whatsapp", "googleAnalytics", "meta"] }
+      "items": { "type": "string", "enum": ["zatca", "whatsapp", "maps", "googleAnalytics", "meta"] }
     },
     "features": {
       "type": "object",
@@ -58,6 +59,6 @@
         "required": ["enabled", "order"]
       }
     },
-    "designDirection": { "type": "string", "enum": ["premium", "minimal", "playful", "corporate"] }
+    "designDirection": { "type": "string", "enum": ["premium", "minimal", "playful", "corporate", "clean", "bold", "tech"] }
   }
 }

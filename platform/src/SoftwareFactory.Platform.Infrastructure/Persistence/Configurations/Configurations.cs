@@ -1,6 +1,8 @@
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SoftwareFactory.Platform.Domain.Entities;
+using SoftwareFactory.Platform.Domain.ValueObjects;
 
 namespace SoftwareFactory.Platform.Infrastructure.Persistence.Configurations;
 
@@ -23,6 +25,9 @@ public sealed class ClientConfiguration : IEntityTypeConfiguration<Client>
 
 public sealed class ProjectConfiguration : IEntityTypeConfiguration<Project>
 {
+    // Web defaults => camelCase keys in the stored JSON, matching the API's wire casing.
+    private static readonly JsonSerializerOptions IntakeJson = new(JsonSerializerDefaults.Web);
+
     public void Configure(EntityTypeBuilder<Project> b)
     {
         b.ToTable("projects");
@@ -34,6 +39,16 @@ public sealed class ProjectConfiguration : IEntityTypeConfiguration<Project>
         b.Property(x => x.Branch).HasMaxLength(200);
         b.Property(x => x.LiveUrl).HasMaxLength(500);
         b.Property(x => x.CreatedAt);
+        // IntakeSpec is an immutable record (always replaced, never mutated in place),
+        // serialized to a jsonb column; InMemory treats it as a plain string column.
+        b.Property(x => x.IntakeSpec)
+            .HasConversion(
+                v => JsonSerializer.Serialize(v!, IntakeJson),
+                v => JsonSerializer.Deserialize<IntakeSpec>(v, IntakeJson)!)
+            .HasColumnType("jsonb");
+        // text, NOT jsonb: the generated manifest must round-trip byte-identical
+        // (jsonb would re-order keys and strip the indentation).
+        b.Property(x => x.OptionsJson).HasColumnType("text");
         b.HasIndex(x => x.ClientId);
         b.HasMany(x => x.Gates)
             .WithOne(g => g.Project!)
