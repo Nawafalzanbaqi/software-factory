@@ -4,14 +4,16 @@ import { PHASE_LABELS, PROJECT_PHASES, phaseState } from "@/lib/phases";
 import type { ProjectPhase } from "@/lib/platform-api";
 
 /**
- * Visual 7-phase pipeline: Intake → Foundation → Generation → Build → Harden →
- * Ship → Operate. The current phase is highlighted; done phases are checked and
- * muted; upcoming phases are dimmed. Rendered server-side (no interactivity).
+ * The 7-phase pipeline as a stepper: completed phases are filled with a
+ * check, the current phase carries the neon glow (a soft pulse, disabled
+ * under prefers-reduced-motion via motion-safe:), upcoming phases are muted
+ * outlines. Horizontal on md+ with connector lines, stacked on mobile.
+ * Rendered server-side (no interactivity).
  */
 export function PhasePipeline({ currentPhase }: { currentPhase: ProjectPhase }) {
   return (
     <ol
-      className="flex flex-col gap-3 md:flex-row md:items-stretch md:gap-2"
+      className="flex flex-col gap-4 md:flex-row md:gap-0"
       aria-label="Project pipeline phases"
     >
       {PROJECT_PHASES.map((phase, index) => {
@@ -21,52 +23,47 @@ export function PhasePipeline({ currentPhase }: { currentPhase: ProjectPhase }) 
           <li
             key={phase}
             aria-current={state === "current" ? "step" : undefined}
-            className="flex flex-1 items-center gap-2 md:flex-col md:gap-2 md:text-center"
-          >
-            <div className="flex items-center gap-2 md:w-full md:flex-col">
-              <span
-                className={cn(
-                  "flex size-8 shrink-0 items-center justify-center rounded-full border text-xs font-semibold transition-colors",
-                  state === "done" &&
-                    "border-success bg-success text-success-foreground",
-                  state === "current" &&
-                    "border-primary bg-primary text-primary-foreground ring-2 ring-primary/40",
-                  state === "upcoming" &&
-                    "border-border bg-muted text-muted-foreground",
-                )}
-              >
-                {state === "done" ? (
-                  <Check className="size-4" aria-hidden="true" />
-                ) : (
-                  index + 1
-                )}
-              </span>
-              <span
-                className={cn(
-                  "text-sm font-medium",
-                  state === "current" && "text-foreground",
-                  state !== "current" && "text-muted-foreground",
-                )}
-              >
-                {PHASE_LABELS[phase]}
-                <span className="sr-only">
-                  {state === "done"
-                    ? " (completed)"
-                    : state === "current"
-                      ? " (current phase)"
-                      : " (upcoming)"}
-                </span>
-              </span>
-            </div>
-            {!isLast && (
-              <span
-                aria-hidden="true"
-                className={cn(
-                  "hidden h-0.5 flex-1 self-center md:block",
-                  state === "done" ? "bg-success" : "bg-border",
-                )}
-              />
+            className={cn(
+              "relative flex items-center gap-3 md:flex-1 md:flex-col md:gap-2.5 md:text-center",
+              // Connector to the next node (md+): a hairline that turns
+              // green once this phase is done.
+              !isLast &&
+                "md:after:absolute md:after:top-[17px] md:after:h-px md:after:content-[''] md:after:start-[calc(50%+26px)] md:after:end-[calc(-50%+26px)]",
+              !isLast && (state === "done" ? "md:after:bg-success/50" : "md:after:bg-border"),
             )}
+          >
+            <span
+              className={cn(
+                "flex size-9 shrink-0 items-center justify-center rounded-full border font-mono text-xs font-semibold transition-colors",
+                state === "done" &&
+                  "border-success bg-success text-success-foreground",
+                state === "current" &&
+                  "border-primary bg-primary/15 text-primary shadow-glow-primary motion-safe:animate-phase-pulse",
+                state === "upcoming" &&
+                  "border-border bg-transparent text-muted-foreground",
+              )}
+            >
+              {state === "done" ? (
+                <Check className="size-4" aria-hidden="true" />
+              ) : (
+                index + 1
+              )}
+            </span>
+            <span
+              className={cn(
+                "font-mono text-xs uppercase tracking-wider",
+                state === "current" ? "text-foreground" : "text-muted-foreground",
+              )}
+            >
+              {PHASE_LABELS[phase]}
+              <span className="sr-only">
+                {state === "done"
+                  ? " (completed)"
+                  : state === "current"
+                    ? " (current phase)"
+                    : " (upcoming)"}
+              </span>
+            </span>
           </li>
         );
       })}

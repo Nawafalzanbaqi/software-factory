@@ -35,10 +35,11 @@ export function ApproveButton({
   }
 
   return (
-    <div className="flex flex-col items-end gap-1">
+    <div className="flex w-full flex-col gap-1">
       <Button
         type="button"
         size="sm"
+        className="w-full"
         onClick={handleApprove}
         disabled={isPending}
         data-testid={`approve-${gateType}`}

@@ -3,44 +3,65 @@
 @tailwind utilities;
 
 /*
- * Factory Dashboard design tokens (HSL channels for Tailwind opacity support).
- * Dark-first admin surface. Foreground/background and primary-foreground/primary
- * pairings exceed WCAG AA 4.5:1 contrast.
+ * Factory Dashboard design tokens — "technical control room".
+ *
+ * Single source of truth for the dashboard's visual system (HSL channels for
+ * Tailwind opacity support; consumed via hsl(var(--token)) in
+ * tailwind.config.ts). Rules the palette encodes:
+ *  - deep neutral-dark base with a slight cool tint; surfaces layer upward
+ *    with 1px hairline borders, not heavy shadows;
+ *  - ONE neon accent (electric cyan) reserved for interactive/live states,
+ *    focus rings and small data highlights; violet is the rare secondary;
+ *  - semantic status colors desaturated to sit comfortably on dark;
+ *  - every text token pairs ≥ 4.5:1 (WCAG AA) against the surface it is
+ *    documented for (computed against --background):
+ *      foreground 16.4:1 · muted-foreground 8.3:1 · primary 11.0:1 ·
+ *      accent 7.1:1 · success 9.0:1 · warning 8.5:1 · destructive 6.1:1
+ *    (destructive has the least headroom; keep it ≥ 4.5 on tinted chips).
+ *
+ * --font-sans / --font-mono are provided by next/font in app/layout.tsx
+ * (Inter + JetBrains Mono, self-hosted at build time); the Tailwind font
+ * stacks carry the system fallbacks.
  */
 @layer base {
   :root {
-    --background: 222 30% 8%;
-    --foreground: 210 20% 96%;
+    --background: 216 28% 6%;
+    --foreground: 210 25% 93%;
 
-    --card: 222 26% 11%;
-    --card-foreground: 210 20% 96%;
+    --card: 217 25% 9%;
+    --card-foreground: 210 25% 93%;
 
-    --primary: 210 90% 60%;
-    --primary-foreground: 222 40% 10%;
+    /* Neon primary — electric cyan. Interactive + live states only. */
+    --primary: 187 86% 53%;
+    --primary-foreground: 216 33% 7%;
 
-    --secondary: 217 20% 20%;
-    --secondary-foreground: 210 20% 96%;
+    --secondary: 216 20% 15%;
+    --secondary-foreground: 210 25% 93%;
 
-    --muted: 217 20% 16%;
-    --muted-foreground: 215 15% 65%;
+    --muted: 216 20% 12%;
+    --muted-foreground: 215 14% 68%;
 
-    --accent: 265 70% 65%;
-    --accent-foreground: 222 40% 10%;
+    /* Restrained secondary accent — violet, used rarely. */
+    --accent: 255 88% 76%;
+    --accent-foreground: 216 33% 7%;
 
-    --destructive: 0 72% 55%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 68% 66%;
+    --destructive-foreground: 216 33% 7%;
 
-    --success: 142 60% 45%;
-    --success-foreground: 0 0% 100%;
+    --success: 152 55% 52%;
+    --success-foreground: 216 33% 7%;
 
-    --border: 217 20% 22%;
-    --input: 217 20% 24%;
-    --ring: 210 90% 60%;
+    --warning: 38 60% 58%;
+    --warning-foreground: 216 33% 7%;
 
-    --radius: 0.6rem;
+    --border: 215 22% 16%;
+    --input: 215 22% 19%;
+    --ring: 187 86% 53%;
 
-    --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-    --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    --radius: 0.5rem;
+
+    /* Console texture line color (rendered at ~3% opacity). */
+    --grid-line: 210 40% 80%;
   }
 }
 
@@ -48,8 +69,38 @@
   * {
     @apply border-border;
   }
+  html {
+    color-scheme: dark;
+  }
   body {
-    @apply bg-background text-foreground antialiased;
-    font-family: var(--font-sans);
+    @apply bg-background font-sans text-foreground antialiased;
+  }
+  /*
+   * Console feel: a faint blueprint grid plus a soft cyan ambient glow at the
+   * top of the viewport. Fixed, non-interactive, and far below AA-relevant
+   * contrast deltas so readability is unaffected. Static by design — no
+   * motion to reduce.
+   */
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+      radial-gradient(
+        ellipse 80% 40% at 50% -10%,
+        hsl(var(--primary) / 0.06),
+        transparent 70%
+      ),
+      linear-gradient(hsl(var(--grid-line) / 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--grid-line) / 0.03) 1px, transparent 1px);
+    background-size:
+      100% 100%,
+      44px 44px,
+      44px 44px;
+  }
+  ::selection {
+    background-color: hsl(var(--primary) / 0.25);
   }
 }

@@ -1,9 +1,10 @@
 import type { Config } from "tailwindcss";
 
 /**
- * Factory Dashboard theme. Design tokens exposed as CSS variables (see
- * app/globals.css) using the hsl(var(--token)) pattern for opacity support.
- * Dark-first admin surface tuned for WCAG AA contrast.
+ * Factory Dashboard theme — "technical control room". All colors come from
+ * the CSS variables in app/globals.css via hsl(var(--token)) so opacity
+ * modifiers work; no ad-hoc hex values in components. Neon glows are exposed
+ * as boxShadow tokens so their intensity stays consistent everywhere.
  */
 const config: Config = {
   darkMode: ["class"],
@@ -51,6 +52,10 @@ const config: Config = {
           DEFAULT: "hsl(var(--success))",
           foreground: "hsl(var(--success-foreground))",
         },
+        warning: {
+          DEFAULT: "hsl(var(--warning))",
+          foreground: "hsl(var(--warning-foreground))",
+        },
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
@@ -62,17 +67,43 @@ const config: Config = {
         sm: "calc(var(--radius) - 4px)",
       },
       fontFamily: {
-        sans: ["var(--font-sans)", "system-ui", "sans-serif"],
-        mono: ["var(--font-mono)", "ui-monospace", "monospace"],
+        sans: ["var(--font-sans)", "Inter", "system-ui", "Segoe UI", "sans-serif"],
+        mono: [
+          "var(--font-mono)",
+          "ui-monospace",
+          "JetBrains Mono",
+          "SFMono-Regular",
+          "Consolas",
+          "monospace",
+        ],
+      },
+      /* Subtle neon glows — soft shadows, never harsh halos. */
+      boxShadow: {
+        "glow-primary": "0 0 20px -6px hsl(var(--primary) / 0.5)",
+        "glow-primary-sm": "0 0 12px -4px hsl(var(--primary) / 0.4)",
+        "glow-success": "0 0 16px -6px hsl(var(--success) / 0.45)",
       },
       keyframes: {
         "fade-in": {
           from: { opacity: "0", transform: "translateY(6px)" },
           to: { opacity: "1", transform: "translateY(0)" },
         },
+        /* Soft breathing glow for the live pipeline phase. Gate usage behind
+           the motion-safe: variant so prefers-reduced-motion is respected. */
+        "phase-pulse": {
+          "0%, 100%": {
+            boxShadow:
+              "0 0 0 0 hsl(var(--primary) / 0.30), 0 0 12px -2px hsl(var(--primary) / 0.35)",
+          },
+          "50%": {
+            boxShadow:
+              "0 0 0 6px hsl(var(--primary) / 0), 0 0 20px -2px hsl(var(--primary) / 0.55)",
+          },
+        },
       },
       animation: {
         "fade-in": "fade-in 0.3s ease-out both",
+        "phase-pulse": "phase-pulse 2.6s ease-in-out infinite",
       },
     },
   },
