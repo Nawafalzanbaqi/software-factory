@@ -32,15 +32,40 @@ estate, restaurant, healthcare, marketplace…).
 - Docker + Docker Compose (the one-command path), **or** for manual dev:
   .NET 9 SDK, Node.js 20+, PostgreSQL 16, Redis 7.
 
-### Run everything with Docker (recommended)
+### Run the whole factory locally (recommended)
+
+One command brings up the **entire** factory — the client product *and* the internal
+control plane — on a single compose network where services address each other by
+service name (no host IPs, no WSL/Windows `localhost` mismatches):
+
 ```bash
 cp .env.example .env          # then edit secrets (AUTH_SECRET, PAYLOAD_SECRET, DB password…)
 docker compose up --build
 ```
-This starts **postgres**, **redis**, the **backend API**, and the **frontend**:
-- Frontend → http://localhost:3000
-- Backend API + Swagger → http://localhost:5080 (Swagger UI at `/swagger` in Development)
-- Payload admin → http://localhost:3000/admin
+
+| Service | URL | Purpose |
+|---|---|---|
+| **frontend** (store) | http://localhost:3000 | Client storefront — Next.js + Payload (CMS admin at [/admin](http://localhost:3000/admin)) |
+| **backend** | http://localhost:8080 | Client product REST API (.NET 9; Swagger at `/swagger` in Development) |
+| **dashboard** | http://localhost:3001 | Factory dashboard — internal admin (CRM, phases, gates, analytics). Sign in with `DASHBOARD_ADMIN_EMAIL` / `DASHBOARD_ADMIN_PASSWORD` |
+| **platform** | http://localhost:5090 | Factory control-plane API (.NET 9; clients, projects, gates, deployments) |
+| **postgres** | localhost:5432 | Shared PostgreSQL: `factory` (backend + Payload) and `factory_platform` (platform) databases |
+| **redis** | localhost:6379 | Cache/session store for the backend |
+
+Startup order is enforced with healthchecks: backend and platform wait for postgres,
+and the dashboard waits until the platform is healthy — which includes its EF
+migrations (and the optional demo seed) having completed. In-network, the dashboard
+reaches the platform as `http://platform:5090`; only your browser uses the
+`localhost` URLs above.
+
+With `SEED_DEMO=true` in `.env` (the template's default) the platform seeds one demo
+client with one `ecommerce` project in the `intake` phase so the dashboard has data
+on first load. The seed is idempotent — restarts never duplicate it. Any other value
+(including unset, the compose default) leaves the control plane empty.
+
+Two dashboard values are **required** in `.env` and fail closed when unset (no
+repo-known defaults, per the security standards): `DASHBOARD_AUTH_SECRET`
+(generate with `openssl rand -base64 32`) and `DASHBOARD_ADMIN_PASSWORD`.
 
 > Deploying beyond local Development? Read **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)**
 > first: outside `Development` the backend refuses to boot without real

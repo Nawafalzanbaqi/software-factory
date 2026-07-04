@@ -17,16 +17,20 @@ import { defineConfig, devices } from "@playwright/test";
  *   the spec binds an in-process stub backend on port 5080 and exactly one
  *   worker may own that port.
  * - REAL_BACKEND=1 switches to the `dashboard-real` project (its own CI job):
- *   docker-compose backend on :5080 + Payload sharing the compose postgres,
- *   so the dev server additionally needs DATABASE_URI + BACKEND_JWT_KEY.
+ *   docker-compose backend on :8080 + Payload sharing the compose postgres,
+ *   so the dev server additionally needs DATABASE_URI + BACKEND_JWT_KEY
+ *   (and NEXT_PUBLIC_API_BASE_URL=http://localhost:8080).
  */
 const VERTICAL = (process.env.E2E_VERTICAL || "ecommerce") as "ecommerce" | "restaurant";
 const REAL_BACKEND = process.env.REAL_BACKEND === "1";
 const baseURL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
 const serverEnv: Record<string, string> = {
+  // Fallbacks per mode: the mocked specs own an in-process stub on :5080;
+  // real-backend mode talks to the compose backend published on :8080.
   NEXT_PUBLIC_API_BASE_URL:
-    process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:5080",
+    process.env.NEXT_PUBLIC_API_BASE_URL ||
+    (REAL_BACKEND ? "http://localhost:8080" : "http://localhost:5080"),
   AUTH_SECRET: process.env.AUTH_SECRET || "ci_dummy_secret_ci_dummy_secret_32",
   PAYLOAD_SECRET:
     process.env.PAYLOAD_SECRET || "ci_dummy_payload_secret_value_here",
