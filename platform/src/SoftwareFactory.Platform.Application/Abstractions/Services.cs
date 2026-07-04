@@ -13,12 +13,19 @@ public interface IClientService
 
 public interface IProjectService
 {
-    /// <summary>Creates a project seeded with the 3 unapproved gates and CurrentPhase=Intake.</summary>
+    /// <summary>Creates a project seeded with the 3 unapproved gates and CurrentPhase=Intake.
+    /// With an intake payload it also validates/persists the IntakeSpec and generates options.json.</summary>
     Task<ProjectDto> CreateProjectAsync(CreateProjectRequest request, CancellationToken ct = default);
     Task<IReadOnlyList<ProjectDto>> GetProjectsAsync(CancellationToken ct = default);
     Task<ProjectDto?> GetProjectAsync(Guid id, CancellationToken ct = default);
     Task<ProjectDetailDto?> GetProjectDetailAsync(Guid id, CancellationToken ct = default);
     Task<ProjectDto?> UpdatePhaseAsync(Guid id, ProjectPhase phase, CancellationToken ct = default);
+
+    /// <summary>The generated options.json manifest, or null when the project (or its manifest) doesn't exist.</summary>
+    Task<string?> GetProjectOptionsJsonAsync(Guid id, CancellationToken ct = default);
+
+    /// <summary>Static intake catalog: valid site types, per-siteType sections, payments, integrations, features.</summary>
+    IntakeCatalogDto GetIntakeCatalog();
 }
 
 public interface IApprovalService

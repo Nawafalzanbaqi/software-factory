@@ -1,6 +1,7 @@
 using SoftwareFactory.Platform.Application.Abstractions;
 using SoftwareFactory.Platform.Application.Common;
 using SoftwareFactory.Platform.Application.Dtos;
+using SoftwareFactory.Platform.Application.Intake;
 using SoftwareFactory.Platform.Domain.Entities;
 using SoftwareFactory.Platform.Domain.Enums;
 
@@ -26,18 +27,40 @@ public sealed class ProjectService : IProjectService
         if (string.IsNullOrWhiteSpace(request.SiteType))
             throw new ValidationException("Project siteType is required.");
 
-        var client = await _clients.GetByIdAsync(request.ClientId, ct)
-            ?? throw NotFoundException.For(nameof(Client), request.ClientId);
+        var name = request.Name.Trim();
+        var siteType = request.SiteType.Trim();
 
         var project = new Project
         {
-            ClientId = client.Id,
-            Name = request.Name.Trim(),
-            SiteType = request.SiteType.Trim(),
+            Name = name,
+            SiteType = siteType,
             CurrentPhase = ProjectPhase.Intake,
             RepoUrl = string.IsNullOrWhiteSpace(request.RepoUrl) ? null : request.RepoUrl.Trim(),
             Branch = string.IsNullOrWhiteSpace(request.Branch) ? null : request.Branch.Trim()
         };
+
+        if (request.Intake is null)
+        {
+            // Legacy mode: the caller references an existing client.
+            if (request.ClientId is not { } clientId)
+                throw new ValidationException("clientId is required when no intake payload is provided.");
+            var client = await _clients.GetByIdAsync(clientId, ct)
+                ?? throw NotFoundException.For(nameof(Client), clientId);
+            project.ClientId = client.Id;
+        }
+        else
+        {
+            // Intake mode: validate everything, resolve the client by id or name,
+            // persist the normalized spec and the generated options.json manifest.
+            var errors = IntakeValidator.Validate(siteType, request.Intake);
+            if (errors.Count > 0)
+                throw new ValidationException(string.Join(" ", errors));
+
+            var spec = IntakeValidator.ToSpec(siteType, request.Intake);
+            project.ClientId = (await ResolveIntakeClientAsync(request.ClientId, spec.ClientName, spec.ClientContact, ct)).Id;
+            project.IntakeSpec = spec;
+            project.OptionsJson = OptionsManifestGenerator.Generate(name, siteType, spec);
+        }
 
         // Seed the 3 human gates, all unapproved.
         foreach (var gateType in Enum.GetValues<GateType>())
@@ -52,6 +75,24 @@ public sealed class ProjectService : IProjectService
         await _projects.AddAsync(project, ct);
         await _uow.SaveChangesAsync(ct);
         return project.ToDto();
+    }
+
+    /// <summary>Prefers an explicit clientId; otherwise reuses a client with the same
+    /// name (case-insensitive) or registers a new one from the intake contact details.</summary>
+    private async Task<Client> ResolveIntakeClientAsync(Guid? clientId, string clientName, string clientContact, CancellationToken ct)
+    {
+        if (clientId is { } id)
+        {
+            return await _clients.GetByIdAsync(id, ct)
+                ?? throw NotFoundException.For(nameof(Client), id);
+        }
+
+        var existing = await _clients.GetByNameAsync(clientName, ct);
+        if (existing is not null) return existing;
+
+        var client = new Client { Name = clientName, ContactEmail = clientContact };
+        await _clients.AddAsync(client, ct);
+        return client;
     }
 
     public async Task<IReadOnlyList<ProjectDto>> GetProjectsAsync(CancellationToken ct = default)
@@ -92,8 +133,38 @@ public sealed class ProjectService : IProjectService
             .Select(d => d.ToDto())
             .ToList();
 
-        return new ProjectDetailDto(project.ToDto(), gates, usage, recentDeployments);
+        return new ProjectDetailDto(
+            project.ToDto(),
+            gates,
+            usage,
+            recentDeployments,
+            project.IntakeSpec?.ToDto(),
+            project.OptionsJson);
     }
+
+    public async Task<string?> GetProjectOptionsJsonAsync(Guid id, CancellationToken ct = default)
+    {
+        var project = await _projects.GetByIdAsync(id, ct);
+        return project?.OptionsJson;
+    }
+
+    public IntakeCatalogDto GetIntakeCatalog() =>
+        new(
+            IntakeCatalog.Market,
+            IntakeCatalog.Currency,
+            IntakeCatalog.Languages,
+            IntakeCatalog.DesignDirections,
+            IntakeCatalog.Payments,
+            IntakeCatalog.Integrations,
+            IntakeCatalog.Features,
+            IntakeCatalog.SiteTypes
+                .Select(siteType => new IntakeSiteTypeDto(
+                    siteType,
+                    IntakeCatalog.SectionsFor(siteType)
+                        .Select(s => new IntakeSectionOptionDto(s.Key, s.Core, s.Order))
+                        .ToList(),
+                    IntakeCatalog.RecommendedIntegrationsFor(siteType)))
+                .ToList());
 
     public async Task<ProjectDto?> UpdatePhaseAsync(Guid id, ProjectPhase phase, CancellationToken ct = default)
     {

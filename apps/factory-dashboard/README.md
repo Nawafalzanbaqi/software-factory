@@ -26,6 +26,24 @@ HTTP call to the Platform API.
 | `npm run lint`      | ESLint (next/core-web-vitals)         |
 | `npm run typecheck` | `tsc --noEmit`                        |
 | `npm run test:e2e`  | Playwright E2E (mocked Platform API)  |
+| `npm run gen:platform-api` | Regenerate `src/lib/platform-contract.ts` from the platform's OpenAPI |
+
+## Platform contract types (never hand-write shapes)
+
+Every platform DTO/enum type in `src/lib/platform-api.ts` is **derived** from
+`src/lib/platform-contract.ts`, which is generated (openapi-typescript) from the
+platform's OpenAPI document and **committed** (like `frontend/src/lib/api/openapi.ts`).
+To regenerate after a platform contract change:
+
+```bash
+# 1. run the platform locally
+cd platform/src/SoftwareFactory.Platform.Api && PLATFORM_SKIP_DB_INIT=1 dotnet run
+# 2. regenerate + typecheck
+cd apps/factory-dashboard && npm run gen:platform-api && npm run typecheck
+```
+
+Note the wire enum values are camelCase (`"intake"`, `"architecture"`, `"success"`);
+display casing lives in `src/lib/phases.ts` label maps.
 
 ## Environment variables
 
@@ -51,13 +69,23 @@ callback; unauthenticated requests are redirected to `/sign-in`.
 
 - `/sign-in` — admin credentials form.
 - `/clients` — client list.
-- `/projects` — project list with a current-phase badge.
+- `/projects` — project list with a current-phase badge and a **New Project** button.
+- `/projects/new` — guided multi-step intake (basics → sections → add-ons → review).
+  Everything selectable comes from `GET /api/intake/catalog` (site types, the valid
+  section list per site type with core sections pre-checked and required, payments,
+  integrations — ZATCA flagged *recommended* for KSA ecommerce — and features).
+  Labels are bilingual (en + ar, Arabic fragments rendered RTL). Client-side zod
+  validation mirrors the platform rules for UX; the platform's server-side
+  validation is the source of truth and its 400 detail is surfaced inline.
+  Submit → `POST /api/projects` (with `intake`) → redirect to the new detail page.
 - `/projects/[id]` — detail:
   - **Visual 7-phase pipeline** (Intake → Foundation → Generation → Build →
     Harden → Ship → Operate) with the current phase highlighted, done phases
     checked, upcoming phases dimmed.
   - **3 approval gates** (Architecture, Security, Deploy) with an approve action
     (server action → Platform API; records who/when; reflected on refresh).
+  - **Intake & build manifest** — the captured intake spec and the generated
+    `options.json` (read-only, copyable) for projects registered via `/projects/new`.
   - **Analytics panel** — NoOp placeholder (`GET /api/analytics/{id}`).
   - **API cost table** — per-model rows + total (`GET /api/projects/{id}/usage`).
   - Recent deployment events.
@@ -70,7 +98,9 @@ Server-side typed client: `src/lib/platform-api.ts` (base `PLATFORM_API_BASE_URL
 | ------ | -------------------------------- | ------------------------------------ |
 | GET    | `/api/clients`                   | `/clients`, `/projects`              |
 | GET    | `/api/projects`                  | `/projects`                          |
-| GET    | `/api/projects/{id}`             | `/projects/[id]` (detail: project + gates + usage summary + recent deployments) |
+| POST   | `/api/projects`                  | `/projects/new` (server action, with `intake`) |
+| GET    | `/api/intake/catalog`            | `/projects/new` form options         |
+| GET    | `/api/projects/{id}`             | `/projects/[id]` (detail: project + gates + usage summary + recent deployments + intake/options.json) |
 | POST   | `/api/projects/{id}/approvals`   | approve gate (server action)         |
 | GET    | `/api/projects/{id}/usage`       | API cost table                       |
 | GET    | `/api/analytics/{id}`            | analytics panel (NoOp)               |

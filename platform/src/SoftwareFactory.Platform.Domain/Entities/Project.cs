@@ -1,5 +1,6 @@
 using SoftwareFactory.Platform.Domain.Common;
 using SoftwareFactory.Platform.Domain.Enums;
+using SoftwareFactory.Platform.Domain.ValueObjects;
 
 namespace SoftwareFactory.Platform.Domain.Entities;
 
@@ -16,6 +17,12 @@ public class Project : BaseEntity
     public string? RepoUrl { get; set; }
     public string? Branch { get; set; }
     public string? LiveUrl { get; set; }
+
+    /// <summary>Intake criteria captured at registration; null for pre-intake/legacy projects.</summary>
+    public IntakeSpec? IntakeSpec { get; set; }
+
+    /// <summary>Normalized options.json manifest generated from <see cref="IntakeSpec"/> (the build's input).</summary>
+    public string? OptionsJson { get; set; }
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 
     public Client? Client { get; set; }

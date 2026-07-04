@@ -9,7 +9,7 @@ export interface ApproveGateResult {
   error?: string;
 }
 
-const VALID_GATES: GateType[] = ["Architecture", "Security", "Deploy"];
+const VALID_GATES: GateType[] = ["architecture", "security", "deploy"];
 
 /**
  * Server action: record an approval for one of the 3 human gates.
@@ -37,7 +37,7 @@ export async function approveGate(
     await platformApi.recordApproval(projectId, {
       gateType,
       approvedBy,
-      notes: notes?.trim() || undefined,
+      notes: notes?.trim() || null,
     });
   } catch {
     return { ok: false, error: "Failed to record approval. Try again." };

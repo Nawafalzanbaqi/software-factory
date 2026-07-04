@@ -54,4 +54,18 @@ bot outbox feed, and the NoOp `GET /api/analytics/{projectId}`). Enums serialize
 (`"ci"`, `"manual"`, `"intake"`, …). Errors are RFC7807 ProblemDetails; security headers +
 localhost-only CORS are applied.
 
+### Intake (PHASE3.md §1 "Intake extension")
+
+The dashboard's **New Project** flow posts an `intake` payload to `POST /api/projects`.
+The `Application/Intake/` module owns the rules: `IntakeCatalog` (the single source of
+truth for site types, per-siteType sections with core flags, payments/integrations/
+features, and the KSA ZATCA recommendation), `IntakeValidator` (guard-clause validation,
+all violations in one 400), and `OptionsManifestGenerator` (the normalized options.json
+build manifest, stored verbatim on the project and served by
+`GET /api/projects/{id}/options.json`). `GET /api/intake/catalog` serves the catalog to
+the form.
+
+The API also exposes OpenAPI at `/openapi/v1.json`; `apps/factory-dashboard` derives its
+platform types from it (`npm run gen:platform-api`).
+
 `// TODO(phase-4)`: real admin authn/z, multi-tenant / white-label, real Umami/LiteLLM analytics.

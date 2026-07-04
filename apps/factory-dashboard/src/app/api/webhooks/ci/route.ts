@@ -17,21 +17,26 @@ import {
  * This route is excluded from the auth middleware matcher (secret-authed).
  */
 
-// GitHub Actions conclusions → DeploymentStatus (PHASE3.md §1).
+// GitHub Actions conclusions → DeploymentStatus wire values (camelCase, per the
+// platform contract — see platform-contract.ts).
 const conclusionToStatus: Record<string, CreateDeploymentRequest["status"]> = {
-  success: "Success",
-  failure: "Failure",
-  cancelled: "Failure",
-  timed_out: "Failure",
-  action_required: "Pending",
-  neutral: "Pending",
-  skipped: "Pending",
+  success: "success",
+  failure: "failure",
+  cancelled: "failure",
+  timed_out: "failure",
+  action_required: "pending",
+  neutral: "pending",
+  skipped: "pending",
 };
 
 const bodySchema = z.object({
   projectId: z.string().min(1),
-  // Either an explicit status or a raw GitHub Actions conclusion.
-  status: z.enum(["Pending", "Success", "Failure"]).optional(),
+  // Either an explicit status or a raw GitHub Actions conclusion. Existing CI
+  // callers send PascalCase, the platform wire format is camelCase — accept
+  // both and normalize below.
+  status: z
+    .enum(["Pending", "Success", "Failure", "pending", "success", "failure"])
+    .optional(),
   conclusion: z.string().optional(),
   // Free-form CI context stored as the DeploymentEvent payload (jsonb string).
   payload: z.unknown().optional(),
@@ -72,8 +77,8 @@ export async function POST(request: NextRequest) {
 
   const { projectId, status, conclusion, payload } = parsed.data;
   const resolvedStatus =
-    status ??
-    (conclusion ? (conclusionToStatus[conclusion.toLowerCase()] ?? "Pending") : "Pending");
+    (status?.toLowerCase() as CreateDeploymentRequest["status"] | undefined) ??
+    (conclusion ? (conclusionToStatus[conclusion.toLowerCase()] ?? "pending") : "pending");
 
   const deployment: CreateDeploymentRequest = {
     status: resolvedStatus,
