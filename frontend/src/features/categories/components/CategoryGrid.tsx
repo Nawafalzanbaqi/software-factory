@@ -1,4 +1,6 @@
 import { getTranslations } from "next-intl/server";
+import { LayoutGrid } from "lucide-react";
+import { EmptyState } from "@/components/ui/empty-state";
 import type { CategoryDto } from "@/lib/api/types";
 import { CategoryCard } from "./CategoryCard";
 
@@ -8,9 +10,7 @@ export async function CategoryGrid({ categories }: { categories: CategoryDto[] }
 
   if (categories.length === 0) {
     return (
-      <p className="rounded-lg border border-dashed py-16 text-center text-muted-foreground">
-        {t("empty")}
-      </p>
+      <EmptyState icon={<LayoutGrid className="size-6" />} message={t("empty")} />
     );
   }
 

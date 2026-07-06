@@ -12,9 +12,13 @@ import type { Locale } from "@/lib/i18n/routing";
  */
 export async function Footer() {
   const locale = (await getLocale()) as Locale;
-  const t = await getTranslations("footer");
-  const tc = await getTranslations("common");
-  const [cms, primary] = await Promise.all([getFooterContent(), getPrimaryNav()]);
+  const [t, tc, tn, cms, primary] = await Promise.all([
+    getTranslations("footer"),
+    getTranslations("common"),
+    getTranslations("nav"),
+    getFooterContent(),
+    getPrimaryNav(),
+  ]);
 
   const year = new Date().getFullYear();
   const tagline = cms?.tagline?.[locale] ?? t("tagline");
@@ -23,20 +27,23 @@ export async function Footer() {
     <footer className="mt-auto border-t bg-secondary/40" role="contentinfo">
       <div className="container section-y grid gap-10 md:grid-cols-4">
         <div className="md:col-span-2">
+          <div aria-hidden="true" className="kicker mb-4" />
           <p className="font-display text-lg font-semibold">{tc("brand")}</p>
-          <p className="mt-2 max-w-sm text-sm text-muted-foreground">{tagline}</p>
+          <p className="mt-2 max-w-sm text-sm leading-relaxed text-muted-foreground">
+            {tagline}
+          </p>
         </div>
 
         {cms?.columns?.length ? (
           cms.columns.map((col, i) => (
             <nav key={i} aria-label={col.title[locale]} className="text-sm">
               <p className="mb-3 font-semibold">{col.title[locale]}</p>
-              <ul className="space-y-2">
+              <ul className="space-y-2.5">
                 {col.links.map((link) => (
                   <li key={link.href}>
                     <Link
                       href={link.href}
-                      className="text-muted-foreground hover:text-foreground"
+                      className="text-muted-foreground transition-colors hover:text-accent-strong"
                     >
                       {link.label[locale]}
                     </Link>
@@ -48,14 +55,16 @@ export async function Footer() {
         ) : (
           <nav aria-label={t("shop")} className="text-sm">
             <p className="mb-3 font-semibold">{t("shop")}</p>
-            <ul className="space-y-2">
+            <ul className="space-y-2.5">
               {primary.map((item) => (
                 <li key={item.href}>
                   <Link
                     href={item.href}
-                    className="text-muted-foreground hover:text-foreground"
+                    className="text-muted-foreground transition-colors hover:text-accent-strong"
                   >
-                    {item.labelKey}
+                    {/* labelKey is an i18n key in the `nav` namespace — translate
+                        it (rendering the raw key leaked English keys into ar). */}
+                    {tn(item.labelKey)}
                   </Link>
                 </li>
               ))}

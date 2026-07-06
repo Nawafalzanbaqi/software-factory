@@ -28,9 +28,9 @@ export const RadioGroupItem = React.forwardRef<HTMLInputElement, RadioGroupItemP
     <label
       htmlFor={id}
       className={cn(
-        "relative flex cursor-pointer items-start gap-3 rounded-md border border-input bg-background p-4 shadow-sm transition-colors hover:bg-accent/40",
+        "relative flex cursor-pointer items-start gap-3 rounded-lg border border-input bg-background p-4 shadow-sm transition-colors hover:bg-secondary/50",
         "focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 focus-within:ring-offset-background",
-        "has-[:checked]:border-primary has-[:checked]:ring-1 has-[:checked]:ring-primary",
+        "has-[:checked]:border-accent-strong has-[:checked]:bg-secondary/50 has-[:checked]:ring-1 has-[:checked]:ring-accent-strong",
         "has-[:disabled]:cursor-not-allowed has-[:disabled]:opacity-50",
         className,
       )}

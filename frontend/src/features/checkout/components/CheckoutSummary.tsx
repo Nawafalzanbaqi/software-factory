@@ -18,7 +18,7 @@ export function CheckoutSummary() {
   const { lines, subtotal, currency } = useCart();
 
   return (
-    <Card className="h-fit lg:sticky lg:top-20">
+    <Card className="h-fit rounded-2xl ring-1 ring-border/60 lg:sticky lg:top-20">
       <CardContent className="space-y-4 p-6">
         <h2 className="font-display text-lg font-semibold">{t("summary.title")}</h2>
 
@@ -59,7 +59,7 @@ export function CheckoutSummary() {
 
         <Separator />
 
-        <div className="flex items-center justify-between text-base font-semibold">
+        <div className="flex items-center justify-between text-lg font-semibold">
           <span>{t("summary.total")}</span>
           <span className="tabular-nums">{formatPrice(subtotal, currency, locale)}</span>
         </div>

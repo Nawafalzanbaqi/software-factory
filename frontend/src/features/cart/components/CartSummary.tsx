@@ -16,7 +16,7 @@ export function CartSummary() {
   const { subtotal, currency, count } = useCart();
 
   return (
-    <Card className="sticky top-20">
+    <Card className="sticky top-20 rounded-2xl ring-1 ring-border/60">
       <CardContent className="space-y-4 p-6">
         <div className="flex items-center justify-between text-sm">
           <span className="text-muted-foreground">{t("subtotal")}</span>
@@ -29,7 +29,7 @@ export function CartSummary() {
           <span className="text-muted-foreground">{t("shippingNote")}</span>
         </div>
         <Separator />
-        <div className="flex items-center justify-between text-base font-semibold">
+        <div className="flex items-center justify-between text-lg font-semibold">
           <span>{t("total")}</span>
           <span className="tabular-nums">
             {formatPrice(subtotal, currency, locale)}

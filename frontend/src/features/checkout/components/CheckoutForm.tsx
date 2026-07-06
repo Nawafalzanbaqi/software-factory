@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { MapPin, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,6 +10,15 @@ import { useCheckoutForm } from "../hooks/useCheckoutForm";
 import { CHECKOUT_COUNTRIES } from "../types";
 import { PaymentMethodField } from "./PaymentMethodField";
 import { Select } from "./Select";
+
+/** Gold icon chip (shared .icon-chip) before each checkout section heading. */
+function SectionIcon({ Icon }: { Icon: typeof UserRound }) {
+  return (
+    <span aria-hidden="true" className="icon-chip size-8">
+      <Icon className="size-4" />
+    </span>
+  );
+}
 
 /**
  * Interactive leaf: the checkout form. All logic lives in useCheckoutForm; this
@@ -32,11 +42,14 @@ export function CheckoutForm({
   return (
     <form noValidate onSubmit={onSubmit} className="space-y-8">
       {/* Contact details */}
-      <Card>
+      <Card className="rounded-2xl ring-1 ring-border/60">
         <CardContent className="space-y-5 p-6">
-          <h2 className="font-display text-lg font-semibold">
-            {t("form.customerHeading")}
-          </h2>
+          <div className="flex items-center gap-3">
+            <SectionIcon Icon={UserRound} />
+            <h2 className="font-display text-lg font-semibold">
+              {t("form.customerHeading")}
+            </h2>
+          </div>
 
           <div className="space-y-2">
             <Label htmlFor="checkout-name">{t("form.name")}</Label>
@@ -98,11 +111,14 @@ export function CheckoutForm({
       </Card>
 
       {/* Shipping address */}
-      <Card>
+      <Card className="rounded-2xl ring-1 ring-border/60">
         <CardContent className="space-y-5 p-6">
-          <h2 className="font-display text-lg font-semibold">
-            {t("form.shippingHeading")}
-          </h2>
+          <div className="flex items-center gap-3">
+            <SectionIcon Icon={MapPin} />
+            <h2 className="font-display text-lg font-semibold">
+              {t("form.shippingHeading")}
+            </h2>
+          </div>
 
           <div className="space-y-2">
             <Label htmlFor="checkout-line1">{t("form.line1")}</Label>
@@ -216,7 +232,7 @@ export function CheckoutForm({
       </Card>
 
       {/* Payment method */}
-      <Card>
+      <Card className="rounded-2xl ring-1 ring-border/60">
         <CardContent className="p-6">
           <PaymentMethodField
             methods={paymentMethods}

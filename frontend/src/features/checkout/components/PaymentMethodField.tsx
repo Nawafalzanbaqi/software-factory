@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { CreditCard } from "lucide-react";
 import type { UseFormRegisterReturn } from "react-hook-form";
 import { RadioGroup, RadioGroupItem } from "./RadioGroup";
 
@@ -26,8 +27,15 @@ export function PaymentMethodField({
 
   return (
     <fieldset className="space-y-3">
-      <legend id="checkout-payment-label" className="text-lg font-semibold font-display">
-        {t("form.paymentHeading")}
+      {/* legend itself stays display-default (WebKit ignores flex on legend —
+          flexbugs #9); the inner span carries the flex layout. */}
+      <legend id="checkout-payment-label" className="font-display text-lg font-semibold">
+        <span className="flex items-center gap-3">
+          <span aria-hidden="true" className="icon-chip size-8">
+            <CreditCard className="size-4" />
+          </span>
+          {t("form.paymentHeading")}
+        </span>
       </legend>
       <RadioGroup
         aria-labelledby="checkout-payment-label"

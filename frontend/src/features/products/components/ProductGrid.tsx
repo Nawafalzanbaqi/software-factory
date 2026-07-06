@@ -1,4 +1,6 @@
 import { getTranslations } from "next-intl/server";
+import { PackageSearch } from "lucide-react";
+import { EmptyState } from "@/components/ui/empty-state";
 import type { ProductDto } from "@/lib/api/types";
 import { ProductCard } from "./ProductCard";
 
@@ -8,9 +10,7 @@ export async function ProductGrid({ products }: { products: ProductDto[] }) {
 
   if (products.length === 0) {
     return (
-      <p className="rounded-lg border border-dashed py-16 text-center text-muted-foreground">
-        {t("empty")}
-      </p>
+      <EmptyState icon={<PackageSearch className="size-6" />} message={t("empty")} />
     );
   }
 

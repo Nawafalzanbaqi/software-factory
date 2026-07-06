@@ -6,5 +6,6 @@ export { ProductDetail } from "./components/ProductDetail";
 export { ProductFilters } from "./components/ProductFilters";
 export { ProductPurchasePanel } from "./components/ProductPurchasePanel";
 export { ProductListingSkeleton } from "./components/ProductListingSkeleton";
+export { RelatedProducts } from "./components/RelatedProducts";
 export { localizeProduct, SORT_OPTIONS } from "./types";
 export type { ProductDto, SortOption } from "./types";
