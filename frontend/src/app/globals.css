@@ -141,4 +141,10 @@
   .kicker {
     @apply h-1 w-10 rounded-full bg-accent;
   }
+  /* Gold-tinted icon circle — the design system's icon treatment (trust strip,
+     empty states, section headings, brand mark). Pair with a size-* utility;
+     utilities override the radius where needed (e.g. rounded-lg brand mark). */
+  .icon-chip {
+    @apply flex shrink-0 items-center justify-center rounded-full bg-accent/15 text-accent-strong;
+  }
 }

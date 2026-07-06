@@ -95,7 +95,7 @@ export async function HeroSection() {
             <ul className="mt-10 grid animate-fade-in gap-3 border-t pt-6 text-sm text-muted-foreground [animation-delay:225ms] sm:grid-cols-3">
               {trustItems.map(({ Icon, label }) => (
                 <li key={label} className="flex items-center gap-2.5">
-                  <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-accent/15 text-accent-strong">
+                  <span className="icon-chip size-9">
                     <Icon className="size-4" aria-hidden="true" />
                   </span>
                   {label}

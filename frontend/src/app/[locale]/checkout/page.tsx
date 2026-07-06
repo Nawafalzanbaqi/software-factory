@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import type { Locale } from "@/lib/i18n/routing";
 import { buildMetadata } from "@/lib/seo/metadata";
+import { PageHeader } from "@/components/ui/page-header";
 import { getSiteConfig, getSiteType } from "@/lib/config/options";
 import { CheckoutView, resolvePaymentMethods } from "@/features/checkout";
 import { RestaurantCheckout } from "@/features/restaurant-checkout";
@@ -42,7 +43,9 @@ export default async function CheckoutPage({
     const paymentMethod = payments[0] ?? "cod";
     return (
       <div className="container section-y">
-        <h1 className="mb-8 font-display text-2xl font-semibold">{t("title")}</h1>
+        {/* Same header treatment as the shared /cart page so the restaurant
+            cart → checkout funnel doesn't switch design language mid-flow. */}
+        <PageHeader title={t("title")} subtitle={t("subtitle")} className="mb-8" />
         <RestaurantCheckout paymentMethod={paymentMethod} />
       </div>
     );
@@ -55,7 +58,7 @@ export default async function CheckoutPage({
 
   return (
     <div className="container section-y">
-      <h1 className="mb-8 font-display text-2xl font-semibold">{t("title")}</h1>
+      <PageHeader title={t("title")} subtitle={t("subtitle")} className="mb-8" />
       <CheckoutView paymentMethods={paymentMethods} />
     </div>
   );
