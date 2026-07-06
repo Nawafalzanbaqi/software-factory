@@ -24,7 +24,7 @@ export async function ProductCard({ product }: { product: ProductDto }) {
   const wishlistEnabled = await isFeatureEnabled("wishlist");
 
   return (
-    <Card className="group relative overflow-hidden transition-shadow hover:shadow-premium">
+    <Card className="group relative overflow-hidden transition-shadow hover:shadow-premium hover:ring-1 hover:ring-accent-strong/25">
       {wishlistEnabled && (
         <WishlistButton
           productId={product.id}

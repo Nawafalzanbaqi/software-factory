@@ -3,6 +3,7 @@
     "title": "Categories",
     "subtitle": "Browse our collections by category.",
     "sectionTitle": "Shop by category",
+    "all": "All",
     "viewAll": "View all categories",
     "browseAria": "Browse {name}",
     "productCount": "{count, plural, =0 {No products} one {# product} other {# products}}",

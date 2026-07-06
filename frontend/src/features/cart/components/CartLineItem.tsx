@@ -18,8 +18,11 @@ export function CartLineItem({ line }: { line: CartLine }) {
   const name = locale === "ar" ? line.nameAr : line.nameEn;
 
   return (
-    <li className="flex gap-4 py-4">
-      <div className="relative size-20 shrink-0 overflow-hidden rounded-md border bg-muted">
+    // NOTE: the line name/image deliberately do NOT link to a product page —
+    // the cart is shared across verticals and a restaurant cart line's slug
+    // belongs under /menu, not /products.
+    <li className="flex gap-4 py-5">
+      <div className="relative size-20 shrink-0 overflow-hidden rounded-lg border bg-muted">
         <Image
           src={line.imageUrl}
           alt={name}

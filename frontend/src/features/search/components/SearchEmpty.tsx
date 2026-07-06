@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { Search, SearchX } from "lucide-react";
 import { Link } from "@/lib/i18n/navigation";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
 
 /**
  * Server Component empty state for the search page.
@@ -20,14 +21,14 @@ export async function SearchEmpty({
   const Icon = isPrompt ? Search : SearchX;
 
   return (
-    <div className="flex flex-col items-center justify-center gap-4 rounded-lg border border-dashed py-16 text-center">
-      <Icon className="size-10 text-muted-foreground" aria-hidden="true" />
-      <p className="text-muted-foreground">
-        {isPrompt ? t("prompt") : t("noResults", { query: query ?? "" })}
-      </p>
-      <Button asChild variant="outline">
-        <Link href="/products">{t("browseAll")}</Link>
-      </Button>
-    </div>
+    <EmptyState
+      icon={<Icon className="size-6" />}
+      message={isPrompt ? t("prompt") : t("noResults", { query: query ?? "" })}
+      action={
+        <Button asChild variant="outline">
+          <Link href="/products">{t("browseAll")}</Link>
+        </Button>
+      }
+    />
   );
 }

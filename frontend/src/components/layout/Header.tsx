@@ -29,8 +29,10 @@ export async function Header() {
       <div className="container flex h-16 items-center gap-4">
         <MobileNav primary={primary} utility={utility} />
 
-        <Link href="/" className="flex items-center gap-2 font-display text-lg font-semibold">
-          <ShoppingBag className="size-5 text-accent" aria-hidden="true" />
+        <Link href="/" className="flex items-center gap-2.5 font-display text-lg font-semibold">
+          <span aria-hidden="true" className="icon-chip size-8 rounded-lg">
+            <ShoppingBag className="size-5" />
+          </span>
           <span>{tc("brand")}</span>
         </Link>
 
@@ -42,7 +44,7 @@ export async function Header() {
             <Link
               key={item.href}
               href={item.href}
-              className="rounded-md px-3 py-2 text-sm font-medium text-foreground/80 transition-colors hover:bg-accent hover:text-accent-foreground"
+              className="rounded-md px-3 py-2 text-sm font-medium text-foreground/80 transition-colors hover:bg-secondary/70 hover:text-foreground"
             >
               {t(item.labelKey)}
             </Link>

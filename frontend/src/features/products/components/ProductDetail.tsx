@@ -1,10 +1,12 @@
 import Image from "next/image";
 import { getLocale, getTranslations } from "next-intl/server";
-import { Star } from "lucide-react";
+import { ArrowLeft, ShieldCheck, Star } from "lucide-react";
 import { Link } from "@/lib/i18n/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { formatPrice } from "@/lib/utils";
+import { getSiteConfig } from "@/lib/config/options";
+import { resolvePaymentMethods } from "@/lib/config/payments";
 import type { Locale } from "@/lib/i18n/routing";
 import type { ProductDto } from "@/lib/api/types";
 import { localizeProduct } from "../types";
@@ -13,20 +15,28 @@ import { ProductPurchasePanel } from "./ProductPurchasePanel";
 /**
  * Server Component product detail. Static content (images, copy, price) renders on
  * the server; the quantity + add-to-cart controls are an interactive client leaf
- * (ProductPurchasePanel).
+ * (ProductPurchasePanel). Payment-method chips are config-driven (options.json
+ * `payments`) and reuse the checkout method labels — no copy is hardcoded.
  */
 export async function ProductDetail({ product }: { product: ProductDto }) {
   const locale = (await getLocale()) as Locale;
-  const t = await getTranslations("products");
+  const [t, tCheckout, site] = await Promise.all([
+    getTranslations("products"),
+    getTranslations("checkout"),
+    getSiteConfig(),
+  ]);
   const { name, description } = localizeProduct(product, locale);
   const onSale =
     product.compareAtPrice != null && product.compareAtPrice > product.price;
   const hero = product.images[0] ?? "/placeholder.svg";
+  // Same resolver checkout uses (whitelist + dedupe + COD fallback) so the
+  // detail page never advertises a different payment set than checkout accepts.
+  const paymentMethods = resolvePaymentMethods(site.payments);
 
   return (
-    <article className="grid gap-8 lg:grid-cols-2">
+    <article className="grid gap-8 lg:grid-cols-2 lg:gap-12">
       <div className="space-y-4">
-        <div className="relative aspect-square overflow-hidden rounded-lg border bg-muted">
+        <div className="relative aspect-square overflow-hidden rounded-2xl border bg-muted shadow-premium ring-1 ring-border/60">
           <Image
             src={hero}
             alt={name}
@@ -41,7 +51,7 @@ export async function ProductDetail({ product }: { product: ProductDto }) {
             {product.images.slice(0, 4).map((src, i) => (
               <li
                 key={src}
-                className="relative aspect-square overflow-hidden rounded-md border bg-muted"
+                className="relative aspect-square overflow-hidden rounded-lg border bg-muted"
               >
                 <Image
                   src={src}
@@ -57,14 +67,17 @@ export async function ProductDetail({ product }: { product: ProductDto }) {
       </div>
 
       <div className="space-y-6">
-        <div className="space-y-2">
+        <div className="space-y-3">
           <Link
             href="/products"
-            className="text-sm text-muted-foreground hover:text-foreground"
+            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
           >
-            ← {t("backToProducts")}
+            <ArrowLeft className="size-4 rtl:rotate-180" aria-hidden="true" />
+            {t("backToProducts")}
           </Link>
-          <h1 className="font-display text-3xl font-semibold">{name}</h1>
+          <h1 className="text-balance font-display text-3xl font-semibold sm:text-4xl">
+            {name}
+          </h1>
           <div className="flex items-center gap-3">
             {product.rating != null && (
               <span className="inline-flex items-center gap-1 text-sm">
@@ -80,28 +93,51 @@ export async function ProductDetail({ product }: { product: ProductDto }) {
         </div>
 
         <div className="flex items-baseline gap-3">
-          <span className="text-2xl font-semibold tabular-nums">
+          <span className="text-3xl font-semibold tabular-nums">
             {formatPrice(product.price, product.currency, locale)}
           </span>
           {onSale && (
-            <span className="text-muted-foreground line-through tabular-nums">
+            <span className="text-lg text-muted-foreground line-through tabular-nums">
               {formatPrice(product.compareAtPrice!, product.currency, locale)}
             </span>
           )}
         </div>
 
-        <ProductPurchasePanel
-          product={{
-            id: product.id,
-            slug: product.slug,
-            nameEn: product.nameEn,
-            nameAr: product.nameAr,
-            price: product.price,
-            currency: product.currency,
-            imageUrl: hero,
-          }}
-          inStock={product.inStock}
-        />
+        {/* Purchase area on a warm panel — the page's single conversion focus. */}
+        <div className="rounded-2xl border bg-secondary/40 p-4 sm:p-5">
+          <ProductPurchasePanel
+            product={{
+              id: product.id,
+              slug: product.slug,
+              nameEn: product.nameEn,
+              nameAr: product.nameAr,
+              price: product.price,
+              currency: product.currency,
+              imageUrl: hero,
+            }}
+            inStock={product.inStock}
+          />
+          {/* Always non-empty: the resolver appends the COD fallback, matching
+              exactly what checkout will offer. */}
+          <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-border/60 pt-4">
+            <ShieldCheck
+              className="size-4 shrink-0 text-accent-strong"
+              aria-hidden="true"
+            />
+            <ul
+              aria-label={tCheckout("form.paymentHeading")}
+              className="flex flex-wrap items-center gap-2"
+            >
+              {paymentMethods.map((method) => (
+                <li key={method}>
+                  <Badge variant="secondary">
+                    {tCheckout(`payment.methods.${method}.label`)}
+                  </Badge>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
 
         {/* TODO (backlog): payment provider widgets (tamara/tabi installment estimates). */}
 

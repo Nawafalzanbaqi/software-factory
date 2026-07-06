@@ -6,7 +6,12 @@ import { routing } from "@/lib/i18n/routing";
 import { buildMetadata } from "@/lib/seo/metadata";
 import { buildProductJsonLd } from "@/lib/seo/jsonld";
 import { JsonLd } from "@/lib/seo/json-ld";
-import { productsApi, ProductDetail, localizeProduct } from "@/features/products";
+import {
+  productsApi,
+  ProductDetail,
+  RelatedProducts,
+  localizeProduct,
+} from "@/features/products";
 import { ProductReviews } from "@/features/reviews";
 import { getSiteType, isFeatureEnabled } from "@/lib/config/options";
 import type { ProductDto } from "@/lib/api/types";
@@ -79,6 +84,7 @@ export default async function ProductDetailPage({
       <JsonLd data={buildProductJsonLd(product, locale)} />
       <ProductDetail product={product} />
       {reviewsEnabled && <ProductReviews productId={product.id} />}
+      <RelatedProducts excludeId={product.id} />
     </div>
   );
 }

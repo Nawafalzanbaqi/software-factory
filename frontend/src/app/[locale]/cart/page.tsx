@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { setRequestLocale, getTranslations } from "next-intl/server";
 import type { Locale } from "@/lib/i18n/routing";
 import { buildMetadata } from "@/lib/seo/metadata";
+import { PageHeader } from "@/components/ui/page-header";
+import { getSiteType } from "@/lib/config/options";
 import { CartView } from "@/features/cart";
 
 export async function generateMetadata({
@@ -29,11 +31,13 @@ export default async function CartPage({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations("cart");
+  // Empty-state CTA targets the active vertical's catalog (config-driven).
+  const continueHref = (await getSiteType()) === "restaurant" ? "/menu" : "/products";
 
   return (
     <div className="container section-y">
-      <h1 className="mb-8 font-display text-2xl font-semibold">{t("title")}</h1>
-      <CartView />
+      <PageHeader title={t("title")} className="mb-8" />
+      <CartView continueHref={continueHref} />
     </div>
   );
 }
