@@ -87,7 +87,7 @@
     "next": {
       "postcss": "8.5.16"
     },
-    "dompurify": "^3.4.11",
+    "dompurify": "^3.4.13",
     "@esbuild-kit/core-utils": {
       "esbuild": "^0.25.0"
     }
