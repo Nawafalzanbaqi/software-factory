@@ -62,3 +62,6 @@ backend/**/openapi.json
 .claude/skills/slides/
 .claude/skills/ui-styling/
 .claude/skills/ui-ux-pro-max/
+
+# Business docs — never publish
+software-factory-blueprint.pdf
